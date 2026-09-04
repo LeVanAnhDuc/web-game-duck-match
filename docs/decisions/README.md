@@ -8,7 +8,11 @@
 <!-- BEGIN:auto — bảng dưới do .claude/scripts/docs-regen.sh sinh từ các file ADR. Đừng sửa tay. -->
 | ID | Tiêu đề | Ngày | Trạng thái |
 | --- | --- | --- | --- |
-| — | _chưa có ADR nào_ | — | — |
+| [ADR-0001](0001-progress-repository-async-tu-dau.md) | `ProgressRepository` trả `Promise` ngay từ đầu, dù adapter đầu tiên là localStorage | 2026-09-04 | accepted |
+| [ADR-0002](0002-engine-thuan-phat-su-kien-renderer-dom.md) | Engine thuần phát ra danh sách sự kiện; renderer là React DOM + CSS | 2026-09-04 | accepted |
+| [ADR-0003](0003-rng-co-seed-la-nguon-ngau-nhien-duy-nhat.md) | PRNG mulberry32 có seed là nguồn ngẫu nhiên duy nhất | 2026-09-04 | accepted |
+| [ADR-0004](0004-nextjs-static-export-yarn-theo-tien-le-web-game.md) | Next.js static export + Yarn classic, theo tiền lệ thư mục `web-game/` | 2026-09-04 | accepted |
+| [ADR-0005](0005-chia-nam-giai-doan-thay-vi-mot-spec.md) | Chia sản phẩm thành năm giai đoạn, mỗi giai đoạn một spec riêng | 2026-09-04 | accepted |
 <!-- END:auto -->
 
 Trạng thái: `accepted` · `superseded by ADR-00xx` · `deprecated`
