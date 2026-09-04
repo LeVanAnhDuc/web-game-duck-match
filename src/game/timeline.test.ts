@@ -7,7 +7,12 @@ const pos = (row: number, col: number) => ({ row, col })
 const events: GameEvent[] = [
   { t: 'swapped', from: pos(0, 0), to: pos(0, 1) },
   { t: 'matched', cells: [pos(0, 0)], cascade: 1, points: 60 },
-  { t: 'specialSpawned', at: pos(0, 0), special: 'stripedH' },
+  {
+    t: 'specialSpawned',
+    at: pos(0, 0),
+    special: 'stripedH',
+    piece: { id: 1, color: 'red', special: 'stripedH' },
+  },
   { t: 'goalProgressed', index: 0, progress: { kind: 'score', current: 60, target: 100, done: false } },
   { t: 'fell', moves: [] },
   { t: 'refilled', cells: [] },
@@ -61,7 +66,12 @@ describe('buildTimeline', () => {
   it('does not fold a spawn onto a step that is not a match', () => {
     const odd: GameEvent[] = [
       { t: 'reshuffled' },
-      { t: 'specialSpawned', at: pos(1, 1), special: 'wrapped' },
+      {
+        t: 'specialSpawned',
+        at: pos(1, 1),
+        special: 'wrapped',
+        piece: { id: 2, color: 'blue', special: 'wrapped' },
+      },
     ]
     expect(buildTimeline(odd, { reducedMotion: false })).toHaveLength(2)
   })

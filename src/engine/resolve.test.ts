@@ -175,6 +175,30 @@ describe('resolveBoard', () => {
     expect(new Set(ids).size).toBe(ids.length)
   })
 
+  it('carries every point it scores on some event', () => {
+    // The contract game/ depends on: if the score can move without an event
+    // saying so, the animated score cannot agree with the engine's (invariant 2).
+    for (const fixture of [ONE_MATCH, 'RRRR / BGBG / GBGB / BGBG']) {
+      const out = run(fixture)
+      const carried = out.events.reduce((total, event) => {
+        if (event.t === 'matched') return total + event.points
+        if (event.t === 'specialActivated') return total + event.points
+        return total
+      }, 0)
+      expect(carried).toBe(out.score)
+    }
+  })
+
+  it('carries every point when a special fires from a seed', () => {
+    const out = run('R>GBY / GBYR / BYRG / YRGB', [pos(0, 0)])
+    const carried = out.events.reduce((total, event) => {
+      if (event.t === 'matched') return total + event.points
+      if (event.t === 'specialActivated') return total + event.points
+      return total
+    }, 0)
+    expect(carried).toBe(out.score)
+  })
+
   it('is deterministic for one seed', () => {
     const a = run(ONE_MATCH)
     const b = run(ONE_MATCH)

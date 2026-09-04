@@ -84,8 +84,18 @@ export type GameEvent =
   | { t: 'swapped'; from: Pos; to: Pos }
   | { t: 'swapReverted'; from: Pos; to: Pos }
   | { t: 'matched'; cells: Pos[]; cascade: number; points: number }
-  | { t: 'specialSpawned'; at: Pos; special: Special }
-  | { t: 'specialActivated'; at: Pos; special: Special; cleared: Pos[] }
+  /**
+   * Carries the whole piece, not just its kind: `game/` projects each step onto the
+   * board it shows, and it cannot invent an id or a colour without duplicating the
+   * spawn rule it is forbidden to know (invariant 2).
+   */
+  | { t: 'specialSpawned'; at: Pos; special: Special; piece: Piece }
+  /**
+   * `points` is this activation's own share: the cells it was the first to take,
+   * plus its activation bonus. Every point the score moves by is carried by some
+   * event, or `game/` could not show a score that matches the engine's.
+   */
+  | { t: 'specialActivated'; at: Pos; special: Special; cleared: Pos[]; points: number }
   | { t: 'fell'; moves: { from: Pos; to: Pos }[] }
   | { t: 'refilled'; cells: { at: Pos; piece: Piece }[] }
   | { t: 'goalProgressed'; index: number; progress: GoalProgress }

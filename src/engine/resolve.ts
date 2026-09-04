@@ -113,27 +113,37 @@ export function resolveBoard(input: ResolveInput): ResolveOutput {
       .map((pos) => at(grid, pos))
       .filter((cell): cell is Piece => cell !== null)
 
-    // Score: each match pays for its own cells so the UI can float a number next
-    // to it, and everything the specials took is paid for once, together with the
-    // per-activation bonus.
+    // Score is attributed, not just totalled: every point the score moves by has
+    // to ride on some event, or `game/` cannot show a score that agrees with this
+    // one (invariant 2). A match pays for its own cells; each activation pays for
+    // the cells it was the first to take, plus its bonus.
     let roundScore = 0
     for (const match of matches) {
       const points = scoreFor(match.cells.length, cascade, 0)
       roundScore += points
       events.push({ t: 'matched', cells: match.cells, cascade, points })
     }
-    const extraCleared = cleared.filter((pos) => !matchCells.has(key(pos))).length
-    roundScore += scoreFor(extraCleared, cascade, activations.length)
-    score += roundScore
 
+    const clearedKeys = new Set(cleared.map(key))
+    const paid = new Set(matchCells)
     for (const activation of activations) {
+      // The activating piece's own cell counts here: `activationTargets` excludes
+      // it, but it is cleared, and nobody else would pay for it.
+      const own = [activation.at, ...activation.cleared].filter(
+        (pos) => clearedKeys.has(key(pos)) && !paid.has(key(pos)),
+      )
+      for (const pos of own) paid.add(key(pos))
+      const points = scoreFor(own.length, cascade, 1)
+      roundScore += points
       events.push({
         t: 'specialActivated',
         at: activation.at,
         special: activation.special,
         cleared: activation.cleared,
+        points,
       })
     }
+    score += roundScore
 
     grid = setMany(
       grid,
@@ -143,13 +153,13 @@ export function resolveBoard(input: ResolveInput): ResolveOutput {
     // Spawned specials are written after the clear, so a special born on a cell
     // that was just emptied survives instead of being wiped by its own match.
     for (const spawn of spawns) {
-      grid = setMany(grid, [
-        {
-          at: spawn.at,
-          cell: { id: nextPieceId++, color: spawn.color, special: spawn.special },
-        },
-      ])
-      events.push({ t: 'specialSpawned', at: spawn.at, special: spawn.special })
+      const piece: Piece = {
+        id: nextPieceId++,
+        color: spawn.color,
+        special: spawn.special,
+      }
+      grid = setMany(grid, [{ at: spawn.at, cell: piece }])
+      events.push({ t: 'specialSpawned', at: spawn.at, special: spawn.special, piece })
     }
 
     const fallen = collapse(grid)
