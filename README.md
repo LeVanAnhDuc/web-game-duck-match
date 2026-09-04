@@ -1,7 +1,13 @@
 # web-game-match-3
 
+[![CI](https://github.com/LeVanAnhDuc/web-game-match-3/actions/workflows/ci.yml/badge.svg)](https://github.com/LeVanAnhDuc/web-game-match-3/actions/workflows/ci.yml)
+[![Deploy](https://github.com/LeVanAnhDuc/web-game-match-3/actions/workflows/deploy.yml/badge.svg)](https://github.com/LeVanAnhDuc/web-game-match-3/actions/workflows/deploy.yml)
+[![Release](https://img.shields.io/github/v/release/LeVanAnhDuc/web-game-match-3?sort=semver)](https://github.com/LeVanAnhDuc/web-game-match-3/releases)
+
 A level-based match-3 game that runs entirely in the browser. No account, no server,
 no install — open the link and play. Progress lives in `localStorage`.
+
+**Play it: <https://levananhduc.github.io/web-game-match-3/>**
 
 Part of the `web-game/` folder in the `web-app-ecosystem` workspace.
 
@@ -32,8 +38,9 @@ yarn install
 yarn dev          # http://localhost:3000
 ```
 
-There is **no `.env` step**: the project reads no environment variables at all. See
-[`.env.example`](.env.example) for why.
+There is **no `.env` step**: nothing the game needs comes from the environment. The
+two variables in [`.env.example`](.env.example) are set by CI and must not be set by
+hand — `GITHUB_PAGES` in particular would break every asset path locally.
 
 ## Commands
 
@@ -41,21 +48,74 @@ There is **no `.env` step**: the project reads no environment variables at all. 
 | --- | --- |
 | `yarn dev` | dev server on `:3000` |
 | `yarn build` | static export into `out/` |
+| `yarn serve` | serve `out/` on `:4173`, the way Pages will |
 | `yarn test` | unit and component tests (Vitest) |
 | `yarn test:watch` | the same, in watch mode |
-| `yarn test:e2e` | end-to-end flows and responsive screenshots (Playwright) |
+| `yarn test:e2e` | build, then the Playwright flows and responsive screenshots |
+| `yarn test:e2e:only` | the same without rebuilding, for when `out/` is current |
 | `yarn typecheck` | `tsc --noEmit` |
 | `yarn lint` | ESLint via `next lint` |
+| `yarn check:bundle` | first-load JS budget, NFR-PERF-07 |
+| `yarn check:audit` | dependency advisories at high or above, NFR-SEC-05 |
+| `yarn release:next` | print the version the next release would carry, and why |
+| `yarn release:notes v1.2.0` | print the release notes for a tag |
 | `yarn format` | Prettier over the repo |
+
+## Commit convention — releases depend on it
+
+Every push to `main` creates a GitHub Release automatically, and **the version bump
+is read from the commit subject**. This is not a style preference any more; a wrong
+prefix is a wrong version number.
+
+| Subject | Bump |
+| --- | --- |
+| `feat: …` / `feat(engine): …` | minor |
+| `fix:` · `perf:` · `refactor:` · `docs:` · `test:` · `chore:` · `ci:` | patch |
+| `feat!: …`, or `BREAKING CHANGE` in the body | major |
+| anything containing `[skip release]` | no release at all |
+
+`yarn release:next` says what the current `HEAD` would produce and why, so the
+scheme can be checked before pushing rather than after. `yarn release:notes <tag>`
+prints the notes; they are grouped by commit type, because GitHub's own generated
+notes group by pull-request label and this repository does not label its PRs
+(ADR-0006).
+
+## CI, deploy and release
+
+Three workflows, one job each, and none of them trusts the others' results:
+
+| Workflow | Runs on | Gates |
+| --- | --- | --- |
+| [`ci.yml`](.github/workflows/ci.yml) | pull requests | lint · typecheck · unit tests · dependency audit · build · bundle budget · end-to-end |
+| [`deploy.yml`](.github/workflows/deploy.yml) | push to `main` | typecheck · unit tests, then publishes `out/` to Pages |
+| [`release.yml`](.github/workflows/release.yml) | push to `main` | typecheck · unit tests, then tags and writes the release |
+
+`ci.yml` deliberately does **not** run on pushes to `main`: the other two already
+gate that path, and a third run would be the same suite a third time.
+
+Pages has to be switched on **once per repository**, with a token that has admin
+rights — the workflow's own `GITHUB_TOKEN` can deploy to an existing Pages site but
+cannot create one:
+
+```bash
+gh api -X POST repos/LeVanAnhDuc/web-game-match-3/pages -f build_type=workflow
+```
+
+If `configure-pages` ever fails with "Get Pages site failed", that command is the
+fix, not a change to the workflow.
 
 ## How it is put together
 
 `src/engine/` is pure synchronous TypeScript: no React, no DOM, no `Date`, no
 `Math.random`. One player move goes through one pure function that returns the
-settled board plus an ordered list of events. `src/game/` replays those events as an
-animation timeline and locks input while it plays; `src/ui/` only draws. That
+settled board plus an ordered list of events. `src/game/` replays those events onto
+the board being shown and locks input while they play; `src/ui/` only draws. That
 boundary is what makes every game rule testable without rendering anything — and it
 is enforced by a test that greps the engine source, not just by a convention.
+
+`test/engine-ui-agreement.test.ts` is the one that keeps the two halves honest: it
+plays 4320 pseudo-random moves and asserts, after each, that replaying the events
+reproduces the engine's own session exactly.
 
 ## Docs
 

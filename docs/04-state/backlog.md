@@ -24,6 +24,10 @@ FR-01…FR-08 ở trạng thái `xong`, 392 test đơn vị + 15 test luồng Pl
 `yarn build` ra `out/` với cả 6 màn. Kế tiếp là giai đoạn 2 — combo hai quân đặc biệt
 (FR-09, ADR-0005).
 
+CI/CD đã vào cùng nhánh này (ADR-0006): ba workflow + năm script trong `scripts/`,
+deploy tĩnh lên GitHub Pages, release tự sinh từ Conventional Commits. **Còn một
+thao tác tay chưa làm được từ đây:** bật Pages cho repo — xem §Việc tiếp theo.
+
 ## Việc tiếp theo
 
 | Việc | Liên quan | Ưu tiên | Vì sao ưu tiên đó |
@@ -33,7 +37,8 @@ FR-01…FR-08 ở trạng thái `xong`, 392 test đơn vị + 15 test luồng Pl
 | Giai đoạn 3 — ô chặn + mục tiêu phá ô chặn | FR-10 | trung bình | Cũng là phép thử ranh giới module: nếu phải sửa ngoài `goals.ts`/`types.ts` thì thiết kế đã sai (`overview.md` §6.3) |
 | Giai đoạn 4 — vật thể rơi xuống đáy | FR-11 | trung bình | Đắt nhất trong bốn loại mục tiêu, và phụ thuộc luật trọng lực đã ổn định |
 | Giai đoạn 5 — đủ 15-20 màn, âm thanh, cân độ khó | FR-12 · FR-13 | thấp | Chỉ đáng làm khi cả bốn loại mục tiêu đã chạy, nếu không sẽ phải cân lại |
-| Workflow CI + deploy GitHub Pages | NFR-SEC-05 | trung bình | Remote đã có (`LeVanAnhDuc/web-game-match-3`), nhánh `main` và nhánh feature đã push. Thiếu nơi chạy test và thiếu bản deploy để người khác chơi thử |
+| Bật GitHub Pages cho repo (`gh api -X POST repos/LeVanAnhDuc/web-game-match-3/pages -f build_type=workflow`) | ADR-0006 | cao | `deploy.yml` đã có nhưng `GITHUB_TOKEN` của workflow **không tạo được** Pages site, chỉ deploy được lên site đã có. Chưa chạy lệnh này thì lần deploy đầu sẽ đỏ ở `configure-pages` |
+| Chạy `check:audit` thật một lần | NFR-SEC-05 | cao | Script đã có và CI đã gọi, nhưng **chưa lần nào chạy được**: `yarn audit` timeout ở registry từ máy này. Lần CI đầu tiên là lần đầu ngưỡng này được kiểm — và nó có thể đỏ |
 
 ## Nợ kỹ thuật — cố ý làm tạm
 
@@ -42,9 +47,8 @@ FR-01…FR-08 ở trạng thái `xong`, 392 test đơn vị + 15 test luồng Pl
 | `tailwind.config.ts` | Token màu/spacing viết trực tiếp, không qua `MASTER.md` của `design-bootstrap` | Giai đoạn 1 chỉ có hai màn hình; dựng cả hệ design trước khi biết game nhìn ra sao là làm ngược | Trước khi giai đoạn 3 thêm màn hình mới |
 | Không có mockup canvas Artifact cho giai đoạn 1 | Bỏ cổng phê duyệt mockup của `feature-flow` bước 1 | Người dùng uỷ quyền tường minh chạy hết luồng không hỏi lại; không có ai đứng ở cổng đó | Giai đoạn nào có người review UI trước khi build |
 | `ui/Board` ở bàn 9×9 dưới 400px | Ô nhỏ hơn 44px hoặc phải scroll ngang — vi phạm tinh thần NFR-A11Y-03 | 9×9 trên 375px không có cách nào vừa giữ ô 44px vừa thấy cả bàn. Chọn cho bàn tràn ra vùng scroll riêng thay vì co ô | Khi có màn > 9×9, hoặc khi quyết định giới hạn grid theo bề rộng thiết bị |
-| Chưa có CI, và **NFR-SEC-05 chưa từng được kiểm** | `yarn audit` timeout ở endpoint registry hai lần trên máy này (ESOCKETTIMEDOUT), nên chưa ai biết cây phụ thuộc có lỗ hổng mức high hay không | Remote vừa có; workflow chưa viết. Không thể tự kiểm ở đây nên đừng coi ngưỡng này là đã đạt | Ngay khi dựng CI — đó cũng là nơi lệnh audit chạy được |
 | `src/ui/GoalHud.tsx` và `src/ui/Tile.tsx` | Mỗi file tự vẽ bộ hình khối theo màu, hai bản SVG song song | Hai file do hai phiên khác nhau viết cùng lúc; gộp lúc đó sẽ là hai người sửa một file | Khi có màn hình thứ ba cần cùng bộ hình — muộn nhất là giai đoạn 3 |
 | `src/ui/ResultDialog.tsx` | Tự vẽ ba ngôi sao thay vì dùng `StarRow` | Dialog cần **một** nhãn trợ năng cho cả nhóm, `StarRow` trên bản đồ có thể cần khác | Khi `StarRow` có prop chọn cách gán nhãn |
 | `reshuffled` không chiếu được ở `game/project.ts` | Sự kiện không mang bàn mới, nên nhịp xáo bàn không hiện; bàn nhảy khi hàng đợi cạn | Nhồi cả một grid vào một sự kiện chỉ để phục vụ một nhịp animation là cái giá đắt hơn | Khi có animation xáo bàn thật |
-| Chỉ chạy E2E trên Chromium | Không kiểm Safari/Firefox, mà `pointercapture` và `touch-none` là chỗ dễ khác nhau nhất | Máy phát triển chỉ có Chromium cài sẵn; CI chưa tồn tại | Cùng lúc dựng CI |
+| Chỉ chạy E2E trên Chromium | Không kiểm Safari/Firefox, mà `pointercapture` và `touch-none` là chỗ dễ khác nhau nhất | CI cũng chỉ cài Chromium để một lần chạy không kéo dài quá lâu; các game cùng thư mục chạy nhiều viewport nhưng vẫn một engine | Khi có bug cử chỉ chỉ xuất hiện trên máy thật |
 | Cân độ khó 6 màn chỉ dựa trên "người chơi ngu" | Đo bằng chiến lược yếu nhất (luôn lấy nước đi đầu), không có dữ liệu người thật | Không có người chơi thử, và đo được vẫn hơn đoán | FR-12, giai đoạn 5 |

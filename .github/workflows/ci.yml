@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+# Pull requests only. A push to `main` is already gated twice — `deploy.yml` runs
+# typecheck and the unit tests before it publishes, and `release.yml` runs them
+# again before it tags — so letting CI fire there as well is three runs of the same
+# suite for one push.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # Split in two on purpose: they run in parallel, and "lint is unhappy" and "the
+  # game is broken" are different pieces of news that should not queue behind each
+  # other.
+  verify:
+    name: Lint, types, unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - run: yarn install --frozen-lockfile
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Typecheck
+        run: yarn typecheck
+
+      # 395 tests, including the engine purity grep, the p95 benchmark for
+      # NFR-PERF-05, and the 4320-move engine/projection agreement fuzz.
+      - name: Unit and component tests
+        run: yarn test
+
+      # NFR-SEC-05, and the FIRST place it has ever run: the audit endpoint times
+      # out from the machine this project was built on, so until this workflow
+      # existed nobody knew whether the dependency tree had a high advisory.
+      - name: Dependency audit
+        run: yarn audit --json | node scripts/check-audit.mjs
+
+  e2e:
+    name: Build, budget and end-to-end
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - run: yarn install --frozen-lockfile
+
+      - name: Build the static export
+        run: yarn build
+
+      # NFR-PERF-07, measured from the exported HTML rather than from the build
+      # table, so it breaks on a regression and not on a Next.js release. Both
+      # routes are checked: the play screen carries the board and is the heavier
+      # of the two.
+      - name: First-load JS budget
+        run: |
+          node scripts/check-bundle-size.mjs out
+          node scripts/check-bundle-size.mjs out play/1/index.html
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      # `test:e2e:only`, not `test:e2e`: the build above is the one being tested,
+      # and rebuilding it here would only prove a second build also works.
+      - name: End-to-end tests
+        run: yarn test:e2e:only
+
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
