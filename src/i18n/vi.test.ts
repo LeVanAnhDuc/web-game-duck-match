@@ -121,3 +121,27 @@ describe('i18n', () => {
     }
   })
 })
+
+describe('specialName in a cell label', () => {
+  it('names each special distinctly', () => {
+    const names = (['stripedH', 'stripedV', 'wrapped', 'colorBomb'] as const).map((s) =>
+      t.specialName(s),
+    )
+    expect(new Set(names).size).toBe(4)
+    expect(names.every((name) => name.length > 0)).toBe(true)
+  })
+
+  it('gives a plain piece no name of its own', () => {
+    expect(t.specialName('none')).toBe('')
+  })
+
+  it('keeps the plain wording when no special is passed', () => {
+    expect(t.cellLabel(0, 0, 'đỏ')).toBe('Ô hàng 1 cột 1, viên đỏ')
+  })
+
+  it('announces the special instead of a plain viên', () => {
+    expect(t.cellLabel(2, 3, 'tím', t.specialName('wrapped'))).toBe(
+      'Ô hàng 3 cột 4, viên bom tím',
+    )
+  })
+})
