@@ -255,3 +255,33 @@ describe('ResultDialog', () => {
     trigger.remove()
   })
 })
+
+describe('ResultDialog detail', () => {
+  it('shows the detail on a loss, where US-02 needs it', () => {
+    render(
+      <ResultDialog
+        result={{ status: 'lost', stars: 0, score: 800 }}
+        hasNextLevel
+        detail={<p>còn thiếu 4 viên đỏ</p>}
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    expect(screen.getByText('còn thiếu 4 viên đỏ')).toBeTruthy()
+  })
+
+  it('does not show it on a win, where the stars are the summary', () => {
+    render(
+      <ResultDialog
+        result={{ status: 'won', stars: 2, score: 2340 }}
+        hasNextLevel
+        detail={<p>còn thiếu 4 viên đỏ</p>}
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    expect(screen.queryByText('còn thiếu 4 viên đỏ')).toBeNull()
+  })
+})

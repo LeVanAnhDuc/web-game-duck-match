@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useId, useRef } from 'react'
+import type { ReactNode } from 'react'
 import type { Stars } from '@/engine'
 import { formatScore, t } from '@/i18n/vi'
 
@@ -31,6 +32,13 @@ export type LevelResult = {
 export type ResultDialogProps = {
   result: LevelResult
   hasNextLevel: boolean
+  /**
+   * Extra content under the heading, rendered on a loss. US-02 asks the player to
+   * see how much of the goal was still missing, and this component is given no
+   * goal data — so the screen that has it passes the rendering in rather than the
+   * dialog reaching for it.
+   */
+  detail?: ReactNode
   onReplay: () => void
   onNext: () => void
   onBackToMap: () => void
@@ -39,6 +47,7 @@ export type ResultDialogProps = {
 export function ResultDialog({
   result,
   hasNextLevel,
+  detail,
   onReplay,
   onNext,
   onBackToMap,
@@ -144,6 +153,8 @@ export function ResultDialog({
               </p>
             </div>
           )}
+
+          {!isWon && detail ? <div className="mt-4">{detail}</div> : null}
         </div>
 
         {/* DOM order is action priority, and the mount effect focuses the first one. */}
