@@ -1,0 +1,257 @@
+import { describe, expect, it, vi } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { ResultDialog } from './ResultDialog'
+import { formatScore, t } from '@/i18n/vi'
+
+const won = { status: 'won' as const, stars: 2 as const, score: 2340 }
+const lost = { status: 'lost' as const, stars: 0 as const, score: 800 }
+
+describe('ResultDialog', () => {
+  it('offers the next level after a win', () => {
+    render(
+      <ResultDialog
+        result={won}
+        hasNextLevel
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    expect(screen.getByRole('button', { name: t.nextLevel })).toBeTruthy()
+  })
+
+  it('hides the next level button on the last level', () => {
+    render(
+      <ResultDialog
+        result={won}
+        hasNextLevel={false}
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    expect(screen.queryByRole('button', { name: t.nextLevel })).toBeNull()
+  })
+
+  it('offers replay and back after a loss, and no next level', () => {
+    render(
+      <ResultDialog
+        result={lost}
+        hasNextLevel
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    expect(screen.getByRole('button', { name: t.replay })).toBeTruthy()
+    expect(screen.getByRole('button', { name: t.backToMap })).toBeTruthy()
+    expect(screen.queryByRole('button', { name: t.nextLevel })).toBeNull()
+  })
+
+  it('moves focus into the dialog on open', () => {
+    render(
+      <ResultDialog
+        result={won}
+        hasNextLevel
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    const dialog = screen.getByRole('dialog')
+    expect(dialog.contains(document.activeElement)).toBe(true)
+  })
+
+  it('escape goes back to the map', async () => {
+    const onBackToMap = vi.fn()
+    render(
+      <ResultDialog
+        result={lost}
+        hasNextLevel
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={onBackToMap}
+      />,
+    )
+    await userEvent.keyboard('{Escape}')
+    expect(onBackToMap).toHaveBeenCalled()
+  })
+
+  it('keeps tab inside the dialog', async () => {
+    render(
+      <ResultDialog
+        result={won}
+        hasNextLevel
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    const user = userEvent.setup()
+    const dialog = screen.getByRole('dialog')
+    for (let i = 0; i < 6; i++) await user.tab()
+    expect(dialog.contains(document.activeElement)).toBe(true)
+  })
+
+  it('keeps shift+tab inside the dialog', async () => {
+    render(
+      <ResultDialog
+        result={won}
+        hasNextLevel
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    const user = userEvent.setup()
+    const dialog = screen.getByRole('dialog')
+    for (let i = 0; i < 5; i++) await user.tab({ shift: true })
+    expect(dialog.contains(document.activeElement)).toBe(true)
+  })
+
+  it('wraps backwards from the first focusable to the last', async () => {
+    render(
+      <ResultDialog
+        result={won}
+        hasNextLevel
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    const user = userEvent.setup()
+    // Mount focuses the first action, so one Shift+Tab must land on the last one.
+    await user.tab({ shift: true })
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: t.backToMap }))
+  })
+
+  it('names the dialog after the outcome', () => {
+    render(
+      <ResultDialog
+        result={won}
+        hasNextLevel
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    expect(screen.getByRole('dialog', { name: t.won })).toBeTruthy()
+  })
+
+  it('names the dialog after a loss', () => {
+    render(
+      <ResultDialog
+        result={lost}
+        hasNextLevel
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    expect(screen.getByRole('dialog', { name: t.lost })).toBeTruthy()
+    // Attribute, not the `ariaModal` IDL property — happy-dom does not reflect it.
+    expect(screen.getByRole('dialog').getAttribute('aria-modal')).toBe('true')
+  })
+
+  it('announces the outcome in a live region', () => {
+    render(
+      <ResultDialog
+        result={won}
+        hasNextLevel
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    const live = screen.getByRole('status')
+    expect(live.textContent).toContain(t.won)
+    expect(live.getAttribute('aria-live')).toBe('polite')
+  })
+
+  it('shows the stars and the formatted score after a win', () => {
+    render(
+      <ResultDialog
+        result={won}
+        hasNextLevel
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    expect(screen.getByLabelText(t.starsEarned(2, 3))).toBeTruthy()
+    expect(screen.getByText(formatScore(won.score))).toBeTruthy()
+  })
+
+  it('shows zero stars after a loss and no score line', () => {
+    render(
+      <ResultDialog
+        result={lost}
+        hasNextLevel
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    expect(screen.queryByLabelText(t.starsEarned(0, 3))).toBeNull()
+    expect(screen.queryByText(formatScore(lost.score))).toBeNull()
+  })
+
+  it('describes the dialog with the win summary', () => {
+    render(
+      <ResultDialog
+        result={won}
+        hasNextLevel
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    const dialog = screen.getByRole('dialog')
+    const describedBy = dialog.getAttribute('aria-describedby')
+    expect(describedBy).toBeTruthy()
+    const summary = document.getElementById(describedBy as string)
+    expect(summary?.textContent).toContain(formatScore(won.score))
+  })
+
+  it('calls the handler behind each button', async () => {
+    const onReplay = vi.fn()
+    const onNext = vi.fn()
+    const onBackToMap = vi.fn()
+    render(
+      <ResultDialog
+        result={won}
+        hasNextLevel
+        onReplay={onReplay}
+        onNext={onNext}
+        onBackToMap={onBackToMap}
+      />,
+    )
+    const user = userEvent.setup()
+    await user.click(screen.getByRole('button', { name: t.nextLevel }))
+    await user.click(screen.getByRole('button', { name: t.replay }))
+    await user.click(screen.getByRole('button', { name: t.backToMap }))
+    expect(onNext).toHaveBeenCalledTimes(1)
+    expect(onReplay).toHaveBeenCalledTimes(1)
+    expect(onBackToMap).toHaveBeenCalledTimes(1)
+  })
+
+  it('restores focus to the previously focused element on unmount', () => {
+    const trigger = document.createElement('button')
+    document.body.appendChild(trigger)
+    trigger.focus()
+    const { unmount } = render(
+      <ResultDialog
+        result={won}
+        hasNextLevel
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    expect(document.activeElement).not.toBe(trigger)
+    unmount()
+    expect(document.activeElement).toBe(trigger)
+    trigger.remove()
+  })
+})
