@@ -72,7 +72,10 @@ function PlayScreenBody({ levelId, level, repository, onBackToMap, onNext }: Bod
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-3 p-4">
-      <div className="flex items-center justify-between gap-2">
+      {/* design.md §6 keeps the back link and the level name together on the left at
+          every width; splitting them across the page pushes the name into the
+          corner and reads as two unrelated things. */}
+      <div className="flex items-center gap-3">
         <Link
           href="/"
           className="min-h-[44px] rounded-lg px-2 py-2 text-ink-muted underline focus:outline-none focus-visible:ring-2 focus-visible:ring-ink-strong"
@@ -82,25 +85,34 @@ function PlayScreenBody({ levelId, level, repository, onBackToMap, onNext }: Bod
         <h1 className="text-lg font-semibold text-ink-strong">{t.levelLabel(levelId)}</h1>
       </div>
 
-      {/* Mobile-first: HUD above the board, and beside it from `lg` up, which is the
-          layout switch drawn in design.md §6. */}
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:gap-6">
-        <div className="flex flex-col gap-3 lg:w-56 lg:shrink-0">
+      {/*
+        One DOM order, two layouts. design.md §6 puts the counters and the goal
+        above the board on 375 and the replay button below it, then moves all three
+        into a left column from `lg` up. A grid with explicit placement gets both
+        without duplicating the button — a second copy would give the e2e replay
+        testid two matches, and a screen reader two buttons that do one thing.
+      */}
+      <div className="grid gap-3 lg:grid-cols-[14rem_1fr] lg:grid-rows-[auto_auto_1fr] lg:gap-6">
+        <div className="lg:col-start-1 lg:row-start-1">
           <MoveCounter movesLeft={session.movesLeft} score={session.score} />
-          <GoalHud progress={session.progress} />
-          <button
-            type="button"
-            data-testid="replay"
-            onClick={restart}
-            className="min-h-[44px] rounded-xl bg-surface-raised px-4 font-semibold text-ink-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-ink-strong"
-          >
-            {t.replay}
-          </button>
         </div>
 
-        <div className="flex justify-center lg:flex-1">
+        <div className="lg:col-start-1 lg:row-start-2">
+          <GoalHud progress={session.progress} />
+        </div>
+
+        <div className="flex justify-center lg:col-start-2 lg:row-span-3 lg:row-start-1">
           <Board session={session} busy={busy} onSwap={trySwap} />
         </div>
+
+        <button
+          type="button"
+          data-testid="replay"
+          onClick={restart}
+          className="min-h-[44px] rounded-xl bg-surface-raised px-4 font-semibold text-ink-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-ink-strong lg:col-start-1 lg:row-start-3 lg:self-start"
+        >
+          {t.replay}
+        </button>
       </div>
 
       {lastResult ? (

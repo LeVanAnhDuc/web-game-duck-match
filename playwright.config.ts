@@ -17,7 +17,10 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
   webServer: {
-    command: 'yarn build && npx serve out -l 3100 -s',
+    // No `-s`: that is `serve`'s SPA rewrite, which answers /play/1/ with
+    // index.html — the map, not the board. The export writes real files
+    // (out/play/1/index.html) because of next.config trailingSlash.
+    command: 'yarn build && npx serve out -l 3100',
     url: 'http://localhost:3100',
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,

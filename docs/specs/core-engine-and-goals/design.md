@@ -124,15 +124,23 @@ type Progress = {                     // thứ ProgressRepository lưu
 }
 ```
 
-`GameEvent` là union đóng, và **thứ tự trong mảng là thứ tự thời gian**:
+`GameEvent` là union đóng, và **thứ tự trong mảng là thứ tự thời gian**.
+
+Hai trường được thêm khi hiện thực, vì thiếu chúng thì tầng UI **không thể** phát lại
+đúng: `specialSpawned` mang cả `piece` (UI không được tự nghĩ ra `id` và màu — làm
+vậy là nó phải biết luật sinh), và `specialActivated` mang `points` là phần điểm
+riêng của lần kích hoạt đó. Bất biến kèm theo: **mọi điểm mà `score` nhảy lên đều
+phải nằm trên một sự kiện nào đó**, nếu không điểm hiển thị không thể khớp điểm
+engine. Có test ở cả hai phía canh chỗ này.
+
 
 ```ts
 type GameEvent =
   | { t: 'swapped';   from: Pos; to: Pos }
   | { t: 'swapReverted'; from: Pos; to: Pos }          // swap không tạo match
   | { t: 'matched';   cells: Pos[]; cascade: number; points: number }
-  | { t: 'specialSpawned';  at: Pos; special: Special }
-  | { t: 'specialActivated'; at: Pos; special: Special; cleared: Pos[] }
+  | { t: 'specialSpawned';  at: Pos; special: Special; piece: Piece }
+  | { t: 'specialActivated'; at: Pos; special: Special; cleared: Pos[]; points: number }
   | { t: 'fell';      moves: { from: Pos; to: Pos }[] }
   | { t: 'refilled';  cells: { at: Pos; piece: Piece }[] }
   | { t: 'goalProgressed'; index: number; progress: GoalProgress }
@@ -202,14 +210,34 @@ luật bàn ban đầu.
 
 ## 5. Sáu màn của giai đoạn 1
 
-| # | Grid | Màu | Lượt | Mục tiêu | Dạy điều gì |
-| --- | --- | --- | --- | --- | --- |
-| 1 | 7×7 | 5 | 20 | `score` 1 500 | luật swap và cascade |
-| 2 | 7×7 | 5 | 18 | `score` 3 000 | cascade dài đáng giá hơn nhiều match lẻ |
-| 3 | 7×7 | 5 | 20 | `collect` 15 đỏ | nhắm màu, không chỉ nhắm điểm |
-| 4 | 8×8 | 5 | 22 | `collect` 12 xanh + 12 vàng, `score` 2 000 | hai mục tiêu cùng lúc |
-| 5 | 8×8 | 6 | 18 | `score` 5 000 | thêm màu ⇒ match khó hơn, cần quân đặc biệt |
-| 6 | 9×9 | 6 | 16 | `collect` 20 tím, `score` 4 000 | buộc dùng sọc/bom mới đủ lượt |
+| # | Grid | Màu | Lượt | Mục tiêu | Mốc sao | Dạy điều gì |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 7×7 | 5 | 15 | `score` 2 000 | 2 000 / 4 000 / 7 000 | luật swap và cascade |
+| 2 | 7×7 | 5 | 15 | `score` 4 000 | 4 000 / 6 000 / 9 000 | cascade dài đáng giá hơn nhiều match lẻ |
+| 3 | 7×7 | 5 | 18 | `collect` 12 đỏ | 4 000 / 7 000 / 11 000 | nhắm màu, không chỉ nhắm điểm |
+| 4 | 8×8 | 5 | 20 | `collect` 12 xanh + 12 vàng, `score` 4 000 | 4 000 / 6 500 / 9 000 | hai mục tiêu cùng lúc |
+| 5 | 8×8 | 6 | 16 | `score` 6 000 | 6 000 / 8 000 / 11 000 | thêm màu ⇒ match khó hơn, cần quân đặc biệt |
+| 6 | 9×9 | 6 | 18 | `collect` 12 tím, `score` 4 000 | 5 000 / 7 000 / 10 000 | buộc dùng sọc/bom mới đủ lượt |
+
+**Những con số này là số ĐO ĐƯỢC, không phải số ước lượng.** Bản đầu của bảng này
+là phỏng đoán lúc viết design; sau khi engine chạy, một "người chơi ngu" — luôn lấy
+nước đi hợp lệ đầu tiên, chiến lược yếu nhất có thể — được cho chạy qua ba seed cố
+định mỗi màn. Phỏng đoán lệch rất xa: **màn 1 thắng trong 5 trên 20 lượt với điểm
+gấp sáu lần mục tiêu**, nên ngân sách lượt không bó ai và ba sao không tốn gì. Bảng
+trên là bản đã cân lại: mục tiêu nằm trong tầm của người chơi ngu, sao cao nhất nằm
+ngoài. Kết quả đo sau khi cân:
+
+| # | Người chơi ngu | Điểm |
+| --- | --- | --- |
+| 1 | thắng 3/3, dùng 5-10 lượt | 2 160 – 9 180 (1 đến 3 sao) |
+| 2 | thắng 3/3, dùng 9-10 lượt | 4 140 – 4 500 (1 sao) |
+| 3 | thắng 3/3, dùng 15-18 lượt | 5 040 – 7 800 |
+| 4 | thắng 3/3, dùng 13-19 lượt | 5 040 – 8 160 |
+| 5 | thắng 2/3 | 5 580 – 7 020 |
+| 6 | thắng 2/3 | 4 140 – 6 480 |
+
+Cân độ khó đầy đủ là FR-12 (giai đoạn 5); đây chỉ là mức đủ để sáu màn dạy được thứ
+chúng tồn tại để dạy.
 
 Test validate mọi level: `stars` tăng dần, `moves > 0`, `colors.length >= 4`, mục
 tiêu `collect` chỉ dùng màu có trong `colors`, và bàn ban đầu sinh được trong 50 lần
