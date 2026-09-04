@@ -180,13 +180,17 @@ Trong một vòng giải có nhiều match, mỗi match sinh tối đa một qu�
 
 **Khoảng trống luật đã biết, cố ý để lại cho giai đoạn 2.** Bảng trên định nghĩa bom
 màu theo "viên **được swap cùng**". Nó không nói gì về một bom màu bị *một quân khác*
-nổ trúng. Hiện thực chọn: trong cùng một vòng giải, mọi bom màu trong chuỗi dùng
-**cùng một màu** — màu của viên người chơi vừa swap; nếu nước đi đó không xuất phát từ
-một swap có bom màu thì mỗi bom ăn màu của chính nó. Hệ quả lạ: swap bom màu với một
-viên đỏ, mà chuỗi nổ trúng một bom màu xanh, thì bom xanh đó cũng xoá đỏ. Chấp nhận
-được ở giai đoạn 1 vì `resolveClears` nhận **một** màu cho cả lần gọi, và toàn bộ
-chuyện "hai quân đặc biệt tác động lên nhau" là FR-09 — giai đoạn 2 phải quyết lại
-chỗ này chứ không được kế thừa im lặng.
+nổ trúng. Hiện thực chọn: màu của viên vừa swap chỉ áp cho **vòng giải đầu tiên** —
+đúng vòng do chính nước đi đó gây ra. Từ vòng cascade thứ hai trở đi mỗi bom màu ăn
+màu của chính nó, vì không ai swap nó. Trong cùng vòng đầu, nếu chuỗi nổ trúng thêm
+một bom màu khác thì bom đó vẫn dùng màu đã swap — `resolveClears` nhận **một** màu
+cho cả lần gọi, và toàn bộ chuyện "hai quân đặc biệt tác động lên nhau" là FR-09.
+Giai đoạn 2 phải quyết lại chỗ này chứ không được kế thừa im lặng.
+
+Ranh giới "chỉ vòng đầu" là **một bug đã sửa**, không phải thiết kế ban đầu: code
+review phát hiện màu swap rò sang mọi vòng cascade, nên một bom màu xanh bị vòng 2
+xoá lại đi tìm màu đỏ chỉ vì ba vòng trước người chơi có chạm vào đỏ. Có test hồi quy
+canh chỗ này, và nó đỏ nếu ranh giới bị bỏ.
 
 **Kích hoạt.** Quân đặc biệt kích hoạt khi bị xoá — bởi một match chứa nó, hoặc bởi
 hiệu ứng của một quân đặc biệt khác. Kích hoạt theo chuỗi (sọc phá hàng, trong hàng

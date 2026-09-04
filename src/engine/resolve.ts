@@ -108,7 +108,12 @@ export function resolveBoard(input: ResolveInput): ResolveOutput {
         spawn !== null,
       )
 
-    const { cleared, activations } = resolveClears(grid, seeds, input.swappedColor)
+    // The swapped colour belongs to the swap, and only to it. A colour bomb that a
+    // later cascade round happens to clear was swapped by nobody, so it eats its own
+    // colour — leaking round 0's colour into round 2 made a green bomb hunt red
+    // because the player had touched red three rounds earlier.
+    const roundColor = round === 0 ? input.swappedColor : null
+    const { cleared, activations } = resolveClears(grid, seeds, roundColor)
     const clearedPieces = cleared
       .map((pos) => at(grid, pos))
       .filter((cell): cell is Piece => cell !== null)

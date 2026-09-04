@@ -199,6 +199,34 @@ describe('resolveBoard', () => {
     expect(carried).toBe(out.score)
   })
 
+  it('does not let the swapped colour reach a later cascade round', () => {
+    /**
+     * Regression, found in code review. A colour bomb that a *cascade* clears was
+     * swapped by nobody, so it must eat its own colour — but round 0's swapped
+     * colour used to be handed to every round, which made a green bomb hunt red
+     * because the player had touched red rounds earlier.
+     *
+     * The board below puts a green colour bomb at (5,0) with a green neighbour at
+     * (5,1), and a red column at (3..5, 2) that clears in round 0. Collapsing it
+     * drops the green from (2,2) onto (5,2), so the bomb only enters a match in
+     * round 1. Nothing in round 0 involves a bomb, so the swapped colour is
+     * unused there — and if it never leaks, these two runs must be identical.
+     */
+    const board = 'YBYBYB / BYBYBY / YBGBYB / BYRYBY / YBRBYB / G#GRYBY'
+    const asRed = run(board, [], { swappedColor: 'red' })
+    const asNothing = run(board, [], { swappedColor: null })
+
+    expect(asRed.score).toBe(asNothing.score)
+    expect(JSON.stringify(asRed.grid)).toBe(JSON.stringify(asNothing.grid))
+    expect(kinds(asRed.events)).toEqual(kinds(asNothing.events))
+
+    // And the cascade really did reach the bomb, or the test proves nothing.
+    const bombs = asRed.events.filter(
+      (event) => event.t === 'specialActivated' && event.special === 'colorBomb',
+    )
+    expect(bombs.length).toBeGreaterThan(0)
+  })
+
   it('is deterministic for one seed', () => {
     const a = run(ONE_MATCH)
     const b = run(ONE_MATCH)

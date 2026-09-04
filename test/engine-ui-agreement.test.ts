@@ -14,7 +14,29 @@ function pointsOf(events: GameEvent[]): number {
   return total
 }
 
-describe('review fuzz', () => {
+/**
+ * Does the screen agree with the engine?
+ *
+ * Every other test checks one side. This one plays six levels × twelve seeds ×
+ * sixty pseudo-random legal moves and, after each move, asserts three things that
+ * a per-module test structurally cannot:
+ *
+ *   1. the score moved by exactly the points the events carried — otherwise the
+ *      animated score can never add up to the engine's (invariant 2);
+ *   2. folding every event of the move over the pre-move session reproduces the
+ *      session `applySwap` returned, grid, score and goals alike — otherwise the
+ *      animation is showing the player something untrue;
+ *   3. no piece id appears twice on the board — a duplicate breaks React keys and
+ *      the once-per-id activation guard at the same time (invariants 5 and 9).
+ *
+ * Written during code review, which is also where it earned its keep: it is what
+ * showed the swapped colour leaking out of round 0 into later cascade rounds.
+ *
+ * The move choice is a hand-rolled LCG rather than the engine rng, deliberately:
+ * the point is to walk paths the engine's own sequence would never take.
+ */
+
+describe('engine and projection agreement', () => {
   it('projection matches engine over many seeds and levels', () => {
     const problems: string[] = []
     let moves = 0
