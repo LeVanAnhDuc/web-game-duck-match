@@ -35,4 +35,4 @@ nhiễu — xem `02-requirements/nfr.md` cho phần NFR tương ứng bị đán
 | 7 | Thắng/thua chỉ được kiểm ở **cuối** `applySwap`, sau khi cascade dừng | Thua ở giữa cascade dù cascade đó vừa đủ điểm để thắng |
 | 8 | Xáo bàn giữ **nguyên số lượng từng màu và từng quân đặc biệt** | Mục tiêu `collect` thành bất khả thi hoặc quá dễ tuỳ lần xáo, không tái tạo được |
 | 9 | `Piece.id` là duy nhất trong một `Session` và **không tái dùng** sau khi viên bị xoá | React `key` trùng → animation nhảy sai ô, và `Set` id đã kích hoạt (bất biến 5) mất tác dụng |
-| 10 | `ProgressRepository` chỉ được ghi khi **thắng**, và chỉ ghi khi điểm mới cao hơn điểm cũ | Điểm cao bị điểm thấp ghi đè; người chơi mất thành tích mà không có gì báo |
+| 10 | `ProgressRepository` chỉ được ghi khi **thắng**. Bản ghi mới giữ **điểm cao hơn** và **số sao cao hơn**, còn `unlockedUpTo` chỉ tăng, không giảm — kể cả khi lần thắng này điểm thấp hơn lần trước | Điểm cao hoặc sao bị lần thắng kém hơn ghi đè, hoặc màn đã mở bị khoá lại. Người chơi mất thành tích mà không có gì báo |

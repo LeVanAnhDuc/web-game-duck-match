@@ -647,8 +647,10 @@ describe('activationTargets', () => {
 
 describe('resolveClears', () => {
   it('chains a stripe into a bomb sitting in its row', () => {
-    //            col 2 holds a wrapped bomb on row 1
-    const grid = parseBoard('RRRRR / BB*BB / GGGGG / YYYYY')
+    // row 1 holds a stripedH at col 0 and a wrapped at col 1. Note parseBoard
+    // attaches a suffix to the PRECEDING letter, so 'B>B*BBB' is
+    // [B-stripedH, B-wrapped, B, B, B] — five cells, matching the other rows.
+    const grid = parseBoard('RRRRR / B>B*BBB / GGGGG / YYYYY')
     const out = resolveClears(grid, [{ row: 1, col: 0 }], null)
     expect(out.activations.map((a) => a.special)).toContain('wrapped')
     // the bomb's 3x3 reaches rows 0 and 2
@@ -697,7 +699,7 @@ Once-per-id is what keeps two stripes from triggering each other forever
   `initProgress(goals: GoalSpec[]): GoalProgress[]`,
   `applyCleared(progress: GoalProgress[], cleared: Piece[], score: number): GoalProgress[]`,
   `allDone(progress: GoalProgress[]): boolean`,
-  `starsFor(score: number, stars: LevelConfig['stars']): 0 | 1 | 2 | 3`.
+  `starsFor(score: number, stars: LevelConfig['stars']): Stars`.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -785,7 +787,7 @@ added without handling them (ADR-0005)."
 
 **Interfaces:**
 - Consumes: `board.ts`, `match.ts`, `rng.ts`.
-- Produces: `findLegalMoves(grid): { from: Pos; to: Pos }[]` · `hasLegalMove(grid): boolean` · `reshuffle(grid, rng): { grid; rng; attempts: number }` (throws `ReshuffleFailedError` after 10 attempts) · `generateBoard(level, rng, nextPieceId): { grid; rng; nextPieceId }` (throws `BoardGenerationFailedError` after 50 attempts).
+- Produces: `findLegalMoves(grid): { from: Pos; to: Pos }[]` · `hasLegalMove(grid): boolean` · `reshuffle(grid, rng): { grid; rng; attempts: number; settled: boolean }` (`settled: false` after 10 failed attempts, and the caller rebuilds the board — design.md §4 asks for a rebuild, not an exception) · `generateBoard(level, rng, nextPieceId): { grid; rng; nextPieceId }` (throws `BoardGenerationFailedError` after 50 attempts).
 
 - [ ] **Step 1: Write the failing tests**
 
