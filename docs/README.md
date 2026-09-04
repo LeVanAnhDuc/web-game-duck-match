@@ -1,4 +1,4 @@
-# Tài liệu dự án `web-game/web-game-match-3`
+# Tài liệu dự án `web-game-match-3`
 
 ## Bản đồ
 
