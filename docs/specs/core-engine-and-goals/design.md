@@ -178,6 +178,16 @@ và một cột >= 3 cùng màu giao nhau tại một ô.
 Một match >= 5 mà cũng là hình L/T thì `colorBomb` thắng (5 thẳng ưu tiên cao hơn).
 Trong một vòng giải có nhiều match, mỗi match sinh tối đa một quân đặc biệt.
 
+**Khoảng trống luật đã biết, cố ý để lại cho giai đoạn 2.** Bảng trên định nghĩa bom
+màu theo "viên **được swap cùng**". Nó không nói gì về một bom màu bị *một quân khác*
+nổ trúng. Hiện thực chọn: trong cùng một vòng giải, mọi bom màu trong chuỗi dùng
+**cùng một màu** — màu của viên người chơi vừa swap; nếu nước đi đó không xuất phát từ
+một swap có bom màu thì mỗi bom ăn màu của chính nó. Hệ quả lạ: swap bom màu với một
+viên đỏ, mà chuỗi nổ trúng một bom màu xanh, thì bom xanh đó cũng xoá đỏ. Chấp nhận
+được ở giai đoạn 1 vì `resolveClears` nhận **một** màu cho cả lần gọi, và toàn bộ
+chuyện "hai quân đặc biệt tác động lên nhau" là FR-09 — giai đoạn 2 phải quyết lại
+chỗ này chứ không được kế thừa im lặng.
+
 **Kích hoạt.** Quân đặc biệt kích hoạt khi bị xoá — bởi một match chứa nó, hoặc bởi
 hiệu ứng của một quân đặc biệt khác. Kích hoạt theo chuỗi (sọc phá hàng, trong hàng
 có bom, bom nổ tiếp) chạy đến khi không còn quân đặc biệt nào bị xoá thêm. Chống lặp

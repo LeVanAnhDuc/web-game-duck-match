@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import type { Progress } from '@/engine'
 import { t } from '@/i18n/vi'
 import { LEVELS } from '@/levels/levels'
-import { EMPTY_PROGRESS, createLocalRepository } from '@/storage/local'
+import { createLocalRepository } from '@/storage/local'
 import { LevelMap } from '@/ui/LevelMap'
 
 /**
@@ -24,7 +24,7 @@ export function MapScreen() {
     void repository.load().then((loaded) => {
       // A corrupt or foreign-version save resolves to the empty progress rather
       // than rejecting, so there is no error branch to render here (NFR-REL-03).
-      if (!cancelled) setProgress(loaded ?? EMPTY_PROGRESS)
+      if (!cancelled) setProgress(loaded)
     })
     return () => {
       cancelled = true
