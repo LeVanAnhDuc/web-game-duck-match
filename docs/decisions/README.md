@@ -14,6 +14,7 @@
 | [ADR-0004](0004-nextjs-static-export-yarn-theo-tien-le-web-game.md) | Next.js static export + Yarn classic, theo tiền lệ thư mục `web-game/` | 2026-09-04 | accepted |
 | [ADR-0005](0005-chia-nam-giai-doan-thay-vi-mot-spec.md) | Chia sản phẩm thành năm giai đoạn, mỗi giai đoạn một spec riêng | 2026-09-04 | accepted |
 | [ADR-0006](0006-github-pages-ba-workflow-va-release-tu-conventional-commits.md) | Deploy lên GitHub Pages bằng ba workflow, release suy ra từ Conventional Commits | 2026-09-04 | accepted |
+| [ADR-0007](0007-kiem-ban-deploy-bang-cach-choi-that.md) | Kiểm bản deploy bằng cách chơi thử nó, không tin mã trạng thái HTTP | 2026-09-07 | accepted |
 <!-- END:auto -->
 
 Trạng thái: `accepted` · `superseded by ADR-00xx` · `deprecated`

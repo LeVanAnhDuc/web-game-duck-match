@@ -17,7 +17,8 @@
     "test:e2e": "yarn build && playwright test",
     "test:e2e:only": "playwright test",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "verify:live": "playwright test -c playwright.live.config.ts"
   },
   "dependencies": {
     "next": "^15.5.0",
