@@ -282,15 +282,23 @@ Scale-in, ba sao đáp xuống lệch nhịp. **Focus vẫn vào nút đầu nga
 chờ animation, vì chờ là làm hại đúng người dùng bàn phím mà focus trap phục vụ. 18
 test `ResultDialog` hiện có không được đỏ.
 
-## C.7 Viên bay về ô mục tiêu — món đắt nhất, cắt được
+## C.7 Viên bay về ô mục tiêu — **ĐÃ CẮT**, thành FR-18
 
 Cần đo vị trí `GoalHud` từ trong `Board`, mà HUD đổi chỗ giữa các breakpoint (trên bàn
 ở 375, cột trái từ `lg`). Cách làm: `GoalHud` đăng ký một ref cho mỗi màu qua context
 `GoalTargets`; lớp bay đo `getBoundingClientRect` lúc khởi động chuyến bay; **không có
 target đăng ký thì tự hạ cấp** thành "token bật lên rồi tan" tại chỗ.
 
-Đây là hạng mục **cắt đầu tiên** nếu plan dài ra, và được thiết kế để cắt mà không kéo
-theo gì: bỏ nó là bỏ một file và một context provider.
+**Kết quả: đã cắt.** Thiết kế trên vẫn đứng, nhưng nó không được hiện thực trong
+feature này và giờ là FR-18.
+
+Lý do cắt, nói thẳng: nó là món trang trí nhất trong danh sách (bộ đếm mục tiêu đã
+nhấp, viên đã nổ, điểm đã bay), lại là món duy nhất cần đo vị trí xuyên qua hai
+component ở bốn breakpoint. Nó cũng là hạng mục đã được ghi trước là "cắt đầu tiên
+nếu plan dài ra" — và plan **đã** dài: 16 task trong một pass, cộng bốn lỗi phải sửa
+sau khi code review tìm ra. Nửa vời một hiệu ứng giòn thì tệ hơn là chưa làm.
+
+Bỏ nó không kéo theo gì, đúng như thiết kế: không file nào khác tham chiếu tới nó.
 
 ---
 

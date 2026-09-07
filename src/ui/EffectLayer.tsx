@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import type { GameEvent, Pos } from '@/engine'
 import { formatScore } from '@/i18n/vi'
@@ -88,6 +88,7 @@ export function EffectLayer({
   reducedMotion: boolean
 }) {
   const [live, setLive] = useState<Effect[]>([])
+  const timers = useRef(new Map<string, ReturnType<typeof setTimeout>>())
 
   useEffect(() => {
     if (reducedMotion || events.length === 0) return
@@ -95,12 +96,32 @@ export function EffectLayer({
     if (added.length === 0) return
 
     setLive((current) => [...current, ...added])
-    const ids = new Set(added.map((effect) => effect.id))
-    const timer = setTimeout(() => {
-      setLive((current) => current.filter((effect) => !ids.has(effect.id)))
-    }, LIFETIME_MS)
-    return () => clearTimeout(timer)
+
+    // One timer per effect, held in a ref and cancelled only on unmount.
+    // Returning `clearTimeout` from this effect instead looks tidier and is wrong:
+    // React runs the previous cleanup when the next beat arrives, which killed the
+    // removal timer for the effects the PREVIOUS beat had added. With leads of
+    // 60-200ms against a 900ms lifetime, that leaked every beat of every cascade
+    // except the last — invisible, because the keyframes end at opacity 0, but the
+    // DOM grew for the rest of the level. Found by a probe, not by looking.
+    for (const effect of added) {
+      timers.current.set(
+        effect.id,
+        setTimeout(() => {
+          timers.current.delete(effect.id)
+          setLive((current) => current.filter((item) => item.id !== effect.id))
+        }, LIFETIME_MS),
+      )
+    }
   }, [events, beat, reducedMotion])
+
+  useEffect(
+    () => () => {
+      for (const timer of timers.current.values()) clearTimeout(timer)
+      timers.current.clear()
+    },
+    [],
+  )
 
   if (reducedMotion) return null
 
@@ -171,8 +192,8 @@ export function EffectLayer({
             data-effect={effect.kind}
             className={
               horizontal
-                ? 'absolute left-0 top-0 h-[var(--cell)] w-[200vw] origin-center -translate-x-1/2 bg-gradient-to-r from-transparent via-ink-strong to-transparent'
-                : 'absolute left-0 top-0 h-[200vh] w-[var(--cell)] origin-center -translate-y-1/2 bg-gradient-to-b from-transparent via-ink-strong to-transparent'
+                ? 'absolute left-0 top-0 h-[var(--cell)] w-[200vw] bg-gradient-to-r from-transparent via-ink-strong to-transparent'
+                : 'absolute left-0 top-0 h-[200vh] w-[var(--cell)] bg-gradient-to-b from-transparent via-ink-strong to-transparent'
             }
             style={{
               // The offset has to compose with the centring translate, so it is

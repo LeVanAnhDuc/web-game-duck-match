@@ -39,61 +39,70 @@ function placedFrom(session: Session): Placed[] {
 
 type Motion = { landed: Set<number>; swapping: Set<number> }
 
+/** A short window during which a swapped piece keeps the swap easing. */
+const SWAP_MS = 160
+
 /**
  * Tells a fall from a swap, and remembers which pieces just landed.
  *
- * Gravity is straight down, so a changed COLUMN is only ever a swap — that is enough
- * to pick the right easing without threading the event list down here. Landing is
- * held as state with a timer rather than derived, because the attribute has to go
- * back off for the CSS animation to be able to run again on the next fall.
+ * Gravity is straight down, so a changed COLUMN is only ever a swap — enough to pick
+ * the right easing without threading the event list down here.
+ *
+ * Both sets are state with a per-id timer rather than values derived during render.
+ * Derived was wrong twice over: the landing attribute has to go back off before the
+ * CSS animation can run again on the next fall, and a render-derived `swapping` was
+ * lost on the very next re-render — a beat publish or a selection change inside the
+ * 140ms window switched the element from the swap curve back to the springy fall
+ * curve mid-transition. Found by probing the DOM across two renders.
  */
 function useMotion(placed: Placed[]): Motion {
   const previous = useRef(new Map<number, Pos>())
-  const timers = useRef(new Map<number, ReturnType<typeof setTimeout>>())
+  const timers = useRef(new Map<string, ReturnType<typeof setTimeout>>())
   const [landed, setLanded] = useState<Set<number>>(() => new Set())
-
-  const swapping = new Set<number>()
-  for (const entry of placed) {
-    const before = previous.current.get(entry.piece.id)
-    if (before && before.col !== entry.col) swapping.add(entry.piece.id)
-  }
+  const [swapping, setSwapping] = useState<Set<number>>(() => new Set())
 
   useLayoutEffect(() => {
     const fell: number[] = []
+    const swapped: number[] = []
     for (const entry of placed) {
       const before = previous.current.get(entry.piece.id)
-      if (before && entry.row > before.row && entry.col === before.col) {
-        fell.push(entry.piece.id)
-      }
+      if (!before) continue
+      if (before.col !== entry.col) swapped.push(entry.piece.id)
+      else if (entry.row > before.row) fell.push(entry.piece.id)
     }
 
     previous.current = new Map(
       placed.map((entry) => [entry.piece.id, { row: entry.row, col: entry.col }]),
     )
-    if (fell.length === 0) return
 
-    setLanded((current) => {
-      const next = new Set(current)
-      for (const id of fell) next.add(id)
-      return next
-    })
-
-    for (const id of fell) {
-      const existing = timers.current.get(id)
-      if (existing) clearTimeout(existing)
-      timers.current.set(
-        id,
-        setTimeout(() => {
-          timers.current.delete(id)
-          setLanded((current) => {
-            if (!current.has(id)) return current
-            const next = new Set(current)
-            next.delete(id)
-            return next
-          })
-        }, LAND_MS),
-      )
+    const schedule = (ids: number[], kind: string, ms: number, set: typeof setLanded) => {
+      if (ids.length === 0) return
+      set((current) => {
+        const next = new Set(current)
+        for (const id of ids) next.add(id)
+        return next
+      })
+      for (const id of ids) {
+        const key = `${kind}:${id}`
+        const existing = timers.current.get(key)
+        if (existing) clearTimeout(existing)
+        timers.current.set(
+          key,
+          setTimeout(() => {
+            timers.current.delete(key)
+            set((current) => {
+              if (!current.has(id)) return current
+              const next = new Set(current)
+              next.delete(id)
+              return next
+            })
+          }, ms),
+        )
+      }
     }
+
+    schedule(fell, 'land', LAND_MS, setLanded)
+    schedule(swapped, 'swap', SWAP_MS, setSwapping)
   }, [placed])
 
   useLayoutEffect(

@@ -17,26 +17,26 @@ KHÔNG chứa: tính năng ngoài phạm vi (-> 01-product/overview.md §Non-Goa
 
 ## Đang làm
 
-Feature **`tactile-board`** (FR-15 · FR-16 · FR-17) trên nhánh
-`feat/design-system-and-animation`. Thiết kế ở `docs/specs/tactile-board/design.md`,
-kế hoạch ở `plan.md` cùng thư mục — **trạng thái từng task đọc ở checkbox trong
-`plan.md`**, đó là nguồn đúng.
+Không có việc nào đang dở.
 
-Người dùng chốt làm **cả 14 hạng mục trong một spec** sau khi đã được nói rõ rủi ro,
-nên tài liệu chia ba phần A/B/C và plan xếp task theo thứ tự đó: dừng giữa đường vẫn
-có thứ chạy được.
+**Feature `tactile-board` xong** (FR-15 · FR-16 · FR-17) trên nhánh
+`feat/design-system-and-animation`. 517 test đơn vị + 17 test luồng Playwright xanh,
+`yarn build` ra `out/`, ảnh chụp bốn bề rộng đã xem.
 
-`design-bootstrap` đã chạy (một lần duy nhất, không chạy lại): bước 1 sinh
-`docs/design-system/match-3/MASTER.md`, bước 2 ghi quyết định vào chính file đó, bước
-3 là ADR-0008.
+`design-bootstrap` đã chạy **một lần duy nhất** — không chạy lại: bước 1 sinh
+`MASTER.md`, bước 2 ghi quyết định vào chính file đó, bước 3 là ADR-0008.
 
-Giai đoạn 1 luật chơi đã xong và đã lên `main` (v1.0.0 / v1.0.1).
+**FR-18 (viên bay về ô mục tiêu) bị cắt khỏi feature này** — xem `design.md` §C.7 cho
+lý do. Nó là hạng mục duy nhất trong 14 hạng mục không được làm.
+
+Giai đoạn 1 luật chơi đã trên `main` (v1.0.0 / v1.0.1).
 
 ## Việc tiếp theo
 
 | Việc | Liên quan | Ưu tiên | Vì sao ưu tiên đó |
 | --- | --- | --- | --- |
 | Giai đoạn 2 — combo hai quân đặc biệt | FR-09 · ADR-0005 | cao | Là phần dễ sai nhất của match-3 và cần bảng test riêng cho từng cặp; làm sớm khi engine còn nhỏ thì rẻ hơn |
+| Viên bay về ô mục tiêu | FR-18 | thấp | Bị cắt khỏi `tactile-board` có chủ đích. Thiết kế đã có ở `design.md` §C.7, kể cả đường hạ cấp khi không đo được vị trí HUD |
 | Giai đoạn 3 — ô chặn + mục tiêu phá ô chặn | FR-10 | trung bình | Cũng là phép thử ranh giới module: nếu phải sửa ngoài `goals.ts`/`types.ts` thì thiết kế đã sai (`overview.md` §6.3) |
 | Giai đoạn 4 — vật thể rơi xuống đáy | FR-11 | trung bình | Đắt nhất trong bốn loại mục tiêu, và phụ thuộc luật trọng lực đã ổn định |
 | Giai đoạn 5 — đủ 15-20 màn, âm thanh, cân độ khó | FR-12 · FR-13 | thấp | Chỉ đáng làm khi cả bốn loại mục tiêu đã chạy, nếu không sẽ phải cân lại |

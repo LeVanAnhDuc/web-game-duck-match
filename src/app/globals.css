@@ -62,7 +62,12 @@ h3 {
   transition: transform var(--dur-swap) cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-[data-piece-id][data-clearing='true'] {
+/* On the CHILD, never on the positioned node. A CSS animation's `transform`
+   overrides the style attribute, and the style attribute is what carries the
+   piece's translate — so animating the node itself made a clearing piece snap to
+   the layer's top-left for 180ms before vanishing. `clay-land` already had this
+   right; this one did not. */
+[data-piece-id][data-clearing='true'] .tile-body {
   transform-origin: center;
   animation: clay-pop var(--dur-clear) ease-out forwards;
 }

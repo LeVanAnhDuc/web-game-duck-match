@@ -5,6 +5,10 @@
 .env.*
 !.env.example
 
+# feature-flow branches into .worktrees/<feature>/ — an isolated checkout of this
+# same repo, never content to commit.
+.worktrees/
+
 # Build & deps
 node_modules/
 .next/

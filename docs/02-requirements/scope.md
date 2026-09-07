@@ -37,6 +37,7 @@ vuông góc với 5 giai đoạn kia, chen vào trước giai đoạn 2; feature
 | FR-12 | Bộ 15-20 màn hoàn chỉnh + cân độ khó | US-01 | 5 | chưa |
 | FR-13 | Âm thanh và tuỳ chọn tắt âm | US-01 | 5 | chưa |
 | FR-14 | Đồng bộ tiến độ qua backend (adapter thứ hai của `ProgressRepository`) | US-03 | — | chưa |
-| FR-15 | Token và ngôn ngữ hình ảnh: palette đo được, type pairing, viên kiểu clay | US-01 | T1 | đang |
-| FR-16 | Bàn chơi có chuyển động: trượt khi đổi chỗ, trượt-qua-rồi-về, rơi, sweep khi quân đặc biệt nổ | US-01 · US-04 | T1 | đang |
-| FR-17 | Lớp phản hồi: điểm bay + bậc cascade, gợi ý khi bế tắc, animation xáo bàn, khoảnh khắc thưởng | US-01 · US-02 · US-04 | T1 | đang |
+| FR-15 | Token và ngôn ngữ hình ảnh: palette đo được, type pairing, viên kiểu clay | US-01 | T1 | xong |
+| FR-16 | Bàn chơi có chuyển động: trượt khi đổi chỗ, trượt-qua-rồi-về, rơi, sweep khi quân đặc biệt nổ | US-01 · US-04 | T1 | xong |
+| FR-17 | Lớp phản hồi: điểm bay + bậc cascade, gợi ý khi bế tắc, animation xáo bàn, khoảnh khắc thưởng | US-01 · US-02 · US-04 | T1 | xong |
+| FR-18 | Viên thu được bay từ ô về bộ đếm mục tiêu ở HUD | US-01 | T1 | chưa |

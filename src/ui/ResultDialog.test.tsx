@@ -285,3 +285,107 @@ describe('ResultDialog detail', () => {
     expect(screen.queryByText('còn thiếu 4 viên đỏ')).toBeNull()
   })
 })
+
+describe('ResultDialog reward moment', () => {
+  it('animates itself in', () => {
+    render(
+      <ResultDialog
+        result={won}
+        hasNextLevel
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    expect(screen.getByRole('dialog').style.animationName).toBe('dialog-in')
+  })
+
+  it('lands the stars one at a time', () => {
+    render(
+      <ResultDialog
+        result={won}
+        hasNextLevel
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    const glyphs = Array.from(
+      screen.getByLabelText(t.starsEarned(2, 3)).querySelectorAll('[data-star]'),
+    ) as HTMLElement[]
+    expect(glyphs).toHaveLength(3)
+    expect(glyphs.map((g) => g.style.animationName)).toEqual([
+      'star-land',
+      'star-land',
+      'star-land',
+    ])
+    const delays = glyphs.map((g) => Number(g.style.animationDelay.replace('ms', '')))
+    expect(delays[0]).toBe(0)
+    expect(delays[1]).toBeGreaterThan(delays[0] as number)
+    expect(delays[2]).toBeGreaterThan(delays[1] as number)
+  })
+
+  it('focuses the first action synchronously, before any star has landed', () => {
+    render(
+      <ResultDialog
+        result={won}
+        hasNextLevel
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    // design.md §C.6: waiting for the animation would delay exactly the keyboard
+    // user the focus trap exists for, so the two are independent.
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: t.nextLevel }))
+    const lastStar = screen
+      .getByLabelText(t.starsEarned(2, 3))
+      .querySelectorAll<HTMLElement>('[data-star]')[2]
+    expect(Number(lastStar?.style.animationDelay.replace('ms', ''))).toBeGreaterThan(0)
+  })
+
+  it('keeps one grouped label over hidden glyphs', () => {
+    render(
+      <ResultDialog
+        result={won}
+        hasNextLevel
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    // One label for the row, not three named images (NFR-A11Y-04) — and exactly
+    // one, so reusing StarRow must not leave the dialog's own label behind.
+    expect(screen.getAllByLabelText(t.starsEarned(2, 3))).toHaveLength(1)
+    const glyphs = screen
+      .getByLabelText(t.starsEarned(2, 3))
+      .querySelectorAll('[data-star]')
+    for (const glyph of Array.from(glyphs)) {
+      expect(glyph.getAttribute('aria-hidden')).toBe('true')
+    }
+  })
+
+  it('holds still under reduced motion', () => {
+    render(
+      <ResultDialog
+        result={won}
+        hasNextLevel
+        reducedMotion
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    // A staggered delay under reduced motion is worse than no animation: the CSS
+    // reset only collapses the duration, so a delayed star would sit invisible.
+    expect(screen.getByRole('dialog').style.animationName).toBe('')
+    const glyphs = screen
+      .getByLabelText(t.starsEarned(2, 3))
+      .querySelectorAll<HTMLElement>('[data-star]')
+    for (const glyph of Array.from(glyphs)) {
+      expect(glyph.style.animationName).toBe('')
+      expect(glyph.style.animationDelay).toBe('')
+    }
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: t.nextLevel }))
+  })
+})
