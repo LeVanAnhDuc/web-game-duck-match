@@ -61,7 +61,17 @@ type BodyProps = {
  * to bail out on an unknown level id before any hook runs.
  */
 function PlayScreenBody({ levelId, level, repository, onBackToMap, onNext }: BodyProps) {
-  const { session, busy, trySwap, restart, lastResult } = useGameSession({
+  const {
+    session,
+    busy,
+    trySwap,
+    restart,
+    lastResult,
+    stepEvents,
+    beat,
+    reducedMotion,
+    hint,
+  } = useGameSession({
     level,
     // Deterministic per level, so a bug report of "level 3 was impossible" can be
     // reproduced; `restart` advances it, so a replay is a different board.
@@ -102,7 +112,15 @@ function PlayScreenBody({ levelId, level, repository, onBackToMap, onNext }: Bod
         </div>
 
         <div className="flex justify-center lg:col-start-2 lg:row-span-3 lg:row-start-1">
-          <Board session={session} busy={busy} onSwap={trySwap} />
+          <Board
+            session={session}
+            busy={busy}
+            onSwap={trySwap}
+            events={stepEvents}
+            beat={beat}
+            reducedMotion={reducedMotion}
+            hint={hint}
+          />
         </div>
 
         <button

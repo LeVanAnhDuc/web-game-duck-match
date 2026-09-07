@@ -133,7 +133,11 @@ describe('applySwap', () => {
   })
 
   it('wins as soon as the goal is met and then refuses further moves', () => {
-    const easy: LevelConfig = { ...level, moves: 30, goals: [{ kind: 'score', target: 1 }] }
+    const easy: LevelConfig = {
+      ...level,
+      moves: 30,
+      goals: [{ kind: 'score', target: 1 }],
+    }
     const session = newSession(easy, 1)
     const move = findLegalMoves(session.grid)[0]!
     const out = applySwap(session, move.from, move.to)
@@ -172,7 +176,11 @@ describe('applySwap', () => {
   })
 
   it('does not lose on a last move that does finish the goal', () => {
-    const tight: LevelConfig = { ...level, moves: 1, goals: [{ kind: 'score', target: 1 }] }
+    const tight: LevelConfig = {
+      ...level,
+      moves: 1,
+      goals: [{ kind: 'score', target: 1 }],
+    }
     const session = newSession(tight, 1)
     const move = findLegalMoves(session.grid)[0]!
     const out = applySwap(session, move.from, move.to)
@@ -202,7 +210,10 @@ describe('applySwap', () => {
   })
 
   it('keeps piece ids unique across many moves', () => {
-    let session = newSession({ ...level, moves: 40, goals: [{ kind: 'score', target: 1e9 }] }, 4)
+    let session = newSession(
+      { ...level, moves: 40, goals: [{ kind: 'score', target: 1e9 }] },
+      4,
+    )
     for (let i = 0; i < 20; i++) {
       const move = findLegalMoves(session.grid)[0]
       if (!move) break

@@ -1,10 +1,9 @@
 'use client'
 
 import { useId } from 'react'
-import type { ReactElement } from 'react'
 import type { Color, GoalProgress } from '@/engine'
-import type { Shape } from '@/i18n/vi'
 import { COLOR_NAME, SHAPE_BY_COLOR, t } from '@/i18n/vi'
+import { PieceShape } from './shapes'
 
 /**
  * The goal list, above the board at 375 and in the right-hand column from 768
@@ -85,30 +84,17 @@ const TEXT_BY_COLOR: Record<Color, string> = {
   orange: 'text-piece-orange',
 }
 
-/** 24×24 outlines, filled with `currentColor` so the colour comes from the class. */
-const SHAPE_GLYPH: Record<Shape, ReactElement> = {
-  circle: <circle cx="12" cy="12" r="9" />,
-  square: <rect x="4" y="4" width="16" height="16" rx="2" />,
-  triangle: <polygon points="12,3 21.5,20 2.5,20" />,
-  diamond: <polygon points="12,2 22,12 12,22 2,12" />,
-  star: (
-    <polygon points="12,2 14.9,9.2 22.5,9.6 16.6,14.4 18.6,21.8 12,17.6 5.4,21.8 7.4,14.4 1.5,9.6 9.1,9.2" />
-  ),
-  hexagon: <polygon points="12,2 21,7 21,17 12,22 3,17 3,7" />,
-}
-
+/**
+ * The glyph comes from `ui/shapes.tsx`, the same set the board draws, so the
+ * triangle a player is collecting is the triangle they see in the grid. This file
+ * used to keep its own 24×24 copy, and the two had already drifted apart.
+ */
 function ColorShape({ color }: { color: Color }) {
-  const shape = SHAPE_BY_COLOR[color]
   return (
-    <svg
-      aria-hidden="true"
-      data-shape={shape}
-      viewBox="0 0 24 24"
-      fill="currentColor"
+    <PieceShape
+      shape={SHAPE_BY_COLOR[color]}
       className={`h-5 w-5 shrink-0 ${TEXT_BY_COLOR[color]}`}
-    >
-      {SHAPE_GLYPH[shape]}
-    </svg>
+    />
   )
 }
 

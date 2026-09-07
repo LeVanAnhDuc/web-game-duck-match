@@ -2,9 +2,10 @@
 
 import { useRef, useState } from 'react'
 import type { CSSProperties, KeyboardEvent, PointerEvent } from 'react'
-import type { Pos, Session } from '@/engine'
+import type { GameEvent, Pos, Session } from '@/engine'
 import { COLOR_NAME, t } from '@/i18n/vi'
-import { Tile } from './Tile'
+import { EffectLayer } from './EffectLayer'
+import { PieceLayer } from './PieceLayer'
 
 /**
  * The bàn, and the only place player input becomes a move. It renders what the
@@ -22,6 +23,17 @@ type BoardProps = {
   session: Session
   busy: boolean
   onSwap: (from: Pos, to: Pos) => void
+  /**
+   * The events of the beat currently playing, for the effect layer. Optional and
+   * defaulted so a caller that only wants a board — every existing test — needs to
+   * know nothing about beats.
+   */
+  events?: GameEvent[]
+  /** Monotonic beat counter, so two identical event lists produce distinct keys. */
+  beat?: number
+  reducedMotion?: boolean
+  /** The move `findHint` suggested after the player went idle, if any. */
+  hint?: { from: Pos; to: Pos } | null
 }
 
 const ARROW_STEP: Record<string, Pos | undefined> = {
@@ -55,7 +67,15 @@ function posFromTarget(target: EventTarget | null): Pos | null {
   return Number.isFinite(row) && Number.isFinite(col) ? { row, col } : null
 }
 
-export function Board({ session, busy, onSwap }: BoardProps) {
+export function Board({
+  session,
+  busy,
+  onSwap,
+  events = [],
+  beat = 0,
+  reducedMotion = false,
+  hint = null,
+}: BoardProps) {
   const { rows, cols } = session.level
 
   /**
@@ -175,73 +195,105 @@ export function Board({ session, busy, onSwap }: BoardProps) {
     // so it is allowed to overflow into its own scroller instead — the one recorded
     // exception to NFR-A11Y-03 (docs/04-state/backlog.md §Nợ kỹ thuật).
     <div className="max-w-full overflow-x-auto">
+      {/* One clay slab holding three layers over a shared --cell: the semantic grid
+          that never moves, the pieces that do, and the effects that are neither
+          (ADR-0010). The slab is the signature element — 49 pressed holes rather
+          than 49 separate tiles. */}
       <div
-        role="grid"
-        aria-label={t.boardLabel}
-        aria-busy={busy}
-        onKeyDown={handleKeyDown}
-        onPointerDown={handlePointerDown}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={() => {
-          dragStart.current = null
-        }}
-        className="mx-auto grid w-fit rounded-xl bg-surface-card p-1"
+        data-testid="board-slab"
+        data-reduced-motion={reducedMotion ? 'true' : undefined}
+        className="relative mx-auto w-fit rounded-slab bg-surface-board p-1 shadow-clay"
         style={
           {
             '--cols': cols,
             '--cell': 'clamp(38px, calc(min(100vw - 2rem, 560px) / var(--cols)), 64px)',
-            gridTemplateColumns: 'repeat(var(--cols), var(--cell))',
-            gridAutoRows: 'var(--cell)',
           } as CSSProperties
         }
       >
-        {Array.from({ length: rows }, (_, row) => (
-          // `contents` keeps the ARIA row that owns the gridcells without adding a
-          // box that would break the single CSS grid the cells are laid out in.
-          <div key={row} role="row" className="contents">
-            {Array.from({ length: cols }, (_, col) => {
-              const piece = session.grid[row]?.[col] ?? null
-              const isSelected = selected !== null && samePos(selected, { row, col })
+        <div
+          role="grid"
+          aria-label={t.boardLabel}
+          aria-busy={busy}
+          onKeyDown={handleKeyDown}
+          onPointerDown={handlePointerDown}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={() => {
+            dragStart.current = null
+          }}
+          className="grid"
+          style={
+            {
+              gridTemplateColumns: 'repeat(var(--cols), var(--cell))',
+              gridAutoRows: 'var(--cell)',
+            } as CSSProperties
+          }
+        >
+          {Array.from({ length: rows }, (_, row) => (
+            // `contents` keeps the ARIA row that owns the gridcells without adding a
+            // box that would break the single CSS grid the cells are laid out in.
+            <div key={row} role="row" className="contents">
+              {Array.from({ length: cols }, (_, col) => {
+                const piece = session.grid[row]?.[col] ?? null
+                const isSelected = selected !== null && samePos(selected, { row, col })
 
-              return (
-                <div
-                  key={col}
-                  role="gridcell"
-                  aria-selected={isSelected}
-                  className="flex items-center justify-center"
-                >
-                  {/* An empty cell exists only mid-resolution, and the UI is only
+                return (
+                  <div
+                    key={col}
+                    role="gridcell"
+                    aria-selected={isSelected}
+                    className="flex items-center justify-center"
+                  >
+                    {/* An empty cell exists only mid-resolution, and the UI is only
                       ever handed settled boards — but it must still render a cell,
                       not a button with nothing to name it. */}
-                  {piece && (
-                    <button
-                      type="button"
-                      ref={(element) => {
-                        if (element) cellRefs.current.set(cellKey({ row, col }), element)
-                        else cellRefs.current.delete(cellKey({ row, col }))
-                      }}
-                      data-testid={`cell-${row}-${col}`}
-                      data-row={row}
-                      data-col={col}
-                      tabIndex={focused.row === row && focused.col === col ? 0 : -1}
-                      aria-label={t.cellLabel(
+                    {piece && (
+                      <button
+                        type="button"
+                        ref={(element) => {
+                          if (element)
+                            cellRefs.current.set(cellKey({ row, col }), element)
+                          else cellRefs.current.delete(cellKey({ row, col }))
+                        }}
+                        data-testid={`cell-${row}-${col}`}
+                        data-row={row}
+                        data-col={col}
+                        tabIndex={focused.row === row && focused.col === col ? 0 : -1}
+                        aria-label={t.cellLabel(
                           row,
                           col,
                           COLOR_NAME[piece.color],
                           t.specialName(piece.special) || undefined,
                         )}
-                      // `touch-none` stops the browser scrolling the page instead of
-                      // giving us the pointermove of a drag across the bàn.
-                      className="flex h-[var(--cell)] w-[var(--cell)] touch-none items-center justify-center p-[6%] focus:outline-none focus-visible:rounded-lg focus-visible:ring-2 focus-visible:ring-ink-muted"
-                    >
-                      <Tile piece={piece} selected={isSelected} />
-                    </button>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        ))}
+                        // `touch-none` stops the browser scrolling the page instead of
+                        // giving us the pointermove of a drag across the bàn.
+                        className="flex h-[var(--cell)] w-[var(--cell)] touch-none items-center justify-center p-[6%] focus:outline-none focus-visible:rounded-clay focus-visible:ring-2 focus-visible:ring-accent-pink"
+                      >
+                        {/* The hollow the piece sits in. The piece itself lives in
+                          PieceLayer, because a well that travelled with it would
+                          be a hole that moves. */}
+                        <span
+                          aria-hidden="true"
+                          data-testid="well"
+                          data-hint={
+                            hint &&
+                            ((hint.from.row === row && hint.from.col === col) ||
+                              (hint.to.row === row && hint.to.col === col))
+                              ? 'true'
+                              : undefined
+                          }
+                          className="block h-full w-full rounded-clay bg-surface-well shadow-well"
+                        />
+                      </button>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          ))}
+        </div>
+
+        <PieceLayer session={session} selected={selected} />
+        <EffectLayer events={events} beat={beat} reducedMotion={reducedMotion} />
       </div>
     </div>
   )

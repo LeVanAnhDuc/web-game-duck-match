@@ -42,9 +42,12 @@ describe('piece colours', () => {
     },
   )
 
-  it.each(Object.entries(PIECE_COLORS))('%s is also readable inside a well', (_n, hex) => {
-    expect(contrast(hex, SURFACE.well)).toBeGreaterThanOrEqual(3)
-  })
+  it.each(Object.entries(PIECE_COLORS))(
+    '%s is also readable inside a well',
+    (_n, hex) => {
+      expect(contrast(hex, SURFACE.well)).toBeGreaterThanOrEqual(3)
+    },
+  )
 
   it('keeps every pair far enough apart to be told apart', () => {
     const names = Object.keys(PIECE_COLORS) as (keyof typeof PIECE_COLORS)[]

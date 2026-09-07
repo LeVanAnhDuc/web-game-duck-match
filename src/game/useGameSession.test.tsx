@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { useGameSession } from './useGameSession'
-import { DURATIONS } from './timeline'
+import { LEAD } from './timeline'
 import { createMemoryRepository } from '@/storage/memory'
 import { EMPTY_PROGRESS } from '@/storage/local'
 import { findLegalMoves, isLegalSwap } from '@/engine/moves'
@@ -209,14 +209,14 @@ describe('useGameSession', () => {
     const start = Date.now()
     act(() => result.current.trySwap(move.from, move.to))
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(DURATIONS.swap - 1)
+      await vi.advanceTimersByTimeAsync(LEAD.swap - 1)
     })
     expect(result.current.busy).toBe(true)
     await act(async () => {
       await vi.runAllTimersAsync()
     })
     expect(result.current.busy).toBe(false)
-    expect(Date.now() - start).toBeGreaterThan(DURATIONS.swap)
+    expect(Date.now() - start).toBeGreaterThan(LEAD.swap)
   })
 
   it('spends no time animating under reduced motion — NFR-A11Y-05', async () => {
@@ -235,7 +235,7 @@ describe('useGameSession', () => {
     // step: the player jumps to the settled board instead of watching it arrive.
     // It is not exactly 0 only because the fake clock nudges each nested
     // zero-delay timer forward by 1ms to protect itself from a runaway loop.
-    expect(Date.now() - start).toBeLessThan(DURATIONS.swap)
+    expect(Date.now() - start).toBeLessThan(LEAD.swap)
   })
 
   it('asks matchMedia for the reduced-motion query', () => {

@@ -5,6 +5,7 @@
  */
 export { newSession, applySwap } from './session'
 export { starsFor } from './goals'
+export { findHint } from './hint'
 export type {
   Cell,
   Color,

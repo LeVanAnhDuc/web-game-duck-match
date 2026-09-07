@@ -101,11 +101,15 @@ export function resolveBoard(input: ResolveInput): ResolveOutput {
     // match that spawned them, and their cell may itself be about to be cleared.
     const spawns = matches
       .map((match) => {
-        const spawn = round === 0 ? spawnFor(match, input.swappedFrom, input.swappedTo) : specialFor(match, null)
+        const spawn =
+          round === 0
+            ? spawnFor(match, input.swappedFrom, input.swappedTo)
+            : specialFor(match, null)
         return spawn ? { ...spawn, color: match.color } : null
       })
-      .filter((spawn): spawn is { special: Piece['special']; at: Pos; color: Color } =>
-        spawn !== null,
+      .filter(
+        (spawn): spawn is { special: Piece['special']; at: Pos; color: Color } =>
+          spawn !== null,
       )
 
     // The swapped colour belongs to the swap, and only to it. A colour bomb that a
@@ -201,7 +205,11 @@ export function resolveBoard(input: ResolveInput): ResolveOutput {
       rng = fresh.rng
       nextPieceId = fresh.nextPieceId
     }
-    events.push({ t: 'reshuffled' })
+    // Both exits are covered by one push on purpose: `grid` here is whichever
+    // board we are about to return — the settled shuffle or the fresh board —
+    // and the event has to carry exactly that, or the projection would show a
+    // board the engine never had (ADR-0009).
+    events.push({ t: 'reshuffled', grid })
   }
 
   return { grid, rng, nextPieceId, score, progress, events }

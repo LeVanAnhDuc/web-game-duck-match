@@ -63,9 +63,11 @@ describe('engine and projection agreement', () => {
             )
           }
 
-          if (!result.events.some((e) => e.t === 'reshuffled')) {
+          {
+            // Reshuffles are no longer skipped: ADR-0009 gave the event its board,
+            // so there is nothing left in the union that cannot be replayed.
             const shown = buildTimeline(result.events, { reducedMotion: false }).reduce(
-              (acc, step) => projectEvents(acc, step.events),
+              (acc, step) => projectEvents(acc, step.events, step.visual),
               session,
             )
             if (JSON.stringify(shown.grid) !== JSON.stringify(result.session.grid)) {
