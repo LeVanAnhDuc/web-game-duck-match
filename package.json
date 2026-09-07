@@ -1,0 +1,52 @@
+{
+  "name": "web-game-match-3",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "check:audit": "yarn audit --json | node scripts/check-audit.mjs",
+    "check:bundle": "node scripts/check-bundle-size.mjs out",
+    "dev": "next dev",
+    "format": "prettier --write \"**/*.{ts,tsx,css,md,json}\" --end-of-line auto",
+    "lint": "next lint",
+    "release:next": "bash scripts/next-version.sh --explain",
+    "release:notes": "bash scripts/release-notes.sh",
+    "serve": "node scripts/serve.mjs 4173 out",
+    "start": "next start",
+    "test": "vitest run",
+    "test:e2e": "yarn build && playwright test",
+    "test:e2e:only": "playwright test",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "^15.5.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.0",
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.7.0",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^15.5.0",
+    "eslint-config-prettier": "^9.1.0",
+    "happy-dom": "^20.8.9",
+    "postcss": "^8.5.18",
+    "prettier": "^3.6.0",
+    "prettier-plugin-tailwindcss": "^0.6.14",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.9.0",
+    "vite": "^7",
+    "vitest": "^3.2.6"
+  },
+  "resolutions": {
+    "postcss": "^8.5.18"
+  }
+}

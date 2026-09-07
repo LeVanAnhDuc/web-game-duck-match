@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-surface-base text-ink-strong;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* NFR-A11Y-02: focus must always be visible, including on the board cells. */
+:focus-visible {
+  outline: 3px solid #f8fafc;
+  outline-offset: 2px;
+}
+
+/* NFR-A11Y-05: the timeline already zeroes durations; this covers plain CSS. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

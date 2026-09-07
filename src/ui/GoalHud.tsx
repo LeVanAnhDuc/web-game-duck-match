@@ -1,0 +1,171 @@
+'use client'
+
+import { useId } from 'react'
+import type { ReactElement } from 'react'
+import type { Color, GoalProgress } from '@/engine'
+import type { Shape } from '@/i18n/vi'
+import { COLOR_NAME, SHAPE_BY_COLOR, t } from '@/i18n/vi'
+
+/**
+ * The goal list, above the board at 375 and in the right-hand column from 768
+ * (design.md §6).
+ *
+ * Two rules shape this file:
+ *
+ * 1. The `switch` on `kind` ends in a `never` default, exactly as
+ *    `src/engine/goals.ts` does. Adding the phase-3 `clearBlockers` kind then
+ *    fails to compile here instead of quietly rendering a level with an invisible
+ *    goal (ADR-0005).
+ * 2. Nothing is identified by colour alone: every collect row also carries the
+ *    colour's shape, and its accessible name words the colour out (NFR-A11Y-06).
+ */
+
+/** One rendered row. A collect goal contributes one of these per requested colour. */
+type GoalRow = {
+  key: string
+  /** Accessible name — the text equivalent of icon + numbers. */
+  label: string
+  /** Visible text, always "current/target". */
+  text: string
+  done: boolean
+  /** Absent on a score row, which has no piece colour to stand for. */
+  color?: Color
+}
+
+/**
+ * Only the colours the goal asked for, in declaration order — the same filter
+ * `goals.ts` applies, so the HUD lists exactly the colours the engine tracks.
+ */
+function requested(per: Partial<Record<Color, number>>): [Color, number][] {
+  return Object.entries(per).flatMap(([color, target]) =>
+    typeof target === 'number' ? [[color as Color, target] as [Color, number]] : [],
+  )
+}
+
+function toRows(progress: GoalProgress[]): GoalRow[] {
+  return progress.flatMap((goal, index): GoalRow[] => {
+    switch (goal.kind) {
+      case 'score':
+        return [
+          {
+            key: `${index}-score`,
+            label: t.goalScoreLabel(goal.current, goal.target),
+            text: t.goalScore(goal.current, goal.target),
+            done: goal.done,
+          },
+        ]
+      case 'collect':
+        return requested(goal.per).map(([color, target]) => {
+          const current = goal.current[color] ?? 0
+          return {
+            key: `${index}-${color}`,
+            label: t.goalCollectLabel(COLOR_NAME[color], current, target),
+            text: t.goalCollect(current, target),
+            // Per colour rather than per goal: a two-colour goal that has finished
+            // its reds should tick the red row, not wait for the blues.
+            done: current >= target,
+            color,
+          }
+        })
+      default: {
+        const unhandled: never = goal
+        return unhandled
+      }
+    }
+  })
+}
+
+/** Static class names so Tailwind's content scan can see every one of them. */
+const TEXT_BY_COLOR: Record<Color, string> = {
+  red: 'text-piece-red',
+  blue: 'text-piece-blue',
+  green: 'text-piece-green',
+  yellow: 'text-piece-yellow',
+  purple: 'text-piece-purple',
+  orange: 'text-piece-orange',
+}
+
+/** 24×24 outlines, filled with `currentColor` so the colour comes from the class. */
+const SHAPE_GLYPH: Record<Shape, ReactElement> = {
+  circle: <circle cx="12" cy="12" r="9" />,
+  square: <rect x="4" y="4" width="16" height="16" rx="2" />,
+  triangle: <polygon points="12,3 21.5,20 2.5,20" />,
+  diamond: <polygon points="12,2 22,12 12,22 2,12" />,
+  star: (
+    <polygon points="12,2 14.9,9.2 22.5,9.6 16.6,14.4 18.6,21.8 12,17.6 5.4,21.8 7.4,14.4 1.5,9.6 9.1,9.2" />
+  ),
+  hexagon: <polygon points="12,2 21,7 21,17 12,22 3,17 3,7" />,
+}
+
+function ColorShape({ color }: { color: Color }) {
+  const shape = SHAPE_BY_COLOR[color]
+  return (
+    <svg
+      aria-hidden="true"
+      data-shape={shape}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={`h-5 w-5 shrink-0 ${TEXT_BY_COLOR[color]}`}
+    >
+      {SHAPE_GLYPH[shape]}
+    </svg>
+  )
+}
+
+/** A tick, so "done" reads as done and not just as a number that stopped moving. */
+function DoneMarker() {
+  return (
+    <svg
+      aria-hidden="true"
+      data-goal-done-marker=""
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-4 w-4 shrink-0 text-piece-green"
+    >
+      <polyline points="4,13 9,18 20,6" />
+    </svg>
+  )
+}
+
+export function GoalHud({ progress }: { progress: GoalProgress[] }) {
+  const titleId = useId()
+  const rows = toRows(progress)
+
+  // A level with no goals is a config error (goals.ts), not a state worth a header.
+  if (rows.length === 0) return null
+
+  return (
+    <section className="rounded-lg bg-surface-card px-4 py-3">
+      <h2 id={titleId} className="text-sm text-ink-muted">
+        {t.goals}
+      </h2>
+      <ul
+        aria-labelledby={titleId}
+        className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2"
+      >
+        {rows.map((row) => (
+          <li
+            key={row.key}
+            aria-label={row.label}
+            data-done={row.done ? 'true' : 'false'}
+            className={`flex items-center gap-2 ${row.done ? 'opacity-60' : ''}`}
+          >
+            {row.color ? <ColorShape color={row.color} /> : null}
+            <span
+              className={`text-base font-semibold tabular-nums text-ink-strong ${
+                row.done ? 'line-through' : ''
+              }`}
+            >
+              {row.text}
+            </span>
+            {row.done ? <DoneMarker /> : null}
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}

@@ -1,0 +1,71 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time, and never cancel one halfway: a cancelled deploy can leave
+# the site serving a half-uploaded artifact.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: yarn
+
+      - run: yarn install --frozen-lockfile
+
+      # The tests run here rather than trusting the CI workflow: `ci.yml` only fires
+      # on pull requests, and a deploy that assumes a green run it cannot see is a
+      # deploy that will eventually ship a red one.
+      - run: yarn typecheck
+      - run: yarn test
+
+      - run: yarn build
+        env:
+          # Set ONLY here. It switches on basePath for the /web-game-match-3
+          # sub-path; `yarn dev` and a local build stay at the root, so opening a
+          # local out/index.html does not break every asset path (ADR-0006).
+          GITHUB_PAGES: 'true'
+
+      # The budget is re-measured against the Pages build, because basePath changes
+      # every asset URL in the HTML and that is what the gate reads.
+      - name: First-load JS budget
+        run: |
+          node scripts/check-bundle-size.mjs out
+          node scripts/check-bundle-size.mjs out play/1/index.html
+
+      # Do NOT add `enablement: true`. The default GITHUB_TOKEN can deploy to an
+      # existing Pages site but cannot create one — that is a repository admin
+      # operation. Pages is switched on once, by hand, with the command in the
+      # README. See ADR-0006.
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          # Next's static export writes `out`, not `dist`.
+          path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

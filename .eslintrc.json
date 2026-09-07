@@ -1,0 +1,30 @@
+{
+  "extends": ["next/core-web-vitals", "prettier"],
+  "rules": {
+    "no-restricted-globals": [
+      "error",
+      { "name": "event", "message": "Use the handler parameter instead." }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["src/engine/**/*.ts"],
+      "excludedFiles": ["src/engine/**/*.test.ts"],
+      "rules": {
+        "no-restricted-properties": [
+          "error",
+          {
+            "object": "Math",
+            "property": "random",
+            "message": "engine/ must draw randomness from the session rng (ADR-0003, invariant 1)."
+          }
+        ],
+        "no-restricted-globals": [
+          "error",
+          { "name": "window", "message": "engine/ must not touch the DOM (ADR-0002)." },
+          { "name": "document", "message": "engine/ must not touch the DOM (ADR-0002)." }
+        ]
+      }
+    }
+  ]
+}
