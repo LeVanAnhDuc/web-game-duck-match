@@ -12,9 +12,12 @@
 | [ADR-0002](0002-engine-thuan-phat-su-kien-renderer-dom.md) | Engine thuần phát ra danh sách sự kiện; renderer là React DOM + CSS | 2026-09-04 | accepted |
 | [ADR-0003](0003-rng-co-seed-la-nguon-ngau-nhien-duy-nhat.md) | PRNG mulberry32 có seed là nguồn ngẫu nhiên duy nhất | 2026-09-04 | accepted |
 | [ADR-0004](0004-nextjs-static-export-yarn-theo-tien-le-web-game.md) | Next.js static export + Yarn classic, theo tiền lệ thư mục `web-game/` | 2026-09-04 | accepted |
-| [ADR-0005](0005-chia-nam-giai-doan-thay-vi-mot-spec.md) | Chia sản phẩm thành năm giai đoạn, mỗi giai đoạn một spec riêng | 2026-09-04 | accepted |
+| [ADR-0005](0005-chia-nam-giai-doan-thay-vi-mot-spec.md) | Chia sản phẩm thành năm giai đoạn, mỗi giai đoạn một spec riêng | 2026-09-04 | accepted — bổ sung 07.09.2026: xem ghi chú cuối file về track trình bày |
 | [ADR-0006](0006-github-pages-ba-workflow-va-release-tu-conventional-commits.md) | Deploy lên GitHub Pages bằng ba workflow, release suy ra từ Conventional Commits | 2026-09-04 | accepted |
 | [ADR-0007](0007-kiem-ban-deploy-bang-cach-choi-that.md) | Kiểm bản deploy bằng cách chơi thử nó, không tin mã trạng thái HTTP | 2026-09-07 | accepted |
+| [ADR-0008](0008-palette-do-duoc-baloo-2-thay-fredoka-signature-la-cai-gieng.md) | Palette chọn bằng đo, Baloo 2 thay Fredoka, signature là cái giếng | 2026-09-07 | accepted |
+| [ADR-0009](0009-reshuffled-mang-theo-grid.md) | `reshuffled` mang theo grid mới | 2026-09-07 | accepted |
+| [ADR-0010](0010-ba-lop-ban-choi-va-lead-tach-khoi-thoi-luong-css.md) | Bàn chơi ba lớp, và `lead` tách khỏi thời lượng CSS | 2026-09-07 | accepted |
 <!-- END:auto -->
 
 Trạng thái: `accepted` · `superseded by ADR-00xx` · `deprecated`

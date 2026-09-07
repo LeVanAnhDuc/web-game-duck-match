@@ -99,7 +99,14 @@ export type GameEvent =
   | { t: 'fell'; moves: { from: Pos; to: Pos }[] }
   | { t: 'refilled'; cells: { at: Pos; piece: Piece }[] }
   | { t: 'goalProgressed'; index: number; progress: GoalProgress }
-  | { t: 'reshuffled' }
+  /**
+   * Carries the board the shuffle produced, not just the fact that it happened.
+   * `moves.reshuffle` redistributes the same `Piece` objects, so `game/` can
+   * project this like any other event and the piece layer slides every piece to
+   * its new cell with no animation code (ADR-0009). The cost is `rows x cols`
+   * objects on one event, and a reshuffle is rare.
+   */
+  | { t: 'reshuffled'; grid: Grid }
   | { t: 'levelWon'; score: number; stars: Stars }
   | { t: 'levelLost' }
 

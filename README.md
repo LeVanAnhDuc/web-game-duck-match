@@ -9,6 +9,10 @@ no install — open the link and play. Progress lives in `localStorage`.
 
 **Play it: <https://levananhduc.github.io/web-game-match-3/>**
 
+<p align="center">
+  <img src="docs/assets/board-mobile.png" alt="The board at 375px: six colours of clay piece, each with its own shape, in pressed wells" width="300">
+</p>
+
 Part of the `web-game/` folder in the `web-app-ecosystem` workspace.
 
 ## Features
@@ -30,6 +34,15 @@ Part of the `web-game/` folder in the `web-app-ecosystem` workspace.
   costing a move.
 - Fully keyboard playable — arrow keys to move, Enter to select and swap — and every
   piece colour also carries a distinct shape, so colour is never the only signal.
+- The board moves: swapped pieces slide past each other, a rejected swap slides over
+  and back without costing a move, cleared pieces pop, and the rest fall into the
+  gaps with a landing squash.
+- Feedback that teaches the rules: the points a match earned float where it happened,
+  with the cascade multiplier beside them; a special piece shimmers so you know it is
+  loaded; a stripe sweeps the row it eats; and after five idle seconds the board
+  nudges a legal move.
+- Every animation respects `prefers-reduced-motion` — beats collapse to zero and the
+  effect layer renders nothing at all, rather than flashing.
 
 ## Getting started
 

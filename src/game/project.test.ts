@@ -133,14 +133,12 @@ describe('projectEvents', () => {
       const move = findLegalMoves(session.grid)[0]
       if (!move) break
       const result = applySwap(session, move.from, move.to)
-      if (result.events.some((event) => event.t === 'reshuffled')) {
-        // A reshuffle is not projectable by design; skip that move but keep going.
-        session = result.session
-        continue
-      }
 
+      // No move is skipped any more. A reshuffle used to be unprojectable because
+      // its event carried no board; since ADR-0009 it carries one, so EVERY event
+      // kind can be replayed and this assertion covers the whole union.
       const shown = buildTimeline(result.events, { reducedMotion: false }).reduce(
-        (acc, step) => projectEvents(acc, step.events),
+        (acc, step) => projectEvents(acc, step.events, step.visual),
         session,
       )
 

@@ -42,8 +42,17 @@ function run(
 
 const kinds = (events: GameEvent[]) => events.map((event) => event.t)
 
+/** `find` alone does not narrow a union, and the assertions need `.grid`. */
+const reshuffledIn = (events: GameEvent[]) =>
+  events.find(
+    (event): event is Extract<GameEvent, { t: 'reshuffled' }> => event.t === 'reshuffled',
+  )
+
 /** A board whose only match is the top row, and which settles after one round. */
 const ONE_MATCH = 'RRRB / BGBG / GBGB / BGBG'
+
+/** No match and no legal swap: resolving it can only end in a reshuffle. */
+const DEAD_BOARD = 'RYGG / BBGR / BYRB / YRBY'
 
 describe('resolveBoard', () => {
   it('scores the first round at multiplier one', () => {
@@ -162,6 +171,29 @@ describe('resolveBoard', () => {
     const out = run('RYGG / BBGR / BYRB / YRBY')
     expect(out.events.filter((event) => event.t === 'reshuffled')).toHaveLength(1)
     expect(hasLegalMove(out.grid)).toBe(true)
+  })
+
+  it('carries the board it produced on the reshuffled event', () => {
+    const out = run(DEAD_BOARD)
+    expect(reshuffledIn(out.events)?.grid).toEqual(out.grid)
+  })
+
+  it('reshuffles the very same pieces, so their ids survive the shuffle', () => {
+    // What makes the reshuffle beat animatable at all (ADR-0009): the piece layer
+    // positions by `Piece.id`, so it can only slide pieces it already knows.
+    // `moves.reshuffle` redistributes the same `Piece` objects, and this asserts
+    // that end of the deal — together with invariant 8 on the multiset.
+    const idsBefore = parseBoard(DEAD_BOARD)
+      .flat()
+      .map((cell) => cell?.id)
+      .sort()
+    const grid = reshuffledIn(run(DEAD_BOARD).events)?.grid ?? []
+    const idsAfter = grid
+      .flat()
+      .map((cell) => cell?.id)
+      .sort()
+
+    expect(idsAfter).toEqual(idsBefore)
   })
 
   it('hands back a fresh rng so the next move does not repeat this one', () => {

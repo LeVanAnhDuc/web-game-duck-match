@@ -35,12 +35,16 @@ function firstLegalMove(levelId: number) {
   const level = LEVELS.find((candidate) => candidate.id === levelId)
   if (!level) throw new Error(`no level ${levelId}`)
   const move = findLegalMoves(newSession(level, seedFor(levelId)).grid)[0]
-  if (!move) throw new Error(`level ${levelId} starts deadlocked, which a unit test denies`)
+  if (!move)
+    throw new Error(`level ${levelId} starts deadlocked, which a unit test denies`)
   return move
 }
 
 /** Walks the roving focus to a cell, then swaps it with its right/down neighbour. */
-async function playMove(page: Page, move: { from: { row: number; col: number }; to: { row: number; col: number } }) {
+async function playMove(
+  page: Page,
+  move: { from: { row: number; col: number }; to: { row: number; col: number } },
+) {
   await page.getByRole('gridcell').first().getByRole('button').focus()
   for (let i = 0; i < move.from.row; i++) await page.keyboard.press('ArrowDown')
   for (let i = 0; i < move.from.col; i++) await page.keyboard.press('ArrowRight')
@@ -79,7 +83,9 @@ test('US-01 · playing spends a move and scores points', async ({ page }) => {
   await expect(page.getByTestId('score')).not.toHaveText('0')
 })
 
-test('US-01 · the board is reachable and driveable by keyboard alone', async ({ page }) => {
+test('US-01 · the board is reachable and driveable by keyboard alone', async ({
+  page,
+}) => {
   await page.goto('/play/1/')
   await expect(page.getByRole('grid')).toBeVisible()
 
@@ -106,10 +112,14 @@ test('US-01 · an illegal swap costs nothing', async ({ page }) => {
   const level = LEVEL_1
   const grid = newSession(level, seedFor(1)).grid
   const legal = new Set(
-    findLegalMoves(grid).map((m) => `${m.from.row},${m.from.col}-${m.to.row},${m.to.col}`),
+    findLegalMoves(grid).map(
+      (m) => `${m.from.row},${m.from.col}-${m.to.row},${m.to.col}`,
+    ),
   )
-  let illegal: { from: { row: number; col: number }; to: { row: number; col: number } } | null =
-    null
+  let illegal: {
+    from: { row: number; col: number }
+    to: { row: number; col: number }
+  } | null = null
   for (let row = 0; row < level.rows && !illegal; row++) {
     for (let col = 0; col < level.cols - 1 && !illegal; col++) {
       const candidate = { from: { row, col }, to: { row, col: col + 1 } }
@@ -166,4 +176,33 @@ test('US-03 · garbage in storage still opens the app', async ({ page }) => {
 test('US-03 · a locked level is not a link', async ({ page }) => {
   await page.goto('/')
   await expect(page.locator('[aria-disabled="true"]')).toHaveCount(5)
+})
+
+test('the board renders pieces as a separate layer that travels', async ({ page }) => {
+  await page.goto('/play/1/')
+  await expect(page.getByRole('grid')).toBeVisible()
+
+  // Three layers, one --cell (ADR-0010). The semantic grid still owns the buttons;
+  // the pieces live beside it, keyed by id so a node can move between cells.
+  await expect(page.getByTestId('board-slab')).toBeVisible()
+  await expect(page.locator('[data-piece-id]')).toHaveCount(49)
+  await expect(page.locator('[data-testid="well"]')).toHaveCount(49)
+
+  const slot = page.locator('[data-piece-id][data-row="0"][data-col="0"]')
+  const id = await slot.getAttribute('data-piece-id')
+  expect(id).toBeTruthy()
+
+  // A piece is bigger than a token: the p-[6%] bug rendered every one at a sixth
+  // of its cell, and only a measurement catches that.
+  const box = await slot.boundingBox()
+  const cellBox = await page.getByTestId('cell-0-0').boundingBox()
+  expect(box!.width).toBeGreaterThan(cellBox!.width * 0.7)
+})
+
+test('a special piece is marked so the player knows it is a weapon', async ({ page }) => {
+  await page.goto('/play/1/')
+  await expect(page.getByRole('grid')).toBeVisible()
+  // A fresh board has no specials, so the absence is the assertion here; the
+  // presence is covered by the unit tests, which can build a board that has one.
+  await expect(page.locator('[data-shimmer="true"]')).toHaveCount(0)
 })

@@ -1,4 +1,5 @@
 import type { Cell, GameEvent, Grid, Pos, Session } from '@/engine'
+import type { Step } from './timeline'
 
 /**
  * Replays engine events onto the board the player is looking at.
@@ -27,14 +28,34 @@ function read(grid: Grid, pos: Pos): Cell {
   return grid[pos.row]?.[pos.col] ?? null
 }
 
-/** One step's worth of events applied to a display session. */
-export function projectEvents(session: Session, events: GameEvent[]): Session {
-  if (events.length === 0) return session
+/**
+ * One step's worth of events applied to a display session.
+ *
+ * `visual` is the beat the timeline invented rather than the engine reported — the
+ * slide-over-and-back of a rejected swap. It is a separate parameter because it must
+ * NOT spend a move: a reverted swap costs the player nothing (invariant 6), and
+ * expressing it as two `swapped` events would charge two (ADR-0010).
+ */
+export function projectEvents(
+  session: Session,
+  events: GameEvent[],
+  visual?: Step['visual'],
+): Session {
+  if (events.length === 0 && !visual) return session
 
   const grid = clone(session.grid)
   let score = session.score
   let movesLeft = session.movesLeft
   let progress = session.progress
+
+  if (visual) {
+    // Both kinds do the same thing to the board — exchange the two cells. The
+    // difference is only which way round the player is watching it happen.
+    const from = read(grid, visual.from)
+    const to = read(grid, visual.to)
+    write(grid, visual.from, to)
+    write(grid, visual.to, from)
+  }
 
   for (const event of events) {
     switch (event.t) {
@@ -86,14 +107,25 @@ export function projectEvents(session: Session, events: GameEvent[]): Session {
         break
 
       case 'goalProgressed':
-        progress = progress.map((goal, index) => (index === event.index ? event.progress : goal))
+        progress = progress.map((goal, index) =>
+          index === event.index ? event.progress : goal,
+        )
         break
 
-      case 'reshuffled':
-        // Not projectable: the event carries no board, deliberately — a whole grid
-        // in an event would exist only for this. A reshuffle is always the last
-        // thing in a move, so the settled session lands right after it.
+      case 'reshuffled': {
+        // Projectable since ADR-0009: the event carries the board it produced, and
+        // `moves.reshuffle` redistributes the same Piece objects, so every id
+        // survives. The piece layer therefore sees 49 pieces change position and
+        // slides each one home — no animation code anywhere.
+        for (let row = 0; row < event.grid.length; row++) {
+          const line = event.grid[row]
+          if (!line) continue
+          for (let col = 0; col < line.length; col++) {
+            write(grid, { row, col }, line[col] ?? null)
+          }
+        }
         break
+      }
 
       case 'levelWon':
       case 'levelLost':

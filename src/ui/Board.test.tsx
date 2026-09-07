@@ -26,9 +26,17 @@ function cell(row: number, col: number): HTMLElement {
   return screen.getByTestId(`cell-${row}-${col}`)
 }
 
-/** The tile drawing inside a cell — `Tile` takes no position, so it has one id. */
+/**
+ * The tile drawing for a cell.
+ *
+ * Pieces no longer live inside the cell button: they are positioned by id in
+ * `PieceLayer` so they can travel between cells (ADR-0010). Only this locator
+ * changed — every assertion that uses it is unchanged.
+ */
 function tileIn(row: number, col: number): Element | null {
-  return cell(row, col).querySelector('[data-testid="tile"]')
+  return document.querySelector(
+    `[data-testid="tile-slot"][data-row="${row}"][data-col="${col}"] [data-testid="tile"]`,
+  )
 }
 
 function tabbable(): HTMLElement[] {
@@ -254,13 +262,15 @@ describe('Board', () => {
 
   it('sizes cells from --cols so the board stays square', () => {
     const { unmount } = render(<Board session={session} busy={false} onSwap={vi.fn()} />)
-    const grid = screen.getByRole('grid')
+    // The vars sit on the slab, not the grid: custom properties inherit downwards,
+    // and all three layers are children of the slab (ADR-0010).
+    const grid = screen.getByTestId('board-slab')
     expect(grid.style.getPropertyValue('--cols')).toBe('7')
     expect(grid.style.getPropertyValue('--cell')).toContain('clamp(')
     unmount()
 
     render(<Board session={wideSession} busy={false} onSwap={vi.fn()} />)
-    expect(screen.getByRole('grid').style.getPropertyValue('--cols')).toBe('9')
+    expect(screen.getByTestId('board-slab').style.getPropertyValue('--cols')).toBe('9')
   })
 })
 

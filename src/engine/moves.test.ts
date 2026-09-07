@@ -38,9 +38,9 @@ describe('isLegalSwap', () => {
   })
 
   it('rejects a swap that makes nothing', () => {
-    expect(isLegalSwap(parseBoard(DEADLOCK), { row: 0, col: 0 }, { row: 0, col: 1 })).toBe(
-      false,
-    )
+    expect(
+      isLegalSwap(parseBoard(DEADLOCK), { row: 0, col: 0 }, { row: 0, col: 1 }),
+    ).toBe(false)
   })
 
   it('rejects non-adjacent and identical positions', () => {

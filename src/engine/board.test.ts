@@ -66,7 +66,9 @@ describe('board', () => {
     expect(out.grid.flat().every((cell) => cell !== null)).toBe(true)
     expect(out.nextPieceId).toBe(106)
     expect(new Set(out.cells.map((cell) => cell.piece.id)).size).toBe(6)
-    expect(out.cells.every((cell) => ['red', 'blue'].includes(cell.piece.color))).toBe(true)
+    expect(out.cells.every((cell) => ['red', 'blue'].includes(cell.piece.color))).toBe(
+      true,
+    )
   })
 
   it('refill is deterministic for one seed', () => {

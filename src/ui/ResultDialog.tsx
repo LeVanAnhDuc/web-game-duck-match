@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useId, useRef } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { Stars } from '@/engine'
 import { formatScore, t } from '@/i18n/vi'
+import { StarRow } from './StarRow'
 
 /**
  * End-of-level dialog, overlaid on the bàn rather than being its own route so the
@@ -23,6 +24,22 @@ const MAX_STARS = 3
 const FOCUSABLE =
   'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
+const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
+
+function prefersReducedMotion(): boolean {
+  // The same three guards as `game/useGameSession.ts`: no window during the static
+  // export's build-time render, no matchMedia in environments that never
+  // implemented it, and a query that can throw. None of those is a reason to refuse
+  // to animate, so the fallback is "no preference stated" (NFR-A11Y-05).
+  if (typeof window === 'undefined') return false
+  if (typeof window.matchMedia !== 'function') return false
+  try {
+    return window.matchMedia(REDUCED_MOTION_QUERY).matches
+  } catch {
+    return false
+  }
+}
+
 export type LevelResult = {
   status: 'won' | 'lost'
   stars: Stars
@@ -39,6 +56,13 @@ export type ResultDialogProps = {
    * dialog reaching for it.
    */
   detail?: ReactNode
+  /**
+   * Sampled from the media query when omitted, because the play screen mounts this
+   * dialog without holding that preference. It is read here rather than left to CSS
+   * because the star stagger is a **delay**, and the reset in globals.css collapses
+   * durations only — a delayed star under reduced motion would sit invisible.
+   */
+  reducedMotion?: boolean
   onReplay: () => void
   onNext: () => void
   onBackToMap: () => void
@@ -48,6 +72,7 @@ export function ResultDialog({
   result,
   hasNextLevel,
   detail,
+  reducedMotion,
   onReplay,
   onNext,
   onBackToMap,
@@ -56,6 +81,9 @@ export function ResultDialog({
   const titleId = useId()
   const summaryId = useId()
   const isWon = result.status === 'won'
+  // Sampled once per mount: the dialog lives for one result, so there is no render
+  // in its life where re-reading the query could change the right answer.
+  const [reduced] = useState(() => reducedMotion ?? prefersReducedMotion())
 
   // `onBackToMap` is read through a ref so Escape keeps working without
   // re-registering the mount effect (which would re-steal focus on every render).
@@ -114,6 +142,19 @@ export function ResultDialog({
         aria-describedby={isWon ? summaryId : undefined}
         tabIndex={-1}
         onKeyDown={handleKeyDown}
+        // Longhands so `animationName` is readable on its own, and no delay: the
+        // mount effect below focuses the first action in the same commit, and a
+        // dialog that arrives after its focus does is a dialog that stole a keypress.
+        style={
+          reduced
+            ? undefined
+            : {
+                animationName: 'dialog-in',
+                animationDuration: '220ms',
+                animationTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
+                animationFillMode: 'both',
+              }
+        }
         className="w-full max-w-sm rounded-2xl bg-surface-card p-6 text-center shadow-2xl"
       >
         {/* A live region as well as the dialog name: some screen readers announce
@@ -125,24 +166,17 @@ export function ResultDialog({
 
           {isWon && (
             <div id={summaryId} className="mt-4">
-              {/* Stars are drawn here instead of reusing a shared row because the
-                  dialog needs one accessible label over the whole group, not three. */}
-              <div
-                role="img"
-                aria-label={t.starsEarned(result.stars, MAX_STARS)}
-                className="flex justify-center gap-1 text-3xl leading-none"
-              >
-                {Array.from({ length: MAX_STARS }, (_, index) => (
-                  <span
-                    key={index}
-                    aria-hidden="true"
-                    className={
-                      index < result.stars ? 'text-piece-yellow' : 'text-surface-raised'
-                    }
-                  >
-                    ★
-                  </span>
-                ))}
+              {/* `labelMode="group"` is what let the dialog's own copy of the star
+                  row go: it needs one accessible name over the whole group, not
+                  three named glyphs, and that is now a `StarRow` option. */}
+              <div className="flex justify-center">
+                <StarRow
+                  stars={result.stars}
+                  max={MAX_STARS}
+                  labelMode="group"
+                  size="lg"
+                  land={!reduced}
+                />
               </div>
 
               <p className="mt-3 flex items-baseline justify-center gap-2">

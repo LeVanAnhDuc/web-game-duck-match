@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { applySwap, newSession } from '@/engine'
+import { applySwap, findHint, newSession } from '@/engine'
 import type { GameEvent, LevelConfig, Pos, Session, Stars, SwapResult } from '@/engine'
 import { recordWin } from '@/storage/local'
 import type { ProgressRepository } from '@/storage/ports'
@@ -34,7 +34,17 @@ export type UseGameSessionResult = {
   trySwap(from: Pos, to: Pos): void
   restart(): void
   lastResult: GameResult | null
+  /** Events of the beat playing right now, for the effect layer. */
+  stepEvents: GameEvent[]
+  /** Monotonic, so two identical event lists still produce distinct effect keys. */
+  beat: number
+  reducedMotion: boolean
+  /** What `findHint` suggests after the player has gone quiet, else null. */
+  hint: { from: Pos; to: Pos } | null
 }
+
+/** How long the player has to be idle before the board offers a nudge. */
+const HINT_AFTER_MS = 5_000
 
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 
@@ -59,6 +69,11 @@ export function useGameSession(args: UseGameSessionArgs): UseGameSessionResult {
   const [session, setSession] = useState<Session>(() => newSession(args.level, args.seed))
   const [busy, setBusy] = useState(false)
   const [lastResult, setLastResult] = useState<GameResult | null>(null)
+  const [beatState, setBeatState] = useState<{ events: GameEvent[]; beat: number }>({
+    events: [],
+    beat: 0,
+  })
+  const [hint, setHint] = useState<{ from: Pos; to: Pos } | null>(null)
 
   /**
    * The latest arguments, read by the timer chain and by the persistence effect.
@@ -145,8 +160,14 @@ export function useGameSession(args: UseGameSessionArgs): UseGameSessionResult {
       // the player would see the result before its cause. `sessionRef` is left
       // alone: the engine's own settled session stays the authority, and the
       // projection is only what is on screen (invariant 2).
-      setSession((shown) => projectEvents(shown, step.events))
-      timerRef.current = setTimeout(advance, step.duration)
+      setSession((shown) => projectEvents(shown, step.events, step.visual))
+      // The effect layer reads events, not state, so it needs the beat published
+      // separately — and a counter, because the same event list can play twice.
+      setBeatState((previous) => ({ events: step.events, beat: previous.beat + 1 }))
+      // `lead` is when the NEXT beat starts, not how long this one animates — the
+      // animation itself runs in CSS and deliberately outlives its lead, which is
+      // what makes the beats overlap (ADR-0010).
+      timerRef.current = setTimeout(advance, step.lead)
       return
     }
 
@@ -241,5 +262,32 @@ export function useGameSession(args: UseGameSessionArgs): UseGameSessionResult {
     }
   }, [lastResult])
 
-  return { session, busy, trySwap, restart, lastResult }
+  /**
+   * The idle nudge. Finding a move is a game rule, so `findHint` lives in the engine
+   * and this only asks (design.md §C.3) — and it only asks while nothing is playing,
+   * so a hint can never appear over a cascade the player is still watching.
+   */
+  useEffect(() => {
+    setHint(null)
+    if (busy || session.status !== 'playing' || lastResult) return
+
+    const timer = setTimeout(() => {
+      setHint(findHint(sessionRef.current))
+    }, HINT_AFTER_MS)
+    return () => clearTimeout(timer)
+    // `session` is the dependency that matters: every accepted move replaces it and
+    // therefore restarts the idle clock.
+  }, [busy, session, lastResult])
+
+  return {
+    session,
+    busy,
+    trySwap,
+    restart,
+    lastResult,
+    stepEvents: beatState.events,
+    beat: beatState.beat,
+    reducedMotion: reducedMotionRef.current,
+    hint,
+  }
 }
