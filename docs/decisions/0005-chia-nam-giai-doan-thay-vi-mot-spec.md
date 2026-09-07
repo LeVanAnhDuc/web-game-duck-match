@@ -1,7 +1,7 @@
 # ADR-0005 · Chia sản phẩm thành năm giai đoạn, mỗi giai đoạn một spec riêng
 
 > **Ngày:** 2026-09-04
-> **Trạng thái:** accepted
+> **Trạng thái:** accepted — bổ sung 07.09.2026: xem ghi chú cuối file về track trình bày
 > **Liên quan:** FR-01…FR-13 · `docs/specs/core-engine-and-goals/design.md`
 
 ## 1. Bối cảnh
@@ -56,3 +56,18 @@ sau".
 
 **Điều kiện xem lại quyết định này:** nếu giai đoạn 3 cho thấy ô chặn và vật thể rơi
 chia sẻ gần hết cơ chế, thì gộp giai đoạn 3 với 4 và viết ADR mới.
+
+---
+
+## Ghi chú 07.09.2026 — track trình bày đi song song
+
+Năm giai đoạn ở trên là **luật chơi**. Feature `tactile-board` (FR-15…FR-17: token,
+chuyển động bàn, lớp phản hồi) là **trình bày** và vuông góc với chúng: nó không thêm
+luật nào, và không giai đoạn nào ở trên phụ thuộc vào nó.
+
+Nó chen vào **trước giai đoạn 2** vì hai lý do đo được, không phải vì thẩm mỹ: sáu
+màu viên đang vi phạm ngưỡng tương phản 3:1 (viên tím 2,57:1), và nhân tử cascade —
+thứ mà màn 2 tồn tại để dạy — hiện không hiển thị ở đâu cả, nên bài học đó không học
+được. Xem ADR-0008 và ADR-0010.
+
+ADR này **không** bị thay thế: thứ tự năm giai đoạn luật chơi giữ nguyên.
