@@ -20,15 +20,27 @@ KHÔNG chứa: tính năng ngoài phạm vi (-> 01-product/overview.md §Non-Goa
 Không có việc nào đang dở.
 
 **Giai đoạn 1 (`core-engine-and-goals`) xong** trên nhánh `feat/core-engine-and-goals`:
-FR-01…FR-08 ở trạng thái `xong`, 392 test đơn vị + 15 test luồng Playwright xanh,
+FR-01…FR-08 ở trạng thái `xong`, 395 test đơn vị + 15 test luồng Playwright xanh,
 `yarn build` ra `out/` với cả 6 màn. Kế tiếp là giai đoạn 2 — combo hai quân đặc biệt
 (FR-09, ADR-0005).
 
 CI/CD đã vào cùng nhánh này (ADR-0006): ba workflow + năm script trong `scripts/`,
 deploy tĩnh lên GitHub Pages, release tự sinh từ Conventional Commits. GitHub Pages
-đã bật xong cho repo. `ci.yml` chạy xanh trên PR #1, và đó là lần **đầu tiên**
-NFR-SEC-05 được kiểm thật: 0 advisory. Còn lại chỉ là merge PR — `deploy.yml` và
-`release.yml` chỉ kích hoạt khi push vào `main`.
+đã bật xong cho repo, và `ci.yml` chạy xanh trên PR #1.
+
+**Gate audit trả công ngay trong ba ngày.** Lần chạy 04.09 sạch — lần **đầu tiên**
+NFR-SEC-05 được kiểm thật. Lần chạy 07.09 đỏ với **7 advisory mức high/critical**
+(`vite`, `vitest`, `postcss` qua `next`, và `happy-dom` — trong đó một CRITICAL là VM
+context escape dẫn tới RCE, đúng cái sandbox bộ test đang chạy trong đó). Đã nâng
+`vitest 2→3`, `vite 5→7`, `happy-dom 15→20`, `postcss >= 8.5.18` kèm `resolutions` để
+ép cả bản `next` pin. Sau nâng: 576 dependency, 0 advisory.
+
+Bản thân gate cũng có một lỗ đã bịt: audit **thất bại** và audit **sạch** in ra
+stdout giống nhau, và bản port từ minesweeper coi đó là pass — nghĩa là ở đúng máy
+này (endpoint hay timeout) nó sẽ báo "sạch" trong khi không kiểm gì. Giờ thiếu dòng
+`auditSummary` là exit 1.
+
+Còn lại chỉ là merge PR — `deploy.yml` và `release.yml` chỉ kích hoạt khi push `main`.
 
 ## Việc tiếp theo
 
