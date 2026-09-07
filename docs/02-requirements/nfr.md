@@ -36,7 +36,7 @@ không tài khoản, không PII, không tiền. Đó là lý do phần lớn kh�
 | NFR-SEC-02 | ~~Không log PII/token/mật khẩu~~ **(bỏ)** — dự án không thu thập dữ liệu cá nhân nào | — |
 | NFR-SEC-03 | ~~Rate limit endpoint đăng nhập~~ **(bỏ)** — không có đăng nhập | — |
 | NFR-SEC-04 | Không có secret nào trong repo. `.env.example` chỉ ghi **tên** biến và cách lấy giá trị, không bao giờ ghi giá trị; chạy dự án không cần biến nào, hai biến đang có là do CI đặt | grep + review |
-| NFR-SEC-05 | Dependency không có lỗ hổng mức high trở lên | `yarn check:audit` trong CI (`ci.yml`). Gác đúng mức high/critical, không gác vào exit code của `yarn audit` — nó là bitmask cho **mọi** severity. Đo lần đầu 04.09.2026: 0 advisory |
+| NFR-SEC-05 | Dependency không có lỗ hổng mức high trở lên | `yarn check:audit` (CI gọi trong `ci.yml`). Gác đúng mức high/critical, không gác vào exit code của `yarn audit` — nó là bitmask cho **mọi** severity. Gate **fail-closed**: thiếu dòng `auditSummary` nghĩa là audit không chạy, và đó là lỗi, không phải "sạch". Đo 07.09.2026: 576 dependency, 0 advisory |
 | NFR-SEC-06 | ~~Lỗi trả client không chứa stack trace~~ **(bỏ)** — không có lỗi từ server; lỗi client do NFR-REL-03 lo | — |
 
 ## Accessibility

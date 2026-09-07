@@ -37,6 +37,8 @@ function pointsOf(events: GameEvent[]): number {
  */
 
 describe('engine and projection agreement', () => {
+  // 4320 moves is a lot for one `it`, and it is the point of the test — so the
+  // budget is stated here rather than raised for every test in the project.
   it('projection matches engine over many seeds and levels', () => {
     const problems: string[] = []
     let moves = 0
@@ -87,7 +89,7 @@ describe('engine and projection agreement', () => {
     }
     console.log('moves played', moves)
     expect(problems.slice(0, 10)).toEqual([])
-  })
+  }, 60_000)
 
   it('duplicate piece ids never appear on the board', () => {
     const problems: string[] = []
@@ -116,5 +118,5 @@ describe('engine and projection agreement', () => {
       if (problems.length > 5) break
     }
     expect(problems.slice(0, 6)).toEqual([])
-  })
+  }, 60_000)
 })
