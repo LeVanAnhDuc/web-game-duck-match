@@ -57,6 +57,7 @@ hand — `GITHUB_PAGES` in particular would break every asset path locally.
 | `yarn lint` | ESLint via `next lint` |
 | `yarn check:bundle` | first-load JS budget, NFR-PERF-07 |
 | `yarn check:audit` | dependency advisories at high or above, NFR-SEC-05 |
+| `yarn verify:live` | open the published site and play a move on it |
 | `yarn release:next` | print the version the next release would carry, and why |
 | `yarn release:notes v1.2.0` | print the release notes for a tag |
 | `yarn format` | Prettier over the repo |
@@ -87,7 +88,7 @@ Three workflows, one job each, and none of them trusts the others' results:
 | Workflow | Runs on | Gates |
 | --- | --- | --- |
 | [`ci.yml`](.github/workflows/ci.yml) | pull requests | lint · typecheck · unit tests · dependency audit · build · bundle budget · end-to-end |
-| [`deploy.yml`](.github/workflows/deploy.yml) | push to `main` | typecheck · unit tests, then publishes `out/` to Pages |
+| [`deploy.yml`](.github/workflows/deploy.yml) | push to `main` | typecheck · unit tests · bundle budget, publishes `out/` to Pages, then **opens the live URL and plays a move on it** |
 | [`release.yml`](.github/workflows/release.yml) | push to `main` | typecheck · unit tests, then tags and writes the release |
 
 `ci.yml` deliberately does **not** run on pushes to `main`: the other two already
@@ -103,6 +104,12 @@ gh api -X POST repos/LeVanAnhDuc/web-game-match-3/pages -f build_type=workflow
 
 If `configure-pages` ever fails with "Get Pages site failed", that command is the
 fix, not a change to the workflow.
+
+**A green deploy job is not a working site.** `curl` reported `200` for the Pages URL
+while the body was GitHub's own "Site not found" page, so the last job of the deploy
+opens the real URL in a browser, waits for the app's own title, and plays one move
+(ADR-0007). If that job is red, the site is serving something other than the game —
+whatever the other badges say.
 
 ## How it is put together
 

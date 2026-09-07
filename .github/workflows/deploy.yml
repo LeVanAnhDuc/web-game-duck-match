@@ -63,9 +63,37 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    # Exposed so `verify` opens the URL Pages actually published rather than one
+    # hardcoded in two places that can drift apart.
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  # A green deploy job is not a working site. Checked the obvious way once and it
+  # lied: curl reported 200 for the Pages URL while the body was GitHub's own
+  # "Site not found" page. This opens the real URL and plays a move.
+  verify:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: yarn
+
+      - run: yarn install --frozen-lockfile
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Play the deployed site
+        run: yarn verify:live
+        env:
+          LIVE_URL: ${{ needs.deploy.outputs.page_url || 'https://levananhduc.github.io/web-game-match-3/' }}
