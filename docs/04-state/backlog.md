@@ -25,8 +25,10 @@ FR-01…FR-08 ở trạng thái `xong`, 392 test đơn vị + 15 test luồng Pl
 (FR-09, ADR-0005).
 
 CI/CD đã vào cùng nhánh này (ADR-0006): ba workflow + năm script trong `scripts/`,
-deploy tĩnh lên GitHub Pages, release tự sinh từ Conventional Commits. **Còn một
-thao tác tay chưa làm được từ đây:** bật Pages cho repo — xem §Việc tiếp theo.
+deploy tĩnh lên GitHub Pages, release tự sinh từ Conventional Commits. GitHub Pages
+đã bật xong cho repo. `ci.yml` chạy xanh trên PR #1, và đó là lần **đầu tiên**
+NFR-SEC-05 được kiểm thật: 0 advisory. Còn lại chỉ là merge PR — `deploy.yml` và
+`release.yml` chỉ kích hoạt khi push vào `main`.
 
 ## Việc tiếp theo
 
@@ -37,8 +39,7 @@ thao tác tay chưa làm được từ đây:** bật Pages cho repo — xem §V
 | Giai đoạn 3 — ô chặn + mục tiêu phá ô chặn | FR-10 | trung bình | Cũng là phép thử ranh giới module: nếu phải sửa ngoài `goals.ts`/`types.ts` thì thiết kế đã sai (`overview.md` §6.3) |
 | Giai đoạn 4 — vật thể rơi xuống đáy | FR-11 | trung bình | Đắt nhất trong bốn loại mục tiêu, và phụ thuộc luật trọng lực đã ổn định |
 | Giai đoạn 5 — đủ 15-20 màn, âm thanh, cân độ khó | FR-12 · FR-13 | thấp | Chỉ đáng làm khi cả bốn loại mục tiêu đã chạy, nếu không sẽ phải cân lại |
-| Bật GitHub Pages cho repo (`gh api -X POST repos/LeVanAnhDuc/web-game-match-3/pages -f build_type=workflow`) | ADR-0006 | cao | `deploy.yml` đã có nhưng `GITHUB_TOKEN` của workflow **không tạo được** Pages site, chỉ deploy được lên site đã có. Chưa chạy lệnh này thì lần deploy đầu sẽ đỏ ở `configure-pages` |
-| Chạy `check:audit` thật một lần | NFR-SEC-05 | cao | Script đã có và CI đã gọi, nhưng **chưa lần nào chạy được**: `yarn audit` timeout ở registry từ máy này. Lần CI đầu tiên là lần đầu ngưỡng này được kiểm — và nó có thể đỏ |
+| Merge PR #1 để `main` có CI/CD và bản deploy đầu tiên | ADR-0006 | cao | `deploy.yml` và `release.yml` chỉ chạy trên push `main`, nên đến khi merge thì chưa có bản chơi thử nào và chưa có release nào |
 
 ## Nợ kỹ thuật — cố ý làm tạm
 
