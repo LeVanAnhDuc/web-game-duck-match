@@ -28,8 +28,8 @@ const body = Nunito({
 })
 
 export const metadata: Metadata = {
-  title: 'Match 3',
-  description: 'Match-3 theo màn, chơi ngay trên trình duyệt.',
+  title: 'Duck Match',
+  description: 'Duck Match - match-3 theo màn, chơi ngay trên trình duyệt.',
 }
 
 export const viewport: Viewport = {

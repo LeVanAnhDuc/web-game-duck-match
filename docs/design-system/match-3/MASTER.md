@@ -6,7 +6,7 @@
 
 ---
 
-**Project:** Match 3
+**Project:** Duck Match
 **Generated:** 2026-09-07 15:57:49
 **Category:** Casual Puzzle Game
 

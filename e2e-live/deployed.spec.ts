@@ -16,7 +16,7 @@ import { LEVELS } from '../src/levels/levels'
  * entirely — the mistake that produced the false failure this check was written
  * from.
  */
-const SITE = process.env.LIVE_URL ?? 'https://levananhduc.github.io/web-game-match-3/'
+const SITE = process.env.LIVE_URL ?? 'https://levananhduc.github.io/web-game-duck-match/'
 
 /**
  * Pages needs a moment after the deploy job reports success. Waiting on the real
@@ -28,7 +28,7 @@ async function waitForDeployment(page: import('@playwright/test').Page) {
   for (let attempt = 1; ; attempt++) {
     await page.goto(SITE, { waitUntil: 'domcontentloaded' })
     const title = await page.title()
-    if (title === 'Match 3') return
+    if (title === 'Duck Match') return
     if (Date.now() > deadline) {
       throw new Error(
         `${SITE} still does not serve the app after ${attempt} attempts. ` +

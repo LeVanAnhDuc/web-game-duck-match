@@ -10,7 +10,7 @@
 `gh api .../pages` trả về đúng URL. Kiểm bằng lệnh hiển nhiên nhất:
 
 ```bash
-curl -s -o /dev/null -w '%{http_code}' https://levananhduc.github.io/web-game-match-3/
+curl -s -o /dev/null -w '%{http_code}' https://levananhduc.github.io/web-game-duck-match/
 # 200
 ```
 

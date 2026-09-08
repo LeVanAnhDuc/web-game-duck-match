@@ -1,15 +1,15 @@
-# web-game-match-3
+# 💠 Duck Match — match-3 where every colour carries a shape, and the board never deadlocks
 
-[![CI](https://github.com/LeVanAnhDuc/web-game-match-3/actions/workflows/ci.yml/badge.svg)](https://github.com/LeVanAnhDuc/web-game-match-3/actions/workflows/ci.yml)
-[![Deploy](https://github.com/LeVanAnhDuc/web-game-match-3/actions/workflows/deploy.yml/badge.svg)](https://github.com/LeVanAnhDuc/web-game-match-3/actions/workflows/deploy.yml)
-[![Release](https://img.shields.io/github/v/release/LeVanAnhDuc/web-game-match-3?sort=semver)](https://github.com/LeVanAnhDuc/web-game-match-3/releases)
+[![CI](https://github.com/LeVanAnhDuc/web-game-duck-match/actions/workflows/ci.yml/badge.svg)](https://github.com/LeVanAnhDuc/web-game-duck-match/actions/workflows/ci.yml)
+[![Deploy](https://github.com/LeVanAnhDuc/web-game-duck-match/actions/workflows/deploy.yml/badge.svg)](https://github.com/LeVanAnhDuc/web-game-duck-match/actions/workflows/deploy.yml)
+[![Release](https://img.shields.io/github/v/release/LeVanAnhDuc/web-game-duck-match?sort=semver)](https://github.com/LeVanAnhDuc/web-game-duck-match/releases)
 
-A level-based match-3 game that runs entirely in the browser. No account, no server,
-no install — open the link and play. Progress lives in `localStorage`.
+Duck Match is a level-based match-3 game that runs entirely in the browser. No
+account, no server, no install — open the link and play. Progress lives in `localStorage`.
 
-**Play**: https://levananhduc.github.io/web-game-match-3/
+**Play**: https://levananhduc.github.io/web-game-duck-match/
 
-![Match-3 gameplay](docs/assets/screenshot.png)
+![Duck Match gameplay](docs/assets/screenshot.png)
 
 <p align="center">
   <img src="docs/assets/board-mobile.png" alt="The board at 375px: six colours of clay piece, each with its own shape, in pressed wells" width="300">
@@ -139,7 +139,7 @@ rights — the workflow's own `GITHUB_TOKEN` can deploy to an existing Pages sit
 cannot create one:
 
 ```bash
-gh api -X POST repos/LeVanAnhDuc/web-game-match-3/pages -f build_type=workflow
+gh api -X POST repos/LeVanAnhDuc/web-game-duck-match/pages -f build_type=workflow
 ```
 
 If `configure-pages` ever fails with "Get Pages site failed", that command is the
