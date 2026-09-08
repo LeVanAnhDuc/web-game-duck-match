@@ -29,6 +29,11 @@ jobs:
 
       - run: yarn install --frozen-lockfile
 
+      # Lint chay o day chu khong chi trong ci.yml: `build` bat duoc loi kieu
+      # nhung khong bat vi pham lint, va mot push thang vao `main` khong di
+      # qua pull request.
+      - run: yarn lint
+
       # The tests run here rather than trusting the CI workflow: `ci.yml` only fires
       # on pull requests, and a deploy that assumes a green run it cannot see is a
       # deploy that will eventually ship a red one.
