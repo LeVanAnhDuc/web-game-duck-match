@@ -1,0 +1,75 @@
+# git-cliff — luat version + cach nhom release note cho mot game trong web-game/.
+#
+# File nay la NGUON SU THAT DUY NHAT cho danh sach type. Skill `commit-rule` doc
+# type ra tu chinh file nay, nen them mot type o day la du: hook chap nhan no VA
+# note co ro cho no, cung mot lan sua. Dung giu ban sao danh sach type o cho khac.
+#
+# Xem truoc o may, khong can push:
+#   npx git-cliff --bumped-version          -> version ke tiep
+#   npx git-cliff --unreleased --tag vX.Y.Z -> note se noi gi
+
+[bump]
+# feat: luon bump minor, ke ca khi con 0.x.
+features_always_bump_minor = true
+# Breaking chi bump MINOR khi major dang la 0. Khong co gi on dinh truoc 1.0, va
+# 1.0.0 la mot loi tuyen bo ve su hoan chinh - nen phai buoc qua no co y thuc,
+# bang marker [release major], chu khong tu nhien xay ra.
+breaking_always_bump_major = false
+
+[git]
+conventional_commits = true
+# false = commit khong theo quy uoc VAN duoc liet ke (roi vao ro Other) chu khong
+# bi bo. Mot release note lang le nuot commit la mot release note bat dau noi doi.
+filter_unconventional = false
+# Breaking khong bao gio bi mot parser phia sau lam cho bien mat.
+protect_breaking_commits = true
+tag_pattern = "v[0-9].*"
+topo_order = false
+sort_commits = "oldest"
+
+# Thu tu o day la thu tu trong note: thu nguoi choi thay truoc, roi den thu nguoi
+# viet code quan tam. Tien to <!--N--> chi de sap thu tu, `striptags` xoa no khi in.
+commit_parsers = [
+  # Merge commit nhac lai dieu nhanh cua no da noi -> bo. Cai duoc tinh la cac
+  # commit ma nhanh MANG VAO.
+  { message = "^Merge pull request", skip = true },
+  { message = "^Merge branch",       skip = true },
+  { message = "^feat",     group = "<!--01-->Features" },
+  { message = "^fix",      group = "<!--02-->Fixes" },
+  { message = "^perf",     group = "<!--03-->Performance" },
+  { message = "^a11y",     group = "<!--04-->Accessibility" },
+  { message = "^refactor", group = "<!--05-->Refactoring" },
+  { message = "^style",    group = "<!--06-->Styling" },
+  { message = "^docs",     group = "<!--07-->Documentation" },
+  { message = "^test",     group = "<!--08-->Tests" },
+  { message = "^build",    group = "<!--09-->Build" },
+  { message = "^ci",       group = "<!--10-->CI" },
+  { message = "^chore",    group = "<!--11-->Chores" },
+  { message = "^revert",   group = "<!--12-->Reverts" },
+  # Bat phan con lai. Phai la parser CUOI CUNG.
+  { message = ".*",        group = "<!--99-->Other" },
+]
+
+[changelog]
+header = ""
+# Link compare khong nam o day: workflow biet GITHUB_REPOSITORY va tu ghep vao
+# cuoi file. Giu template chi lo viec nhom commit.
+footer = ""
+trim = true
+body = """
+{%- set breaking = commits | filter(attribute="breaking", value=true) -%}
+{%- if breaking | length > 0 %}
+### ⚠ Breaking changes
+{% for commit in breaking %}
+- {% if commit.scope %}**{{ commit.scope }}**: {% endif %}\
+{{ commit.message | upper_first }} (`{{ commit.id | truncate(length=7, end="") }}`)
+{%- endfor %}
+{% endif -%}
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group | striptags | trim }}
+{% for commit in commits %}
+- {% if commit.breaking %}**BREAKING** {% endif %}\
+{% if commit.scope %}**{{ commit.scope }}**: {% endif %}\
+{{ commit.message | upper_first }} (`{{ commit.id | truncate(length=7, end="") }}`)
+{%- endfor %}
+{% endfor %}"""

@@ -1,3 +1,13 @@
+# Phat hanh mot GitHub Release moi lan push vao `main` — version va note deu suy
+# ra tu lich su commit, khong ai phai nho lam gi.
+#
+# Merge mot PR vao `main` CUNG LA mot push vao `main`, nen mot trigger phu ca hai
+# luong. git-cliff doc COMMIT chu khong doc pull request, nen note khong bao gio
+# rong chi vi cong viec khong di qua PR.
+#
+# Luat version nam trong `cliff.toml`, khong nam o day. Xem truoc o may:
+#   npm run release:next     -> version ke tiep
+#   npm run release:notes    -> note se noi gi
 name: Release
 
 on:
@@ -8,56 +18,92 @@ on:
 permissions:
   contents: write
 
-# Never cancel a release halfway: a cancelled run can leave a tag with no release
-# attached to it.
 concurrency:
   group: release
   cancel-in-progress: false
+
+env:
+  # Ghim phien ban: mot thay doi hanh vi cua git-cliff khong duoc am tham doi
+  # cach danh version cua repo nay.
+  GIT_CLIFF_VERSION: "2.13.1"
 
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
         with:
-          # Full history and tags: both the version bump and the notes are derived
-          # from what happened since the previous tag.
+          # BAT BUOC. Moc de tinh version la tag git moi nhat; mot shallow clone
+          # khong co tag nao, va git-cliff se tinh tu commit dau tien.
           fetch-depth: 0
 
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 22
-          cache: yarn
-
-      - run: yarn install --frozen-lockfile
-
-      # A version number that points at broken code is worse than no release, and
-      # this suite costs seconds. `deploy.yml` runs the same gate independently —
-      # neither workflow can see the other's result, so neither may assume it.
-      - name: Gate the tag on the code actually working
-        run: yarn typecheck && yarn test
-
-      # Both steps below call scripts in the repository rather than shell buried in
-      # this file, so the version scheme can be exercised on a laptop:
-      #   yarn release:next
-      #   yarn release:notes v1.2.0
-      # A release process you can only test by pushing to main is one nobody tests.
-      - name: Decide the next version
-        id: version
+      - name: Work out the version
+        id: v
         run: |
-          next=$(bash scripts/next-version.sh --explain)
-          echo "next=$next" >> "$GITHUB_OUTPUT"
+          set -euo pipefail
+          latest=$(git describe --tags --abbrev=0 2>/dev/null || true)
+          range="${latest:+$latest..}HEAD"
 
-      - name: Compose the release notes
-        if: steps.version.outputs.next != ''
-        run: bash scripts/release-notes.sh "${{ steps.version.outputs.next }}" > RELEASE_NOTES.md
+          # Marker doc tren CA RANGE, khong phai subject cua HEAD. Trong luong PR
+          # thi HEAD luon la "Merge pull request #N from ..." do GitHub sinh, nen
+          # doc HEAD nghia la marker trong commit that khong bao gio den duoc day.
+          subjects=$(git log --no-merges --pretty=%s "$range")
+
+          force=""
+          case "$subjects" in
+            *"[skip release]"*)
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              echo "Bo qua: co [skip release] trong $range"
+              exit 0
+              ;;
+            *"[release major]"*) force="--bump major" ;;
+            *"[release minor]"*) force="--bump minor" ;;
+          esac
+
+          next=$(npx --yes "git-cliff@${GIT_CLIFF_VERSION}" --bumped-version $force)
+
+          # git-cliff in lai chinh version hien tai khi khong co gi de bump.
+          if [ "$next" = "$latest" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Bo qua: khong co commit nao moi ke tu $latest"
+            exit 0
+          fi
+
+          echo "skip=false"        >> "$GITHUB_OUTPUT"
+          echo "next=$next"        >> "$GITHUB_OUTPUT"
+          echo "latest=$latest"    >> "$GITHUB_OUTPUT"
+          echo "$latest -> $next${force:+  (ep boi $force)}"
+
+      - name: Compose the notes
+        if: steps.v.outputs.skip == 'false'
+        env:
+          NEXT: ${{ steps.v.outputs.next }}
+          LATEST: ${{ steps.v.outputs.latest }}
+        run: |
+          set -euo pipefail
+          npx --yes "git-cliff@${GIT_CLIFF_VERSION}" --unreleased --tag "$NEXT" --strip all > NOTES.md
+
+          # Link compare ghep o day chu khong trong template: cho nay biet
+          # GITHUB_REPOSITORY, con cliff.toml thi khong nen phai biet.
+          if [ -n "$LATEST" ]; then
+            printf '\n**Full changelog**: %s/%s/compare/%s...%s\n' \
+              "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$LATEST" "$NEXT" >> NOTES.md
+          else
+            printf '\n**Full changelog**: %s/%s/commits/%s\n' \
+              "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$NEXT" >> NOTES.md
+          fi
+          cat NOTES.md
 
       - name: Publish
-        if: steps.version.outputs.next != ''
+        if: steps.v.outputs.skip == 'false'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEXT: ${{ steps.v.outputs.next }}
         run: |
-          gh release create "${{ steps.version.outputs.next }}" \
+          set -euo pipefail
+          # `gh release create` tu tao tag tai commit nay. Tag do la moc cho lan sau,
+          # nen vong lap tu khep kin: khong co buoc nao phai lam bang tay.
+          gh release create "$NEXT" \
             --target "$GITHUB_SHA" \
-            --title "${{ steps.version.outputs.next }}" \
-            --notes-file RELEASE_NOTES.md
+            --title "$NEXT" \
+            --notes-file NOTES.md

@@ -1,0 +1,42 @@
+# Kiem moi commit trong mot pull request theo Conventional Commits 1.0.0.
+#
+# Vi sao can job nay khi da co hook .githooks/commit-msg: hook do bi
+# `--no-verify` la qua, va tren mot ban clone moi thi `core.hooksPath` chua duoc
+# set nen no khong ton tai. Job nay moi la thu cuong che.
+#
+# Vi sao no quan trong hon binh thuong o repo nay: version va release note deu
+# suy ra tu subject commit. Mot subject sai quy uoc khong chi xau - no lam sai
+# so version, hoac lam commit do roi vao ro "Other" cua release note.
+name: Commit lint
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: commit-lint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  subjects:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Can du lich su de dung `git log base..head`.
+          fetch-depth: 0
+
+      - name: Check every commit subject in the pull request
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -uo pipefail
+          if [ -z "${BASE:-}" ]; then
+            echo "Khong phai pull request - khong co range de kiem."
+            exit 0
+          fi
+          bash .githooks/commit-lint.sh --range "$BASE..$HEAD"
