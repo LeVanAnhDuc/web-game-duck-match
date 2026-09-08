@@ -7,7 +7,9 @@
 A level-based match-3 game that runs entirely in the browser. No account, no server,
 no install — open the link and play. Progress lives in `localStorage`.
 
-**Play it: <https://levananhduc.github.io/web-game-match-3/>**
+**Play**: https://levananhduc.github.io/web-game-match-3/
+
+![Match-3 gameplay](docs/assets/screenshot.png)
 
 <p align="center">
   <img src="docs/assets/board-mobile.png" alt="The board at 375px: six colours of clay piece, each with its own shape, in pressed wells" width="300">
@@ -44,6 +46,18 @@ Part of the `web-game/` folder in the `web-app-ecosystem` workspace.
 - Every animation respects `prefers-reduced-motion` — beats collapse to zero and the
   effect layer renders nothing at all, rather than flashing.
 
+## Controls
+
+| Action | Mouse / touch | Keyboard |
+| ------ | ------------- | -------- |
+| Move the cursor | — | `↑` `↓` `←` `→` |
+| Pick a gem, then swap with a neighbour | Tap it, then tap the neighbour | `Enter` or `Space` on each |
+| Swap by dragging | Press a gem and drag onto a neighbour | — |
+| Cancel a selection | Tap the gem again | `Esc` |
+
+Only neighbouring gems swap, and a swap that matches nothing is animated and then
+reverted — it costs no move.
+
 ## Getting started
 
 ```bash
@@ -75,6 +89,19 @@ hand — `GITHUB_PAGES` in particular would break every asset path locally.
 | `yarn release:notes v1.2.0` | print the release notes for a tag |
 | `yarn format` | Prettier over the repo |
 
+## How it is put together
+
+`src/engine/` is pure synchronous TypeScript: no React, no DOM, no `Date`, no
+`Math.random`. One player move goes through one pure function that returns the
+settled board plus an ordered list of events. `src/game/` replays those events onto
+the board being shown and locks input while they play; `src/ui/` only draws. That
+boundary is what makes every game rule testable without rendering anything — and it
+is enforced by a test that greps the engine source, not just by a convention.
+
+`test/engine-ui-agreement.test.ts` is the one that keeps the two halves honest: it
+plays 4320 pseudo-random moves and asserts, after each, that replaying the events
+reproduces the engine's own session exactly.
+
 ## Commit convention — releases depend on it
 
 Every push to `main` creates a GitHub Release automatically, and **the version bump
@@ -94,7 +121,7 @@ prints the notes; they are grouped by commit type, because GitHub's own generate
 notes group by pull-request label and this repository does not label its PRs
 (ADR-0006).
 
-## CI, deploy and release
+## Releases and versioning
 
 Three workflows, one job each, and none of them trusts the others' results:
 
@@ -124,20 +151,7 @@ opens the real URL in a browser, waits for the app's own title, and plays one mo
 (ADR-0007). If that job is red, the site is serving something other than the game —
 whatever the other badges say.
 
-## How it is put together
-
-`src/engine/` is pure synchronous TypeScript: no React, no DOM, no `Date`, no
-`Math.random`. One player move goes through one pure function that returns the
-settled board plus an ordered list of events. `src/game/` replays those events onto
-the board being shown and locks input while they play; `src/ui/` only draws. That
-boundary is what makes every game rule testable without rendering anything — and it
-is enforced by a test that greps the engine source, not just by a convention.
-
-`test/engine-ui-agreement.test.ts` is the one that keeps the two halves honest: it
-plays 4320 pseudo-random moves and asserts, after each, that replaying the events
-reproduces the engine's own session exactly.
-
-## Docs
+## Documentation
 
 Start at [`docs/README.md`](docs/README.md) — it maps every document to the question
 it answers, and carries the `FR` / `US` / `NFR` / `ADR` id conventions used in commit
