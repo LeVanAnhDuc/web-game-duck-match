@@ -17,6 +17,17 @@ KHÔNG chứa: tính năng ngoài phạm vi (-> 01-product/overview.md §Non-Goa
 
 ## Đang làm
 
+**Đổi thương hiệu sang `Duck Match`** (2026-09-08). Repo GitHub đổi từ
+`web-game-match-3` thành `web-game-duck-match`; GitHub redirect URL *repo* cũ nhưng
+**không** redirect đường dẫn Pages cũ — địa chỉ chơi giờ là
+<https://levananhduc.github.io/web-game-duck-match/>. **Thư mục local vẫn là**
+`web-game-match-3` — thương hiệu đổi, đường dẫn không.
+
+README trước đây dùng chính slug làm tiêu đề (`# web-game-match-3`), tức là ô số 1 của
+hợp đồng README chưa hề được điền; lần này điền luôn. Cụm "match-3" giữ nguyên ở mọi
+chỗ nói về *thể loại* — đó là từ người chơi search. Khoá `localStorage`
+`match3.progress.v1` **không** đổi: đổi là xoá tiến độ và điểm cao của người đang chơi.
+
 Không có việc nào đang dở.
 
 **Feature `tactile-board` xong** (FR-15 · FR-16 · FR-17) trên nhánh

@@ -23,7 +23,7 @@ schema chi tiết (-> file schema của ORM), danh sách chức năng (-> 02-req
 
 ```mermaid
 graph LR
-  User[Người chơi] --> App[web-game-match-3<br/>static site]
+  User[Người chơi] --> App[Duck Match<br/>static site]
   App --> LS[(localStorage<br/>trên máy người chơi)]
   App -.- Pages[GitHub Pages<br/>chỉ phục vụ file tĩnh]
 ```

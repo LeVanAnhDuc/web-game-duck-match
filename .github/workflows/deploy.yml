@@ -42,7 +42,7 @@ jobs:
 
       - run: yarn build
         env:
-          # Set ONLY here. It switches on basePath for the /web-game-match-3
+          # Set ONLY here. It switches on basePath for the /web-game-duck-match
           # sub-path; `yarn dev` and a local build stay at the root, so opening a
           # local out/index.html does not break every asset path (ADR-0006).
           GITHUB_PAGES: 'true'
@@ -101,4 +101,4 @@ jobs:
       - name: Play the deployed site
         run: yarn verify:live
         env:
-          LIVE_URL: ${{ needs.deploy.outputs.page_url || 'https://levananhduc.github.io/web-game-match-3/' }}
+          LIVE_URL: ${{ needs.deploy.outputs.page_url || 'https://levananhduc.github.io/web-game-duck-match/' }}

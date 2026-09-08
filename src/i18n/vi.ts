@@ -36,7 +36,7 @@ export function formatScore(n: number): string {
 }
 
 export const t = Object.freeze({
-  appTitle: 'Match 3',
+  appTitle: 'Duck Match',
 
   // Level map (`/`)
   levelMapTitle: 'Bản đồ màn',
