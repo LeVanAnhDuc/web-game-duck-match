@@ -1,13 +1,13 @@
-# Phat hanh mot GitHub Release moi lan push vao `main` — version va note deu suy
-# ra tu lich su commit, khong ai phai nho lam gi.
+# Publish a GitHub Release on every push to `main` — both the version and the notes
+# are derived from commit history, so nobody has to remember anything.
 #
-# Merge mot PR vao `main` CUNG LA mot push vao `main`, nen mot trigger phu ca hai
-# luong. git-cliff doc COMMIT chu khong doc pull request, nen note khong bao gio
-# rong chi vi cong viec khong di qua PR.
+# Merging a PR into `main` IS a push to `main`, so one trigger covers both flows.
+# git-cliff reads COMMITS, not pull requests, so the notes are never empty just
+# because the work did not go through a PR.
 #
-# Luat version nam trong `cliff.toml`, khong nam o day. Xem truoc o may:
-#   npm run release:next     -> version ke tiep
-#   npm run release:notes    -> note se noi gi
+# The version rules live in `cliff.toml`, not here. Preview locally:
+#   npm run release:next     -> the next version
+#   npm run release:notes    -> what the notes will say
 name: Release
 
 on:
@@ -23,8 +23,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  # Ghim phien ban: mot thay doi hanh vi cua git-cliff khong duoc am tham doi
-  # cach danh version cua repo nay.
+  # Pinned: a behaviour change in git-cliff must not silently change how this repo
+  # is versioned.
   GIT_CLIFF_VERSION: "2.13.1"
 
 jobs:
@@ -33,8 +33,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # BAT BUOC. Moc de tinh version la tag git moi nhat; mot shallow clone
-          # khong co tag nao, va git-cliff se tinh tu commit dau tien.
+          # REQUIRED. The anchor for computing the version is the latest git tag,
+          # and a shallow clone has no tags - git-cliff would count from the very
+          # first commit instead.
           fetch-depth: 0
 
       - name: Work out the version
@@ -44,16 +45,17 @@ jobs:
           latest=$(git describe --tags --abbrev=0 2>/dev/null || true)
           range="${latest:+$latest..}HEAD"
 
-          # Marker doc tren CA RANGE, khong phai subject cua HEAD. Trong luong PR
-          # thi HEAD luon la "Merge pull request #N from ..." do GitHub sinh, nen
-          # doc HEAD nghia la marker trong commit that khong bao gio den duoc day.
+          # Markers are read across the WHOLE RANGE, not from HEAD's subject. In a
+          # PR flow HEAD is always the "Merge pull request #N from ..." commit
+          # GitHub generates, so reading HEAD means a marker in the real commit
+          # never arrives.
           subjects=$(git log --no-merges --pretty=%s "$range")
 
           force=""
           case "$subjects" in
             *"[skip release]"*)
               echo "skip=true" >> "$GITHUB_OUTPUT"
-              echo "Bo qua: co [skip release] trong $range"
+              echo "Skipping: [skip release] found in $range"
               exit 0
               ;;
             *"[release major]"*) force="--bump major" ;;
@@ -62,17 +64,17 @@ jobs:
 
           next=$(npx --yes "git-cliff@${GIT_CLIFF_VERSION}" --bumped-version $force)
 
-          # git-cliff in lai chinh version hien tai khi khong co gi de bump.
+          # git-cliff reprints the current version when there is nothing to bump.
           if [ "$next" = "$latest" ]; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
-            echo "Bo qua: khong co commit nao moi ke tu $latest"
+            echo "Skipping: no new commits since $latest"
             exit 0
           fi
 
           echo "skip=false"        >> "$GITHUB_OUTPUT"
           echo "next=$next"        >> "$GITHUB_OUTPUT"
           echo "latest=$latest"    >> "$GITHUB_OUTPUT"
-          echo "$latest -> $next${force:+  (ep boi $force)}"
+          echo "$latest -> $next${force:+  (forced by $force)}"
 
       - name: Compose the notes
         if: steps.v.outputs.skip == 'false'
@@ -83,8 +85,8 @@ jobs:
           set -euo pipefail
           npx --yes "git-cliff@${GIT_CLIFF_VERSION}" --unreleased --tag "$NEXT" --strip all > NOTES.md
 
-          # Link compare ghep o day chu khong trong template: cho nay biet
-          # GITHUB_REPOSITORY, con cliff.toml thi khong nen phai biet.
+          # The compare link is assembled here rather than in the template: this is
+          # the place that knows GITHUB_REPOSITORY, and cliff.toml should not have to.
           if [ -n "$LATEST" ]; then
             printf '\n**Full changelog**: %s/%s/compare/%s...%s\n' \
               "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$LATEST" "$NEXT" >> NOTES.md
@@ -101,8 +103,8 @@ jobs:
           NEXT: ${{ steps.v.outputs.next }}
         run: |
           set -euo pipefail
-          # `gh release create` tu tao tag tai commit nay. Tag do la moc cho lan sau,
-          # nen vong lap tu khep kin: khong co buoc nao phai lam bang tay.
+          # `gh release create` creates the tag at this commit. That tag is the
+          # anchor for next time, so the loop closes itself: no manual step exists.
           gh release create "$NEXT" \
             --target "$GITHUB_SHA" \
             --title "$NEXT" \
