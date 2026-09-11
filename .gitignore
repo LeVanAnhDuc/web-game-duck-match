@@ -18,10 +18,11 @@ playwright-report/
 *.tsbuildinfo
 next-env.d.ts
 
-# --- Claude Code: theo doi config + skills, bo qua worktrees/doc-state ---
+# --- Claude Code: theo doi config + agents + skills, bo qua worktrees/doc-state ---
 /.claude/*
 !/.claude/CLAUDE.md
 !/.claude/settings.local.json
+!/.claude/agents/
 !/.claude/skills/
 !/.claude/scripts/
 
