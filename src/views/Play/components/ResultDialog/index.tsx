@@ -44,6 +44,12 @@ export type LevelResult = {
   status: 'won' | 'lost'
   stars: Stars
   score: number
+  /**
+   * Points still owed for the next star, or `null` on a full row (FR-20).
+   * Computed by the caller from `pointsToNextStar`, because the dialog is handed
+   * a result and never reaches for level config.
+   */
+  starGap?: number | null
 }
 
 export type ResultDialogProps = {
@@ -139,7 +145,7 @@ export function ResultDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        aria-describedby={isWon ? summaryId : undefined}
+        aria-describedby={summaryId}
         tabIndex={-1}
         onKeyDown={handleKeyDown}
         // Longhands so `animationName` is readable on its own, and no delay: the
@@ -164,8 +170,16 @@ export function ResultDialog({
             {isWon ? t.won : t.lost}
           </h2>
 
-          {isWon && (
-            <div id={summaryId} className="mt-4">
+          {/*
+            Both outcomes get the same anatomy (F-10).
+
+            The loss dialog used to be a title and a goal line: no star row, no
+            score, and a `Chơi lại` styled as the quiet secondary it is on the win
+            screen. Read next to its sibling it looked like the game had less to
+            say about a loss than about a win, which is the opposite of what a
+            player who just lost needs.
+          */}
+          <div id={summaryId} className="mt-4">
               {/* `labelMode="group"` is what let the dialog's own copy of the star
                   row go: it needs one accessible name over the whole group, not
                   three named glyphs, and that is now a `StarRow` option. */}
@@ -185,10 +199,24 @@ export function ResultDialog({
                   {formatScore(result.score)}
                 </span>
               </p>
-            </div>
-          )}
 
-          {!isWon && detail ? <div className="mt-4">{detail}</div> : null}
+              {/* The number that turns "only one star?" into a target. Absent on a
+                  full row, where there is nothing left to aim at. */}
+              {typeof result.starGap === 'number' && result.starGap > 0 ? (
+                <p className="mt-1 text-sm text-ink-muted">
+                  {t.starGap(formatScore(result.starGap))}
+                </p>
+              ) : null}
+          </div>
+
+          {!isWon ? (
+            <>
+              {detail ? <div className="mt-4">{detail}</div> : null}
+              {/* Answers the fear at the moment it happens, instead of leaving the
+                  player to go and verify it on the map (F-10). */}
+              <p className="mt-4 text-sm text-ink-muted">{t.lostKeepsProgress}</p>
+            </>
+          ) : null}
         </div>
 
         {/* DOM order is action priority, and the mount effect focuses the first one. */}
@@ -202,10 +230,18 @@ export function ResultDialog({
               {t.nextLevel}
             </button>
           )}
+          {/*
+            On a win `Màn tiếp` is the forward action and this is the alternative.
+            On a loss there is no `Màn tiếp`, so leaving this styled as a secondary
+            left the loss dialog with no primary at all — three controls of equal
+            quietness and no answer to "what now" (F-10).
+          */}
           <button
             type="button"
             onClick={onReplay}
-            className="min-h-[44px] rounded-xl bg-surface-raised px-4 font-semibold text-ink-strong"
+            className={`min-h-[44px] rounded-xl px-4 font-semibold text-ink-strong ${
+              isWon ? 'bg-surface-raised' : 'bg-piece-green'
+            }`}
           >
             {t.replay}
           </button>

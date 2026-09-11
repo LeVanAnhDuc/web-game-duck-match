@@ -45,6 +45,15 @@ Part of the `web-game/` folder in the `web-app-ecosystem` workspace.
   nudges a legal move.
 - Every animation respects `prefers-reduced-motion` — beats collapse to zero and the
   effect layer renders nothing at all, rather than flashing.
+- The board answers every press: a refused swap leaves a marked pair and an announced
+  reason instead of a board that looks untouched, a special piece wears a rim and a
+  badge that outweigh its colour glyph, and the selected cell is marked more strongly
+  than the focused one so a keyboard player never loses the cursor.
+- Screens state what they know: the level map names the product and what unlocks each
+  locked level, a card and a win both say how many points the next star costs, and a
+  loss shows the same stars, score and forward action a win does.
+- Restarting a level in progress asks first, and names both what it destroys and what
+  it keeps.
 
 ## Controls
 

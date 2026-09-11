@@ -183,7 +183,20 @@ describe('ResultDialog', () => {
     expect(screen.getByText(formatScore(won.score))).toBeTruthy()
   })
 
-  it('shows zero stars after a loss and no score line', () => {
+  /**
+   * Reversed on purpose (FR-20, F-10).
+   *
+   * This used to assert the loss dialog showed neither stars nor a score. Put side
+   * by side with the win dialog that read as the game having less to say about a
+   * loss than about a win — no star row, no number, and a `Chơi lại` wearing the
+   * quiet styling it only earns on a win, where `Màn tiếp` is the forward action.
+   * Persona p02 left the level and audited the map before she would press replay,
+   * because nothing on this screen told her a loss costs nothing.
+   *
+   * Both outcomes now have the same anatomy. The empty star row is part of the
+   * point: an unlit row is information, and hiding it was the silence.
+   */
+  it('gives a loss the same anatomy as a win: stars, score, and a way forward', () => {
     render(
       <ResultDialog
         result={lost}
@@ -193,8 +206,72 @@ describe('ResultDialog', () => {
         onBackToMap={vi.fn()}
       />,
     )
-    expect(screen.queryByLabelText(t.starsEarned(0, 3))).toBeNull()
-    expect(screen.queryByText(formatScore(lost.score))).toBeNull()
+    expect(screen.getByLabelText(t.starsEarned(0, 3))).toBeTruthy()
+    expect(screen.getByText(formatScore(lost.score))).toBeTruthy()
+  })
+
+  it('tells the loser their stars and best score survived', () => {
+    render(
+      <ResultDialog
+        result={lost}
+        hasNextLevel
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    expect(screen.getByText(t.lostKeepsProgress)).toBeTruthy()
+  })
+
+  it('makes replay the primary action on a loss, where nothing else moves forward', () => {
+    const { rerender } = render(
+      <ResultDialog
+        result={lost}
+        hasNextLevel
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    const onLoss = screen.getByRole('button', { name: t.replay }).className
+
+    rerender(
+      <ResultDialog
+        result={won}
+        hasNextLevel
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    // On a win `Màn tiếp` carries the weight, so replay steps back down.
+    expect(screen.getByRole('button', { name: t.replay }).className).not.toBe(onLoss)
+  })
+
+  it('names the points still owed for the next star', () => {
+    render(
+      <ResultDialog
+        result={{ ...won, starGap: 1360 }}
+        hasNextLevel
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    expect(screen.getByText(t.starGap(formatScore(1360)))).toBeTruthy()
+  })
+
+  it('says nothing about the next star on a full row', () => {
+    render(
+      <ResultDialog
+        result={{ ...won, stars: 3, starGap: null }}
+        hasNextLevel
+        onReplay={vi.fn()}
+        onNext={vi.fn()}
+        onBackToMap={vi.fn()}
+      />,
+    )
+    expect(screen.queryByText(/nữa là thêm một sao/)).toBeNull()
   })
 
   it('describes the dialog with the win summary', () => {

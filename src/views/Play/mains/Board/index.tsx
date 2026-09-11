@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties, KeyboardEvent, PointerEvent } from 'react'
 import type { GameEvent, Pos, Session } from '@/engine'
 import { COLOR_NAME, t } from '@/i18n/vi'
@@ -35,6 +35,17 @@ type BoardProps = {
   /** The move `findHint` suggested after the player went idle, if any. */
   hint?: { from: Pos; to: Pos } | null
 }
+
+/**
+ * How long the refused-move mark stays up.
+ *
+ * Longer than the ~300ms slide-and-return on purpose: the animation is the part a
+ * player who was looking at the bàn already saw, and this is the part left for the
+ * one who was not. Short enough that the mark never outlives the player's next
+ * attempt, which is why it is a timed state and not a looping animation — nothing
+ * here to collapse under `prefers-reduced-motion` (NFR-A11Y-05).
+ */
+const REJECTED_MS = 900
 
 const ARROW_STEP: Record<string, Pos | undefined> = {
   ArrowUp: { row: -1, col: 0 },
@@ -85,6 +96,44 @@ export function Board({
    */
   const [focused, setFocused] = useState<Pos>({ row: 0, col: 0 })
   const [selected, setSelected] = useState<Pos | null>(null)
+
+  /**
+   * The pair the engine just refused, if any. `Board` does not decide this — it
+   * reads the `swapReverted` the engine already emits (invariant 2), the same
+   * event `game/timeline.ts` expands into the slide-out and slide-back beats.
+   */
+  const [rejected, setRejected] = useState<{ from: Pos; to: Pos } | null>(null)
+
+  /**
+   * The timer lives in a ref, not in the effect's cleanup, and that is the whole
+   * point of this shape.
+   *
+   * `game/timeline.ts` expands one `swapReverted` into two beats, and more beats
+   * follow it. With the timeout returned as cleanup, the very next beat tore it
+   * down: measured on the built export, the mark was on screen for a single
+   * ~120ms sample out of the 900 it was supposed to last — which is the same
+   * "nothing happened" F-03 is about, reintroduced by the fix for it.
+   *
+   * Keyed off `beat` as well as `events` so two refusals in a row still re-arm:
+   * the second one carries an identical event array.
+   */
+  const rejectTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    const refusal = events.find((event) => event.t === 'swapReverted')
+    if (!refusal || refusal.t !== 'swapReverted') return
+
+    if (rejectTimer.current) clearTimeout(rejectTimer.current)
+    setRejected({ from: refusal.from, to: refusal.to })
+    rejectTimer.current = setTimeout(() => setRejected(null), REJECTED_MS)
+  }, [events, beat])
+
+  useEffect(
+    () => () => {
+      if (rejectTimer.current) clearTimeout(rejectTimer.current)
+    },
+    [],
+  )
 
   const cellRefs = useRef(new Map<string, HTMLButtonElement>())
   /** Where the current press started, so `pointerup` can tell a drag from a tap. */
@@ -274,13 +323,6 @@ export function Board({
                         <span
                           aria-hidden="true"
                           data-testid="well"
-                          data-hint={
-                            hint &&
-                            ((hint.from.row === row && hint.from.col === col) ||
-                              (hint.to.row === row && hint.to.col === col))
-                              ? 'true'
-                              : undefined
-                          }
                           className="block h-full w-full rounded-clay bg-surface-well shadow-well"
                         />
                       </button>
@@ -292,8 +334,24 @@ export function Board({
           ))}
         </div>
 
-        <PieceLayer session={session} selected={selected} />
+        <PieceLayer
+          session={session}
+          selected={selected}
+          hint={hint}
+          rejected={rejected}
+        />
         <EffectLayer events={events} beat={beat} reducedMotion={reducedMotion} />
+      </div>
+
+      {/*
+        Said out loud as well as drawn, because the drawn half is a ~300ms motion
+        that a screen reader has no access to at all and that anyone glancing away
+        misses entirely (NFR-A11Y-04, F-03). Rendered empty rather than removed so
+        the region is already in the accessibility tree when the text arrives —
+        a live region mounted at announcement time is frequently not announced.
+      */}
+      <div role="status" aria-live="polite" className="sr-only">
+        {rejected ? t.moveRejected : ''}
       </div>
     </div>
   )

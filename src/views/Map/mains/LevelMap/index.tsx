@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { pointsToNextStar } from '@/engine'
 import type { LevelConfig, Progress } from '@/engine'
 import { formatScore, t } from '@/i18n/vi'
 import { StarRow } from '@/components/StarRow'
@@ -27,6 +28,7 @@ export function LevelMap({ progress, levels }: LevelMapProps) {
         {levels.map((level) => {
           const unlocked = level.id <= progress.unlockedUpTo
           const record = progress.levels[level.id]
+          const gap = record ? pointsToNextStar(record.bestScore, level.stars) : null
 
           const card = (
             <>
@@ -41,9 +43,25 @@ export function LevelMap({ progress, levels }: LevelMapProps) {
                       ? `${t.bestScore}: ${formatScore(record.bestScore)}`
                       : t.noProgressYet}
                   </span>
+                  {/* The thresholds were always in `levels.ts` and on no screen, so
+                      a card could read "1/3 sao" forever without ever saying what
+                      the second one costs (F-04). */}
+                  {gap !== null && gap > 0 ? (
+                    <span className="text-xs text-ink-muted">
+                      {t.starGap(formatScore(gap))}
+                    </span>
+                  ) : null}
                 </>
               ) : (
-                <span className="text-xs text-ink-muted">{t.locked}</span>
+                <>
+                  <span className="text-xs text-ink-muted">{t.locked}</span>
+                  {/* "Chưa mở" is a state; this is the condition. Without it a
+                      locked card cannot be told apart from an unbuilt one — which
+                      is exactly the ambiguity the negative persona hit (F-09). */}
+                  <span className="text-xs text-ink-muted">
+                    {t.unlockHint(level.id - 1)}
+                  </span>
+                </>
               )}
             </>
           )

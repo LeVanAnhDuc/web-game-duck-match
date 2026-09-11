@@ -6,6 +6,7 @@ import { t } from '@/i18n/vi'
 import { LEVELS } from '@/levels/levels'
 import { createLocalRepository } from '@/storage/local'
 import { LevelMap } from './mains/LevelMap'
+import { ProductHeader } from './components/ProductHeader'
 
 /**
  * Loads progress and hands it to the map.
@@ -33,15 +34,21 @@ export function Map() {
 
   if (!progress) {
     return (
-      <main className="mx-auto flex w-full max-w-3xl flex-col gap-4 p-4">
-        <h1 className="text-2xl font-bold text-ink-strong">{t.levelMapTitle}</h1>
-        <p className="text-ink-muted">{t.loading}</p>
+      <main>
+        <ProductHeader />
+        <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 p-4">
+          <h1 className="text-2xl font-bold text-ink-strong">{t.levelMapTitle}</h1>
+          <p className="text-ink-muted">{t.loading}</p>
+        </div>
       </main>
     )
   }
 
   return (
     <main>
+      {/* Above the list, not in front of it: the map is still the first thing a
+          player can act on, one tap from level 1 (RR-01). */}
+      <ProductHeader />
       <LevelMap progress={progress} levels={LEVELS} />
     </main>
   )

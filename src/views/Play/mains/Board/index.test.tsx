@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Board } from './index'
 import { Tile } from '../../components/Tile'
@@ -332,5 +332,122 @@ describe('Tile', () => {
       <Tile piece={{ id: 4, color: 'green', special: 'none' }} selected={false} />,
     )
     expect(view.container.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true')
+  })
+
+  // ---- FR-19: a refused move has to leave something behind (F-03) ----
+
+  describe('refused move', () => {
+    const reverted = [
+      { t: 'swapReverted' as const, from: { row: 1, col: 1 }, to: { row: 1, col: 2 } },
+    ]
+
+    it('marks both cells the player aimed at', () => {
+      render(
+        <Board
+          session={session}
+          busy={false}
+          onSwap={vi.fn()}
+          events={reverted}
+          beat={1}
+        />,
+      )
+
+      expect(document.querySelectorAll('[data-rejected="true"]')).toHaveLength(2)
+    })
+
+    it('says so in words, for a player who cannot see the board', () => {
+      render(
+        <Board
+          session={session}
+          busy={false}
+          onSwap={vi.fn()}
+          events={reverted}
+          beat={1}
+        />,
+      )
+
+      // The slide-and-return is ~300ms and then the board looks untouched. A
+      // screen reader user never had the 300ms in the first place (NFR-A11Y-04).
+      const live = screen.getByRole('status')
+      expect(live.getAttribute('aria-live')).toBe('polite')
+      expect(live.textContent).toContain(t.moveRejected)
+    })
+
+    it('says nothing when the move was accepted', () => {
+      render(
+        <Board
+          session={session}
+          busy={false}
+          onSwap={vi.fn()}
+          events={[
+            {
+              t: 'swapped' as const,
+              from: { row: 1, col: 1 },
+              to: { row: 1, col: 2 },
+            },
+          ]}
+          beat={1}
+        />,
+      )
+
+      expect(document.querySelectorAll('[data-rejected="true"]')).toHaveLength(0)
+      expect(screen.getByRole('status').textContent).toBe('')
+    })
+
+    it('keeps the mark up when the next beat arrives', () => {
+      // The regression this file did not have. `timeline.ts` expands one
+      // `swapReverted` into two beats and keeps going, and the first version of
+      // this feature returned the timeout as effect cleanup — so the following
+      // beat tore the mark down after ~120ms of its 900. Measured on the built
+      // export, not reasoned about: it looked exactly like the "nothing happened"
+      // F-03 exists to fix, reintroduced by the fix for it.
+      vi.useFakeTimers()
+      try {
+        const { rerender } = render(
+          <Board
+            session={session}
+            busy={false}
+            onSwap={vi.fn()}
+            events={reverted}
+            beat={1}
+          />,
+        )
+        expect(document.querySelectorAll('[data-rejected="true"]')).toHaveLength(2)
+
+        // The next beat of the same revert, carrying no refusal of its own.
+        rerender(
+          <Board session={session} busy={false} onSwap={vi.fn()} events={[]} beat={2} />,
+        )
+        act(() => {
+          vi.advanceTimersByTime(300)
+        })
+        expect(document.querySelectorAll('[data-rejected="true"]')).toHaveLength(2)
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('lets the mark expire so the board does not stay scolding', () => {
+      vi.useFakeTimers()
+      try {
+        render(
+          <Board
+            session={session}
+            busy={false}
+            onSwap={vi.fn()}
+            events={reverted}
+            beat={1}
+          />,
+        )
+        expect(document.querySelectorAll('[data-rejected="true"]')).toHaveLength(2)
+
+        act(() => {
+          vi.advanceTimersByTime(2000)
+        })
+        expect(document.querySelectorAll('[data-rejected="true"]')).toHaveLength(0)
+      } finally {
+        vi.useRealTimers()
+      }
+    })
   })
 })

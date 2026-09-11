@@ -119,9 +119,20 @@ function useMotion(placed: Placed[]): Motion {
 export function PieceLayer({
   session,
   selected,
+  hint = null,
+  rejected = null,
 }: {
   session: Session
   selected: Pos | null
+  /**
+   * The move the idle timer suggested, if any. It is drawn here rather than on
+   * the grid's wells because a well is exactly the size of the piece sitting in
+   * it and is painted *under* this layer — a nudge down there is covered by an
+   * opaque piece and reaches nobody (design.md §2.3).
+   */
+  hint?: { from: Pos; to: Pos } | null
+  /** The pair the engine refused, drawn here for the same reason as `hint`. */
+  rejected?: { from: Pos; to: Pos } | null
 }) {
   const placed = placedFrom(session)
   const shown = useExitingPieces(placed, CLEAR_MS)
@@ -151,15 +162,39 @@ export function PieceLayer({
             } as CSSProperties
           }
         >
-          <Tile
-            piece={entry.piece}
-            selected={
+          {/* Its own box, and deliberately transform-free: the slot above owns
+              `translate` for the cell it lives in, and `hint-nudge` animates
+              `transform` too. One element carrying both would park the piece in
+              the wrong cell for the whole animation. */}
+          <div
+            data-rejected={
               !entry.exiting &&
-              selected !== null &&
-              selected.row === entry.row &&
-              selected.col === entry.col
+              rejected !== null &&
+              ((rejected.from.row === entry.row && rejected.from.col === entry.col) ||
+                (rejected.to.row === entry.row && rejected.to.col === entry.col))
+                ? 'true'
+                : undefined
             }
-          />
+            data-hint={
+              !entry.exiting &&
+              hint !== null &&
+              ((hint.from.row === entry.row && hint.from.col === entry.col) ||
+                (hint.to.row === entry.row && hint.to.col === entry.col))
+                ? 'true'
+                : undefined
+            }
+            className="h-full w-full"
+          >
+            <Tile
+              piece={entry.piece}
+              selected={
+                !entry.exiting &&
+                selected !== null &&
+                selected.row === entry.row &&
+                selected.col === entry.col
+              }
+            />
+          </div>
         </div>
       ))}
     </div>

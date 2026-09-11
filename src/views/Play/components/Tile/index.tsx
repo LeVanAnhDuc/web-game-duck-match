@@ -89,8 +89,12 @@ export function Tile({ piece, selected }: TileProps) {
         // Only `transform` animates — a width/height transition would relayout the
         // whole grid on every selection (NFR-PERF-06).
         'pointer-events-none block h-full w-full rounded-clay transition-transform duration-150 ease-pop',
+        // `ring-4` and the amber are both load-bearing (FR-19, F-02): the cell
+        // button's focus ring is `ring-2 ring-accent-pink`, and a selection mark
+        // that reads weaker than the focus mark is how persona p03 lost the
+        // cursor. Selected must always out-weigh focused, never the reverse.
         selected
-          ? '-translate-y-[3px] ring-2 ring-ink-strong ring-offset-2 ring-offset-surface-well'
+          ? '-translate-y-[3px] ring-4 ring-accent-amber ring-offset-2 ring-offset-surface-well'
           : '',
       ].join(' ')}
     >
@@ -101,14 +105,25 @@ export function Tile({ piece, selected }: TileProps) {
           // The lit top edge and the drop shadow both live in `--clay-piece`; the
           // lifted variant is the same recipe cast further (globals.css).
           selected ? 'shadow-clay-lift' : 'shadow-clay',
+          // A special is the only piece wearing a rim, so it separates from a
+          // packed board at a glance rather than only under inspection (F-01).
+          // Inset, so it never grows the piece and never shifts the grid.
+          special === 'none' ? '' : 'ring-2 ring-inset ring-ink-strong/70',
         ].join(' ')}
       >
         {/* Pressed into the clay rather than laid on it: a dark shape at partial
             opacity reads as an imprint at any piece colour, where a fixed ink would
             fight the four bright ones (NFR-A11Y-01). */}
+        {/* The silhouette stays on EVERY piece, special included: two specials of
+            different colours must not be separated by colour alone (NFR-A11Y-06,
+            and persona p05 is the reason that threshold exists). It only steps
+            back, so the badge is the mark that wins the face (design.md §4.1). */}
         <PieceShape
           shape={shape}
-          className="h-[64%] w-[64%] text-surface-base opacity-50"
+          className={[
+            'h-[64%] w-[64%] text-surface-base',
+            special === 'none' ? 'opacity-50' : 'opacity-25',
+          ].join(' ')}
         />
 
         {special === 'none' ? null : (
@@ -118,7 +133,7 @@ export function Tile({ piece, selected }: TileProps) {
             data-special={special}
             aria-hidden="true"
             focusable="false"
-            className="absolute inset-[18%] fill-ink-strong stroke-ink-strong"
+            className="absolute inset-[10%] fill-ink-strong stroke-ink-strong"
           >
             {BADGE_PATH[special]}
           </svg>

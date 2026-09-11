@@ -28,3 +28,6 @@ next-env.d.ts
 
 # Playwright MCP scratch output (persona runs) — never content to commit.
 .playwright-mcp/
+
+# Cygwin/MSYS crash dumps from the Git Bash toolchain — never content to commit.
+*.stackdump

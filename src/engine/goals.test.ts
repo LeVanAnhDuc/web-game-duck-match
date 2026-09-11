@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { allDone, applyCleared, initProgress, starsFor } from './goals'
+import {
+  allDone,
+  applyCleared,
+  initProgress,
+  pointsToNextStar,
+  starsFor,
+} from './goals'
 import {
   CASCADE_MULTIPLIERS,
   POINTS_PER_PIECE,
@@ -224,5 +230,33 @@ describe('goals', () => {
     expect(starsFor(2999, [1500, 2200, 3000])).toBe(2)
     expect(starsFor(3000, [1500, 2200, 3000])).toBe(3)
     expect(starsFor(0, [1500, 2200, 3000])).toBe(0)
+  })
+})
+
+describe('pointsToNextStar', () => {
+  const stars: [number, number, number] = [2000, 4000, 7000]
+
+  it('counts the gap up to the first star', () => {
+    expect(pointsToNextStar(0, stars)).toBe(2000)
+  })
+
+  it('counts the gap to the next star once one is earned', () => {
+    // Persona p01 finished level 1 on 2.640 of a 2.000 goal and read one star as a
+    // near miss she could not explain. This is the number nobody showed her.
+    expect(pointsToNextStar(2640, stars)).toBe(1360)
+  })
+
+  it('reports nothing left to earn on a full row', () => {
+    expect(pointsToNextStar(7000, stars)).toBe(null)
+    expect(pointsToNextStar(99999, stars)).toBe(null)
+  })
+
+  it('agrees with starsFor on every boundary', () => {
+    // The two must never disagree about where a star begins: a gap of 0 and a
+    // star not yet awarded would show "còn 0 điểm" next to an unlit star.
+    for (const threshold of stars) {
+      expect(pointsToNextStar(threshold - 1, stars)).toBe(1)
+      expect(starsFor(threshold, stars)).toBeGreaterThan(starsFor(threshold - 1, stars))
+    }
   })
 })

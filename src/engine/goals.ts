@@ -108,3 +108,24 @@ export function starsFor(score: number, stars: LevelConfig['stars']): Stars {
   if (score >= one) return 1
   return 0
 }
+
+/**
+ * How many points short of the next star a score is, or `null` once all three are
+ * earned (FR-20).
+ *
+ * The thresholds have always been in `LevelConfig`; nothing ever showed them. Every
+ * win in the 2026-09-11 persona run scored one star out of three — one of them at
+ * 132% of the level's goal — and both players who said anything about it said some
+ * version of "why only one?". A three-star system only pulls a player back if the
+ * player can see what the next star costs.
+ *
+ * Lives beside `starsFor` so the two can never disagree about a boundary: this
+ * returns 0 exactly where `starsFor` would award the next star.
+ */
+export function pointsToNextStar(
+  score: number,
+  stars: LevelConfig['stars'],
+): number | null {
+  const next = stars.find((threshold) => score < threshold)
+  return next === undefined ? null : next - score
+}

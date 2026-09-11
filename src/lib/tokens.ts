@@ -44,4 +44,14 @@ export const PIECE_COLORS = {
 export const ACCENT = {
   pink: '#EC4899',
   amber: '#F59E0B',
+  /**
+   * MASTER.md lists this as the destructive role and marked it "(chua dung)" until
+   * FR-19 and FR-22 needed it: the mark on a refused move, and the confirm step in
+   * front of restarting a level in progress.
+   *
+   * Its tightest pair is the red piece at deltaE 28.4 — comfortably over the 20 this
+   * palette holds itself to, but the closest of any accent/piece pair, which is why
+   * the board mark pairs it with a dashed outline instead of leaning on hue alone.
+   */
+  danger: '#DC2626',
 } as const

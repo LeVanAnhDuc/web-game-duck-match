@@ -4,7 +4,7 @@
  * rewritten without touching a component (ADR-0002).
  */
 export { newSession, applySwap } from './session'
-export { starsFor } from './goals'
+export { starsFor, pointsToNextStar } from './goals'
 export { findHint } from './hint'
 export type {
   Cell,
