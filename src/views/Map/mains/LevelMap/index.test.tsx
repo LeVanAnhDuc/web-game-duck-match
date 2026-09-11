@@ -60,4 +60,50 @@ describe('LevelMap', () => {
     render(<LevelMap progress={EMPTY_PROGRESS} levels={LEVELS} />)
     expect(screen.getByRole('heading', { name: t.levelMapTitle })).toBeTruthy()
   })
+
+  // ---- FR-20: the card has to say more than a state (F-04, F-09) ----
+
+  it('tells a locked level what would unlock it', () => {
+    render(<LevelMap progress={{ version: 1, levels: {}, unlockedUpTo: 1 }} levels={LEVELS} />)
+
+    // "Chưa mở" names a state. The negative persona clicked one, got no response
+    // at all, and could not tell "not yet earned" from "not yet built".
+    expect(screen.getByText(t.unlockHint(1))).toBeTruthy()
+  })
+
+  it('names the points still owed for the next star on a played level', () => {
+    const level = LEVELS[0]
+    if (!level) throw new Error('fixture needs at least one level')
+
+    render(
+      <LevelMap
+        progress={{
+          version: 1,
+          levels: { [level.id]: { stars: 1, bestScore: level.stars[0] } },
+          unlockedUpTo: level.id,
+        }}
+        levels={LEVELS}
+      />,
+    )
+
+    const owed = level.stars[1] - level.stars[0]
+    expect(screen.getByText(t.starGap(formatScore(owed)))).toBeTruthy()
+  })
+
+  it('says nothing about the next star once all three are earned', () => {
+    const level = LEVELS[0]
+    if (!level) throw new Error('fixture needs at least one level')
+
+    render(
+      <LevelMap
+        progress={{
+          version: 1,
+          levels: { [level.id]: { stars: 3, bestScore: level.stars[2] } },
+          unlockedUpTo: level.id,
+        }}
+        levels={LEVELS}
+      />,
+    )
+    expect(screen.queryByText(/nữa là thêm một sao/)).toBeNull()
+  })
 })

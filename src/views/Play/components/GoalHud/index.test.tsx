@@ -329,4 +329,34 @@ describe('MoveCounter live region', () => {
     rerender(<MoveCounter movesLeft={11} score={2340} reducedMotion />)
     expect(screen.getByTestId('score').getAttribute('aria-hidden')).toBeNull()
   })
+
+  // ---- FR-21: a number with no noun is not a goal (F-06) ----
+
+  it('names a score goal in words, not only in digits', () => {
+    render(<GoalHud progress={[{ kind: 'score', current: 400, target: 1500, done: false }]} />)
+
+    // Persona p05 read "0/12, 0/12, 0/4.000" off the HUD and could not say what
+    // any of the three counted. The accessible name already carried the noun; the
+    // visible row did not.
+    const row = screen.getByLabelText(t.goalScoreLabel(400, 1500))
+    expect(row.textContent).toContain(t.goalScoreShort)
+  })
+
+  it('names a collect goal by its colour in words', () => {
+    render(
+      <GoalHud
+        progress={[
+          {
+            kind: 'collect',
+            per: { purple: 8 },
+            current: { purple: 3 },
+            done: false,
+          },
+        ]}
+      />,
+    )
+
+    const row = screen.getByLabelText(t.goalCollectLabel(COLOR_NAME.purple, 3, 8))
+    expect(row.textContent).toContain(COLOR_NAME.purple)
+  })
 })

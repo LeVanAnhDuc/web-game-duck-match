@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { applySwap, findHint, newSession } from '@/engine'
+import { applySwap, findHint, newSession, pointsToNextStar } from '@/engine'
 import type { GameEvent, LevelConfig, Pos, Session, Stars, SwapResult } from '@/engine'
 import { recordWin } from '@/storage/local'
 import type { ProgressRepository } from '@/storage/ports'
@@ -19,7 +19,17 @@ import type { Step } from './timeline'
  * or off a `GameEvent` (invariant 2).
  */
 
-export type GameResult = { status: 'won' | 'lost'; stars: Stars; score: number }
+export type GameResult = {
+  status: 'won' | 'lost'
+  stars: Stars
+  score: number
+  /**
+   * Points still owed for the next star, or `null` once all three are earned.
+   * Derived here rather than in the dialog, which is handed a result and has no
+   * business reading level config (FR-20).
+   */
+  starGap: number | null
+}
 
 export type UseGameSessionArgs = {
   level: LevelConfig
@@ -190,6 +200,7 @@ export function useGameSession(args: UseGameSessionArgs): UseGameSessionResult {
       status: pending.session.status,
       score: pending.session.score,
       stars: won?.stars ?? 0,
+      starGap: pointsToNextStar(pending.session.score, pending.session.level.stars),
     })
   }, [commitSession])
 

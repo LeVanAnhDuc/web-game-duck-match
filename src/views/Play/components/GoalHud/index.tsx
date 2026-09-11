@@ -24,6 +24,13 @@ type GoalRow = {
   key: string
   /** Accessible name — the text equivalent of icon + numbers. */
   label: string
+  /**
+   * The visible noun. A goal row used to be an icon and two numbers, which reads
+   * as "0/12" and nothing else to anyone who cannot resolve a 20px silhouette —
+   * persona p05 listed all three of a level's goals as bare numbers and could not
+   * say what any of them counted (F-06, FR-21).
+   */
+  noun: string
   /** Visible text, always "current/target". */
   text: string
   done: boolean
@@ -49,6 +56,7 @@ function toRows(progress: GoalProgress[]): GoalRow[] {
           {
             key: `${index}-score`,
             label: t.goalScoreLabel(goal.current, goal.target),
+            noun: t.goalScoreShort,
             text: t.goalScore(goal.current, goal.target),
             done: goal.done,
           },
@@ -59,6 +67,7 @@ function toRows(progress: GoalProgress[]): GoalRow[] {
           return {
             key: `${index}-${color}`,
             label: t.goalCollectLabel(COLOR_NAME[color], current, target),
+            noun: COLOR_NAME[color],
             text: t.goalCollect(current, target),
             // Per colour rather than per goal: a two-colour goal that has finished
             // its reds should tick the red row, not wait for the blues.
@@ -138,9 +147,14 @@ export function GoalHud({ progress }: { progress: GoalProgress[] }) {
             key={row.key}
             aria-label={row.label}
             data-done={row.done ? 'true' : 'false'}
-            className={`flex items-center gap-2 ${row.done ? 'opacity-60' : ''}`}
+            className={`flex items-center gap-1.5 ${row.done ? 'opacity-60' : ''}`}
           >
             {row.color ? <ColorShape color={row.color} /> : null}
+            {/* Shape and word together: the silhouette is the fast channel for a
+                player who can resolve it, the word is the one that still works
+                when they cannot (NFR-A11Y-06 applied to the HUD, not only the
+                bàn). */}
+            <span className="text-sm text-ink-muted">{row.noun}</span>
             <span
               className={`text-base font-semibold tabular-nums text-ink-strong ${
                 row.done ? 'line-through' : ''

@@ -242,4 +242,44 @@ describe('PieceLayer', () => {
     ).toHaveLength(1)
     expect(container.querySelectorAll('[data-selected]')).toHaveLength(0)
   })
+
+  // ---- FR-19: the idle nudge has to be on the piece, not under it ----
+
+  describe('idle hint', () => {
+    it('marks both cells of the suggested move', () => {
+      const { container } = render(
+        <PieceLayer
+          session={session}
+          selected={null}
+          hint={{ from: { row: 0, col: 0 }, to: { row: 0, col: 1 } }}
+        />,
+      )
+
+      const hinted = container.querySelectorAll('[data-hint="true"]')
+      expect(hinted).toHaveLength(2)
+    })
+
+    it('marks nothing when there is no hint', () => {
+      const { container } = render(<PieceLayer session={session} selected={null} />)
+      expect(container.querySelectorAll('[data-hint="true"]')).toHaveLength(0)
+    })
+
+    it('never puts the nudge on the element that carries the cell transform', () => {
+      // The slot positions itself with `transform: translate(...)`. `hint-nudge`
+      // also animates `transform`, so sharing one element would move the piece to
+      // the wrong cell for the whole animation. The nudge gets its own box.
+      const { container } = render(
+        <PieceLayer
+          session={session}
+          selected={null}
+          hint={{ from: { row: 2, col: 3 }, to: { row: 2, col: 4 } }}
+        />,
+      )
+
+      for (const node of container.querySelectorAll('[data-hint="true"]')) {
+        expect(node.getAttribute('data-testid')).not.toBe('tile-slot')
+        expect((node as HTMLElement).style.transform).toBe('')
+      }
+    })
+  })
 })

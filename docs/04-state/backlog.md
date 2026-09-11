@@ -54,6 +54,22 @@ Giai đoạn 1 luật chơi đã trên `main` (v1.0.0 / v1.0.1).
 | Merge PR #1 để `main` có CI/CD và bản deploy đầu tiên | ADR-0006 | cao | `deploy.yml` và `release.yml` chỉ chạy trên push `main`, nên đến khi merge thì chưa có bản chơi thử nào và chưa có release nào |
 
 ## Nợ kỹ thuật — cố ý làm tạm
+
+**Phiên persona không quan sát được animation ngắn** (2026-09-11). Lượt chạy
+`ux-persona-review` đầu tiên có bốn persona cùng báo "nước đi bị từ chối không đổi một
+điểm ảnh nào". Đo lại trên bản deploy: animation trượt-qua-rồi-về **có chạy** — viên đi
+`x 623.8 → 640.3 → 623.8`, `Lượt` giữ nguyên 15 — và xong trong khoảng 300ms. Persona là
+agent chụp ảnh **sau khi** hàng đợi sự kiện phát xong, nên mọi phản hồi ngắn hơn một
+nhịp chụp đều vô hình với chúng.
+
+Hệ quả khi đọc báo cáo persona về sau: **"không thấy gì xảy ra" từ persona không đủ để
+kết luận là không có gì xảy ra** — phải dựng lại và đo trước. FR-19 vẫn thêm một dấu
+đọng lại, nhưng vì lý do khác với lý do báo cáo nêu: không phải để tạo phản hồi chưa có,
+mà để phản hồi còn lại gì sau khi chuyển động tắt.
+
+Cách trả nợ: cho persona chụp ảnh **trong lúc** thao tác chứ không chỉ sau, hoặc ghi
+video. Chưa làm vì nó thuộc về skill `ux-persona-review`, không thuộc sản phẩm.
+
 **`engine/perf.test.ts` đỏ khi chạy cùng cả bộ, xanh khi chạy riêng** (2026-09-11).
 Test p95 hết hạn 5000ms dưới sự song song của vitest — nó đo tranh chấp CPU chứ không
 đo code. Đã kiểm: 517 test / cùng một test đỏ, **trước và sau** đợt refactor ADR-0011,

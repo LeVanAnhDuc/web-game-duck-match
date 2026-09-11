@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useGameSession } from '@/game/useGameSession'
@@ -11,6 +11,7 @@ import { Board } from './mains/Board'
 import { GoalHud } from './components/GoalHud'
 import { MoveCounter } from './components/MoveCounter'
 import { ResultDialog } from './components/ResultDialog'
+import { ConfirmRestart, isLevelInProgress } from './components/ConfirmRestart'
 
 /**
  * The play route's whole client side. It owns the session, wires the board to it,
@@ -80,8 +81,37 @@ function PlayBody({ levelId, level, repository, onBackToMap, onNext }: BodyProps
     lastLevelId: LAST_LEVEL_ID,
   })
 
+  /**
+   * FR-22. Restarting is one Tab and one Enter away from the bàn — `Về bản đồ`,
+   * a cell, then this — and persona p03 walked that path by accident and read the
+   * consequence as a bug (design.md §2.1). The gate only closes when there is
+   * something behind it.
+   */
+  const [confirmingRestart, setConfirmingRestart] = useState(false)
+  /**
+   * Counts restarts rather than holding a boolean: the announcement has to fire
+   * again on a second restart, and identical text in a live region is not
+   * re-announced. The number never reaches the screen.
+   */
+  const [restartCount, setRestartCount] = useState(0)
+
+  function doRestart() {
+    restart()
+    setRestartCount((count) => count + 1)
+  }
+
+  function requestRestart() {
+    if (isLevelInProgress(session, level)) {
+      setConfirmingRestart(true)
+      return
+    }
+    // Nothing earned yet, so nothing to ask about — but all 49 pieces still change
+    // at once, and that is announced below either way.
+    doRestart()
+  }
+
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-col gap-3 p-4">
+    <main className="mx-auto flex w-full max-w-5xl flex-col gap-2 p-4 [@media(max-height:560px)]:gap-1 [@media(max-height:560px)]:p-2">
       {/* design.md §6 keeps the back link and the level name together on the left at
           every width; splitting them across the page pushes the name into the
           corner and reads as two unrelated things. */}
@@ -102,13 +132,29 @@ function PlayBody({ levelId, level, repository, onBackToMap, onNext }: BodyProps
         without duplicating the button — a second copy would give the e2e replay
         testid two matches, and a screen reader two buttons that do one thing.
       */}
-      <div className="grid gap-3 lg:grid-cols-[14rem_1fr] lg:grid-rows-[auto_auto_1fr] lg:gap-6">
-        <div className="lg:col-start-1 lg:row-start-1">
-          <MoveCounter movesLeft={session.movesLeft} score={session.score} />
-        </div>
+      {/*
+        FR-21. At 720x450 — a 1440x900 laptop at 200% zoom, which is how persona
+        p05 browses — the header plus these two stacked cards ate 230 of 450px and
+        left 3.5 of 8 board rows visible. By the time she was watching the bàn the
+        counters had scrolled off entirely, so cause and effect were never on
+        screen together (F-06).
 
-        <div className="lg:col-start-1 lg:row-start-2">
-          <GoalHud progress={session.progress} />
+        The `lg` layout is unchanged. The short-viewport rule folds the two cards
+        into one row so the numbers stay in the same glance as the bàn.
+      */}
+      <div className="grid gap-3 [@media(max-height:560px)]:gap-2 lg:grid-cols-[14rem_1fr] lg:grid-rows-[auto_auto_1fr] lg:gap-6">
+        {/* `contents` by default, so the two cards stay direct grid items and the
+            `lg` placement below keeps working untouched. The short-viewport rule
+            in globals.css turns this wrapper into a real flex row instead — one
+            place, one media query, rather than a variant on every child. */}
+        <div className="hud-strip contents">
+          <div className="lg:col-start-1 lg:row-start-1">
+            <MoveCounter movesLeft={session.movesLeft} score={session.score} />
+          </div>
+
+          <div className="lg:col-start-1 lg:row-start-2">
+            <GoalHud progress={session.progress} />
+          </div>
         </div>
 
         <div className="flex justify-center lg:col-start-2 lg:row-span-3 lg:row-start-1">
@@ -126,11 +172,36 @@ function PlayBody({ levelId, level, repository, onBackToMap, onNext }: BodyProps
         <button
           type="button"
           data-testid="replay"
-          onClick={restart}
+          onClick={requestRestart}
           className="min-h-[44px] rounded-xl bg-surface-raised px-4 font-semibold text-ink-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-ink-strong lg:col-start-1 lg:row-start-3 lg:self-start"
         >
           {t.replay}
         </button>
+      </div>
+
+      {confirmingRestart ? (
+        <ConfirmRestart
+          session={session}
+          onConfirm={() => {
+            setConfirmingRestart(false)
+            doRestart()
+          }}
+          onCancel={() => setConfirmingRestart(false)}
+        />
+      ) : null}
+
+      {/*
+        The other half of FR-22: the confirm asks, this reports. A board that
+        replaces every piece with no word said is the same failure whether or not
+        the player had anything to lose.
+
+        The alternating non-breaking space is not decoration. Most screen readers
+        skip a live region whose text is byte-identical to what they just read, so
+        two restarts in a row would announce once. It flips the string without
+        changing a spoken word or a rendered pixel.
+      */}
+      <div role="status" aria-live="polite" className="sr-only">
+        {restartCount > 0 ? t.levelRestarted + ' '.repeat(restartCount % 2) : ''}
       </div>
 
       {lastResult ? (
