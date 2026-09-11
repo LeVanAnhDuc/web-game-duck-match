@@ -1,0 +1,64 @@
+{
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "commit-commands@claude-plugins-official": true,
+    "chrome-devtools-mcp@claude-plugins-official": true,
+    "github@claude-plugins-official": true,
+    "ui-ux-pro-max@ui-ux-pro-max-skill": true
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR:-D:/Learn/web-app-ecosystem/web-game/web-game-match-3}/.claude/scripts/docs-brief.sh\"",
+            "timeout": 15,
+            "statusMessage": "Doc trang thai tai lieu..."
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR:-D:/Learn/web-app-ecosystem/web-game/web-game-match-3}/.claude/scripts/docs-route.sh\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR:-D:/Learn/web-app-ecosystem/web-game/web-game-match-3}/.claude/scripts/doc-precompact.sh\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR:-D:/Learn/web-app-ecosystem/web-game/web-game-match-3}/.claude/scripts/doc-flush.sh\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}
