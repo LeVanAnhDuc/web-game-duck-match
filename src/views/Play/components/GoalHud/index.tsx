@@ -3,7 +3,7 @@
 import { useId } from 'react'
 import type { Color, GoalProgress } from '@/engine'
 import { COLOR_NAME, SHAPE_BY_COLOR, t } from '@/i18n/vi'
-import { PieceShape } from './shapes'
+import { PieceShape } from '../PieceShape'
 
 /**
  * The goal list, above the board at 375 and in the right-hand column from 768

@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { LEVELS } from '@/levels/levels'
 import { EMPTY_PROGRESS } from '@/storage/local'
 import { formatScore, t } from '@/i18n/vi'
-import { LevelMap } from './LevelMap'
+import { LevelMap } from './index'
 
 describe('LevelMap', () => {
   it('shows every level', () => {

@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import type { LevelConfig, Progress } from '@/engine'
 import { formatScore, t } from '@/i18n/vi'
-import { StarRow } from './StarRow'
+import { StarRow } from '@/components/StarRow'
 
 const MAX_STARS = 3
 

@@ -5,7 +5,7 @@ import type { Progress } from '@/engine'
 import { t } from '@/i18n/vi'
 import { LEVELS } from '@/levels/levels'
 import { createLocalRepository } from '@/storage/local'
-import { LevelMap } from '@/ui/LevelMap'
+import { LevelMap } from './mains/LevelMap'
 
 /**
  * Loads progress and hands it to the map.
@@ -15,7 +15,7 @@ import { LevelMap } from '@/ui/LevelMap'
  * does not mean inventing one. It also cannot read storage during the static
  * export, which is the other reason the read happens in an effect.
  */
-export function MapScreen() {
+export function Map() {
   const repository = useMemo(() => createLocalRepository(), [])
   const [progress, setProgress] = useState<Progress | null>(null)
 

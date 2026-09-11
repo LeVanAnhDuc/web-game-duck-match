@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { render } from '@testing-library/react'
-import { Tile } from './Tile'
+import { Tile } from './index'
 import type { Color, Piece, Special } from '@/engine'
 import { SHAPE_BY_COLOR } from '@/i18n/vi'
 

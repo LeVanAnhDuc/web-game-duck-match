@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, render } from '@testing-library/react'
 import type { GameEvent, Pos, Special } from '@/engine'
 import { formatScore } from '@/i18n/vi'
-import { EffectLayer } from './EffectLayer'
+import { EffectLayer } from './index'
 
 /**
  * The layer for the beats that are not a state diff (design.md §B.5, §C.1). A slide

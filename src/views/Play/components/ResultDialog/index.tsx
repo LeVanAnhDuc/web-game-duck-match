@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { Stars } from '@/engine'
 import { formatScore, t } from '@/i18n/vi'
-import { StarRow } from './StarRow'
+import { StarRow } from '@/components/StarRow'
 
 /**
  * End-of-level dialog, overlaid on the bàn rather than being its own route so the

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { render } from '@testing-library/react'
-import { PieceShape } from './shapes'
+import { PieceShape } from './index'
 import { SHAPE_BY_COLOR, type Shape } from '@/i18n/vi'
 
 /**

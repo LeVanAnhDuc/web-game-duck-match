@@ -1,5 +1,5 @@
 import type { Config } from 'tailwindcss'
-import { ACCENT, PIECE_COLORS, SURFACE } from './src/ui/tokens'
+import { ACCENT, PIECE_COLORS, SURFACE } from './src/lib/tokens'
 
 /**
  * Tokens are imported, not retyped: `src/ui/tokens.ts` is the copy tests can read,

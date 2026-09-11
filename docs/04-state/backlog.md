@@ -54,6 +54,14 @@ Giai đoạn 1 luật chơi đã trên `main` (v1.0.0 / v1.0.1).
 | Merge PR #1 để `main` có CI/CD và bản deploy đầu tiên | ADR-0006 | cao | `deploy.yml` và `release.yml` chỉ chạy trên push `main`, nên đến khi merge thì chưa có bản chơi thử nào và chưa có release nào |
 
 ## Nợ kỹ thuật — cố ý làm tạm
+**`engine/perf.test.ts` đỏ khi chạy cùng cả bộ, xanh khi chạy riêng** (2026-09-11).
+Test p95 hết hạn 5000ms dưới sự song song của vitest — nó đo tranh chấp CPU chứ không
+đo code. Đã kiểm: 517 test / cùng một test đỏ, **trước và sau** đợt refactor ADR-0011,
+nên đây không phải hồi quy. CI cũng chạy `yarn test` nên có thể đỏ ngẫu nhiên ở đó.
+Cách chữa nằm ở cấu hình test, không ở code: cho file này chạy tuần tự
+(`poolOptions`/`fileParallelism: false` riêng cho nó) hoặc nâng `testTimeout` của nó.
+**Buộc phải trả khi:** CI đỏ vì nó, hoặc khi có người tin con số p95 mà nó in ra.
+
 
 | Chỗ nào | Đã đánh đổi gì | Vì sao chấp nhận | Khi nào buộc phải trả |
 | --- | --- | --- | --- |

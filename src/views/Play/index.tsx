@@ -7,10 +7,10 @@ import { useGameSession } from '@/game/useGameSession'
 import { LAST_LEVEL_ID, levelById } from '@/levels/levels'
 import { createLocalRepository } from '@/storage/local'
 import { t } from '@/i18n/vi'
-import { Board } from '@/ui/Board'
-import { GoalHud } from '@/ui/GoalHud'
-import { MoveCounter } from '@/ui/MoveCounter'
-import { ResultDialog } from '@/ui/ResultDialog'
+import { Board } from './mains/Board'
+import { GoalHud } from './components/GoalHud'
+import { MoveCounter } from './components/MoveCounter'
+import { ResultDialog } from './components/ResultDialog'
 
 /**
  * The play route's whole client side. It owns the session, wires the board to it,
@@ -18,7 +18,7 @@ import { ResultDialog } from '@/ui/ResultDialog'
  * constructed here and nowhere deeper, so swapping it for a backend later is a
  * one-line change (ADR-0001, architecture.md §3).
  */
-export function PlayScreen({ levelId }: { levelId: number }) {
+export function Play({ levelId }: { levelId: number }) {
   const router = useRouter()
   const level = levelById(levelId)
 
@@ -37,7 +37,7 @@ export function PlayScreen({ levelId }: { levelId: number }) {
   }
 
   return (
-    <PlayScreenBody
+    <PlayBody
       key={level.id}
       levelId={level.id}
       level={level}
@@ -60,7 +60,7 @@ type BodyProps = {
  * Split out so the hook is never called conditionally: the parent has to be able
  * to bail out on an unknown level id before any hook runs.
  */
-function PlayScreenBody({ levelId, level, repository, onBackToMap, onNext }: BodyProps) {
+function PlayBody({ levelId, level, repository, onBackToMap, onNext }: BodyProps) {
   const {
     session,
     busy,

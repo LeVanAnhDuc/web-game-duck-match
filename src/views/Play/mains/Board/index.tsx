@@ -4,8 +4,8 @@ import { useRef, useState } from 'react'
 import type { CSSProperties, KeyboardEvent, PointerEvent } from 'react'
 import type { GameEvent, Pos, Session } from '@/engine'
 import { COLOR_NAME, t } from '@/i18n/vi'
-import { EffectLayer } from './EffectLayer'
-import { PieceLayer } from './PieceLayer'
+import { EffectLayer } from '../../components/EffectLayer'
+import { PieceLayer } from '../../components/PieceLayer'
 
 /**
  * The bàn, and the only place player input becomes a move. It renders what the

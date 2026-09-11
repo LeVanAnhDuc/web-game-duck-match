@@ -1,5 +1,5 @@
 import { LEVELS } from '@/levels/levels'
-import { PlayScreen } from '../../PlayScreen'
+import { Play } from '@/views/Play'
 
 /**
  * `output: 'export'` builds only the ids listed here, which is also the guard that
@@ -12,5 +12,5 @@ export function generateStaticParams() {
 
 export default async function PlayPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  return <PlayScreen levelId={Number(id)} />
+  return <Play levelId={Number(id)} />
 }

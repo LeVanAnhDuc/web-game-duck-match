@@ -3,7 +3,7 @@
 import type { ReactElement } from 'react'
 import type { Color, Piece, Special } from '@/engine'
 import { SHAPE_BY_COLOR } from '@/i18n/vi'
-import { PieceShape } from './shapes'
+import { PieceShape } from '../PieceShape'
 
 /**
  * One viên, as a slab of clay rather than a coloured glyph (design.md §A.4): a

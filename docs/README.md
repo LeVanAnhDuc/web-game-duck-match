@@ -14,7 +14,7 @@
 | [`03-design/invariants.md`](03-design/invariants.md) | Sửa gì thì hệ thống sai **âm thầm** — test vẫn xanh mà kết… | 🟢 đủ | phát hiện một bất biến mới — thường là ngay sau khi ai đó … |
 | [`04-state/backlog.md`](04-state/backlog.md) | Đang làm gì, tiếp theo làm gì, và đang nợ những gì? | 🟢 đủ | bắt đầu/kết thúc một việc · brainstorm ra việc mới · cố ý … |
 | [`design-system/match-3/MASTER.md`](design-system/match-3/MASTER.md) | — | — | — |
-| [`decisions/`](decisions/README.md) | Tại sao lại làm thế này? | 10 ADR | mỗi quyết định kỹ thuật |
+| [`decisions/`](decisions/README.md) | Tại sao lại làm thế này? | 11 ADR | mỗi quyết định kỹ thuật |
 | [`../.env.example`](../.env.example) | cần biến nào để chạy được dự án này? | 🟢 đủ — chạy dự án KHÔNG cần biến nào; hai b… | code đọc một biến mới (process.env.X / os.getenv / os.Gete… |
 <!-- END:auto -->
 

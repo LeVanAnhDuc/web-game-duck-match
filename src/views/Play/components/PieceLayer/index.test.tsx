@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, render } from '@testing-library/react'
 import { newSession } from '@/engine'
 import type { LevelConfig, Piece, Pos, Session } from '@/engine'
-import { PieceLayer } from './PieceLayer'
+import { PieceLayer } from './index'
 
 /**
  * The layer under test is the whole animation mechanism (ADR-0010), so most of

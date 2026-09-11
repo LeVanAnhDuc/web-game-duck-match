@@ -3,8 +3,8 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import type { Pos, Session } from '@/engine'
-import { Tile } from './Tile'
-import { useExitingPieces, type Placed } from './useExitingPieces'
+import { Tile } from '../Tile'
+import { useExitingPieces, type Placed } from '@/hooks/useExitingPieces'
 
 /**
  * The layer that moves.

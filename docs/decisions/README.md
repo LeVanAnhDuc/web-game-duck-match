@@ -18,6 +18,7 @@
 | [ADR-0008](0008-palette-do-duoc-baloo-2-thay-fredoka-signature-la-cai-gieng.md) | Palette chọn bằng đo, Baloo 2 thay Fredoka, signature là cái giếng | 2026-09-07 | accepted |
 | [ADR-0009](0009-reshuffled-mang-theo-grid.md) | `reshuffled` mang theo grid mới | 2026-09-07 | accepted |
 | [ADR-0010](0010-ba-lop-ban-choi-va-lead-tach-khoi-thoi-luong-css.md) | Bàn chơi ba lớp, và `lead` tách khỏi thời lượng CSS | 2026-09-07 | accepted |
+| [ADR-0011](0011-nhan-bo-quy-uoc-view-dung-chung.md) | Nhận bộ quy ước view dùng chung của workspace `web-game` | 2026-09-11 | accepted |
 <!-- END:auto -->
 
 Trạng thái: `accepted` · `superseded by ADR-00xx` · `deprecated`

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { ResultDialog } from './ResultDialog'
+import { ResultDialog } from './index'
 import { formatScore, t } from '@/i18n/vi'
 
 const won = { status: 'won' as const, stars: 2 as const, score: 2340 }
