@@ -14,6 +14,14 @@
 | [`03-design/invariants.md`](03-design/invariants.md) | Sửa gì thì hệ thống sai **âm thầm** — test vẫn xanh mà kết… | 🟢 đủ | phát hiện một bất biến mới — thường là ngay sau khi ai đó … |
 | [`04-state/backlog.md`](04-state/backlog.md) | Đang làm gì, tiếp theo làm gì, và đang nợ những gì? | 🟢 đủ | bắt đầu/kết thúc một việc · brainstorm ra việc mới · cố ý … |
 | [`design-system/match-3/MASTER.md`](design-system/match-3/MASTER.md) | — | — | — |
+| [`ux-reviews/2026-09-11-red-routes-full.md`](ux-reviews/2026-09-11-red-routes-full.md) | — | — | — |
+| [`ux-reviews/2026-09-11-red-routes-full/logs/p01-thuy-RR-01.md`](ux-reviews/2026-09-11-red-routes-full/logs/p01-thuy-RR-01.md) | — | — | — |
+| [`ux-reviews/2026-09-11-red-routes-full/logs/p02-vy-RR-02.md`](ux-reviews/2026-09-11-red-routes-full/logs/p02-vy-RR-02.md) | — | — | — |
+| [`ux-reviews/2026-09-11-red-routes-full/logs/p03-hanh-RR-05.md`](ux-reviews/2026-09-11-red-routes-full/logs/p03-hanh-RR-05.md) | — | — | — |
+| [`ux-reviews/2026-09-11-red-routes-full/logs/p04-nam-RR-03.md`](ux-reviews/2026-09-11-red-routes-full/logs/p04-nam-RR-03.md) | — | — | — |
+| [`ux-reviews/2026-09-11-red-routes-full/logs/p05-co-lien-RR-04.md`](ux-reviews/2026-09-11-red-routes-full/logs/p05-co-lien-RR-04.md) | — | — | — |
+| [`ux-reviews/2026-09-11-red-routes-full/logs/p06-khang-mu.md`](ux-reviews/2026-09-11-red-routes-full/logs/p06-khang-mu.md) | — | — | — |
+| [`ux-reviews/2026-09-11-red-routes-full/logs/p07-ong-tam-mu.md`](ux-reviews/2026-09-11-red-routes-full/logs/p07-ong-tam-mu.md) | — | — | — |
 | [`decisions/`](decisions/README.md) | Tại sao lại làm thế này? | 11 ADR | mỗi quyết định kỹ thuật |
 | [`../.env.example`](../.env.example) | cần biến nào để chạy được dự án này? | 🟢 đủ — chạy dự án KHÔNG cần biến nào; hai b… | code đọc một biến mới (process.env.X / os.getenv / os.Gete… |
 <!-- END:auto -->

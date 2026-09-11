@@ -24,3 +24,6 @@ next-env.d.ts
 !/.claude/settings.local.json
 !/.claude/skills/
 !/.claude/scripts/
+
+# Playwright MCP scratch output (persona runs) — never content to commit.
+.playwright-mcp/
