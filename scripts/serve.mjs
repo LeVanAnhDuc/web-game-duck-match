@@ -5,7 +5,7 @@ import { extname, join, normalize, resolve } from 'node:path'
 /**
  * Serves ./out the way GitHub Pages will, for the e2e suite.
  *
- * `next start` cannot serve a static export, and `npx serve` has to be fetched from
+ * `next start` cannot serve a static export, and `pnpm dlx serve` has to be fetched from
  * the network on a cold machine — plus its `-s` flag rewrites every unknown path to
  * index.html, which silently answered /play/1/ with the level map and made four
  * tests fail for a reason that had nothing to do with the app. A twenty-line server
@@ -17,7 +17,7 @@ const PORT = Number(process.argv[2] ?? 4173)
 const ROOT = resolve(process.argv[3] ?? 'out')
 
 if (!existsSync(ROOT)) {
-  console.error(`${ROOT} does not exist — run \`yarn build\` first.`)
+  console.error(`${ROOT} does not exist — run \`pnpm build\` first.`)
   process.exit(1)
 }
 

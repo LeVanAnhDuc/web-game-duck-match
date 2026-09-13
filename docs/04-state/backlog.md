@@ -73,10 +73,18 @@ video. Chưa làm vì nó thuộc về skill `ux-persona-review`, không thuộc
 **`engine/perf.test.ts` đỏ khi chạy cùng cả bộ, xanh khi chạy riêng** (2026-09-11).
 Test p95 hết hạn 5000ms dưới sự song song của vitest — nó đo tranh chấp CPU chứ không
 đo code. Đã kiểm: 517 test / cùng một test đỏ, **trước và sau** đợt refactor ADR-0011,
-nên đây không phải hồi quy. CI cũng chạy `yarn test` nên có thể đỏ ngẫu nhiên ở đó.
+nên đây không phải hồi quy. CI cũng chạy `pnpm test` nên có thể đỏ ngẫu nhiên ở đó.
 Cách chữa nằm ở cấu hình test, không ở code: cho file này chạy tuần tự
 (`poolOptions`/`fileParallelism: false` riêng cho nó) hoặc nâng `testTimeout` của nó.
 **Buộc phải trả khi:** CI đỏ vì nó, hoặc khi có người tin con số p95 mà nó in ra.
+
+**E2E `US-02 · replay resets the move counter and the score` đỏ trên `main`** (từ
+11.09.2026). Nút chơi lại không đặt lại bộ đếm lượt: test đợi `15`, nhận `14`. Nó đến `main`
+cùng PR #9, được merge trong lúc job `Build, budget and end-to-end` đang đỏ (run
+34623496443), nên CI của mọi PR sau đó cũng đỏ ở đúng test này. Đã kiểm lại khi chuyển
+yarn → pnpm: cùng một test, cùng `15`/`14`, và `next`/`react`/`react-dom` giữ nguyên
+phiên bản đã khoá — lỗi sản phẩm có sẵn, không phải hồi quy của đợt đổi trình quản lý gói.
+**Buộc phải trả khi:** ngay — một job CI đỏ sẵn làm mọi PR sau nó không còn đọc được.
 
 
 | Chỗ nào | Đã đánh đổi gì | Vì sao chấp nhận | Khi nào buộc phải trả |

@@ -5,7 +5,7 @@ import { defineConfig, devices } from '@playwright/test'
  *
  * Separate from `playwright.config.ts` because nothing here is served locally:
  * there is no `webServer`, no `out/`, and the URL is the real one. `deploy.yml`
- * runs it after `deploy-pages`; locally it is `yarn verify:live`.
+ * runs it after `deploy-pages`; locally it is `pnpm verify:live`.
  *
  * The specs use absolute URLs, so no `baseURL` is set — see the comment in
  * `e2e-live/deployed.spec.ts` for the trailing-slash trap that caused.

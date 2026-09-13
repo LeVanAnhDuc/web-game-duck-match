@@ -8,7 +8,7 @@ const BASE_URL = `http://127.0.0.1:${PORT}`
  * ships, and `output: 'export'` is exactly the mode where a route can work in dev
  * and be missing from the export (ADR-0004).
  *
- * The server is `scripts/serve.mjs` rather than `npx serve`: that package has to be
+ * The server is `scripts/serve.mjs` rather than `pnpm dlx serve`: that package has to be
  * fetched on a cold machine, and its `-s` flag rewrites unknown paths to
  * index.html, which quietly answered /play/1/ with the level map and broke four
  * tests for a reason that had nothing to do with the app.
@@ -31,7 +31,7 @@ export default defineConfig({
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
-    // Serves an existing `out/`. `yarn test:e2e` builds first; CI builds once and
+    // Serves an existing `out/`. `pnpm test:e2e` builds first; CI builds once and
     // then calls `playwright test` directly rather than paying for it twice.
     command: `node scripts/serve.mjs ${PORT} out`,
     url: BASE_URL,
