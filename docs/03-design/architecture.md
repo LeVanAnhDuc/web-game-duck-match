@@ -88,7 +88,7 @@ tồn tại. Đây là lý do bước 5 là bước duy nhất chạm `storage/`
 | Framework | Next.js 15 (App Router, `output: 'export'`) | ADR-0004 |
 | UI | React 19 + TypeScript strict | ADR-0004 |
 | Style | Tailwind CSS | ADR-0004 |
-| Toolchain | Yarn classic | ADR-0004 |
+| Toolchain | pnpm 10 | ADR-0004 |
 | Luật chơi | TypeScript thuần, đồng bộ, không thư viện game | ADR-0002 |
 | Ngẫu nhiên | PRNG mulberry32 có seed, tự viết | ADR-0003 |
 | Lưu trữ | localStorage sau interface `ProgressRepository` async | ADR-0001 |

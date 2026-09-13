@@ -58,7 +58,7 @@ viên là khối dày nằm trong lỗ.
 **Mất / phải chấp nhận:**
 - Ảnh chụp cũ trong `test-results/` và mọi mô tả "nền xanh đen" trong tài liệu đều
   lạc hậu ngay lập tức.
-- Hai họ chữ web thêm bytes vào bundle. `yarn check:bundle` (NFR-PERF-07, trần
+- Hai họ chữ web thêm bytes vào bundle. `pnpm check:bundle` (NFR-PERF-07, trần
   200KB gzip) là cổng canh; hiện đang ở 106KB và 114KB nên còn chỗ, nhưng con số
   phải được đo lại sau khi thêm font.
 - `board` so với `well` chỉ `1,08:1`. Trông như lỗi nếu đọc rời khỏi ngữ cảnh, và

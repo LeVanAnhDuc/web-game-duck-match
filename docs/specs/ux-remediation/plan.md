@@ -79,10 +79,10 @@ Thiết kế: `design.md`. Mỗi task TDD: test đỏ trước, code sau.
 
 ## Task 10 — Nghiệm thu
 
-- [x] `yarn test` (561/562 — `engine/perf.test.ts` đỏ **sẵn trên `origin/main`**,
+- [x] `pnpm test` (561/562 — `engine/perf.test.ts` đỏ **sẵn trên `origin/main`**,
       đã cô lập bằng stash và đã có trong `backlog.md` §Nợ kỹ thuật từ trước)
-      · `yarn lint` sạch · `yarn typecheck` sạch · `yarn build` exit 0
-      · `yarn check:bundle` 111,6 KB / 200 KB (NFR-PERF-07)
+      · `pnpm lint` sạch · `pnpm typecheck` sạch · `pnpm build` exit 0
+      · `pnpm check:bundle` 111,6 KB / 200 KB (NFR-PERF-07)
 - [x] Ảnh thật ở 375 · 768 · 1024 · 1440 · và 720×450 cho F-06
 - [x] Dựng lại đúng kịch bản p03: màn đang dở → hộp hỏi lại, nêu `Điểm 180`, focus ở
       nút **Thôi**, Enter lần nữa không đổi bàn; màn chưa đụng tới → chơi lại ngay

@@ -31,7 +31,7 @@ Phiên bản và ghi chú release **suy ra từ subject của commit**: `feat:` 
 `type!:` hoặc `BREAKING CHANGE` → major, còn lại → patch; `[skip release]` trong
 subject thì không release. Logic nằm ở `scripts/next-version.sh` và
 `scripts/release-notes.sh` — script trong repo, không phải shell nhúng trong YAML,
-để chạy thử được bằng `yarn release:next` / `yarn release:notes v1.2.0`.
+để chạy thử được bằng `pnpm release:next` / `pnpm release:notes v1.2.0`.
 
 `basePath` chỉ bật khi `GITHUB_PAGES=true`, biến chỉ do `deploy.yml` đặt.
 
@@ -41,7 +41,7 @@ subject thì không release. Logic nằm ở `scripts/next-version.sh` và
 | --- | --- |
 | `gh release create --generate-notes` | GitHub nhóm ghi chú theo **nhãn pull request**, mà repo này không gắn nhãn PR. Thứ nó có là Conventional Commit ở mọi commit — nhóm theo cái đang có thật |
 | Một workflow làm tất cả | Lint đỏ và bàn chơi hỏng là hai tin khác nhau, không nên xếp hàng sau nhau. Ba file cũng cho ba `concurrency` khác nhau: CI được hủy giữa đường, deploy và release thì không |
-| `semantic-release` | Kéo cả một cây phụ thuộc và một file cấu hình cho việc mà 60 dòng bash làm được, trong dự án lấy `yarn audit` sạch làm ngưỡng |
+| `semantic-release` | Kéo cả một cây phụ thuộc và một file cấu hình cho việc mà 60 dòng bash làm được, trong dự án lấy `pnpm audit` sạch làm ngưỡng |
 | Suy `basePath` từ `NODE_ENV` | `next build` ở máy nào cũng là production, nên `out/index.html` mở bằng `file://` sẽ hỏng hết đường dẫn asset. Phải là một biến chỉ CI đặt |
 | Dùng `npx serve` cho E2E | Phải tải từ mạng ở máy nguội, và cờ `-s` của nó rewrite mọi đường dẫn lạ về `index.html` — đã làm `/play/1/` trả về trang bản đồ và 4 test đỏ vì lý do không liên quan gì đến app. Thay bằng `scripts/serve.mjs`, 60 dòng, không có cờ nào để đặt sai |
 | `enablement: true` cho `configure-pages` | `GITHUB_TOKEN` mặc định deploy được lên một Pages site **đã có** nhưng không tạo được site mới — đó là thao tác quản trị repo, và nó báo lỗi "Resource not accessible by integration". Bật Pages một lần bằng tay (lệnh ở README) |

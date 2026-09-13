@@ -13,7 +13,7 @@
 ## Global Constraints
 
 - **Yarn classic.** Never `npm install`.
-- Task order is A → B → C. Stopping after any task must leave `yarn test`, `yarn build` and `yarn test:e2e` green.
+- Task order is A → B → C. Stopping after any task must leave `pnpm test`, `pnpm build` and `pnpm test:e2e` green.
 - **These tests must not be rewritten to pass:** 25 `Board`, 19 HUD, 18 `ResultDialog`, 8 `LevelMap`, 15 Playwright, and `test/engine-ui-agreement.test.ts`. If one goes red, the change is wrong until proven otherwise.
 - Token values come from `docs/design-system/match-3/MASTER.md`. Do not invent a colour, radius or shadow that is not in it.
 - `src/engine/**` stays pure: no React, no DOM, no `Date`, no `Math.random` (`purity.test.ts` greps for it).
@@ -91,7 +91,7 @@ describe('design tokens', () => {
 })
 ```
 
-- [ ] **Step 2: Run it red** — `yarn vitest run src/ui/tokens.test.ts` → cannot resolve `./tokens`.
+- [ ] **Step 2: Run it red** — `pnpm exec vitest run src/ui/tokens.test.ts` → cannot resolve `./tokens`.
 
 - [ ] **Step 3: Create `src/ui/tokens.ts`** exporting `SURFACE` and `PIECE_COLORS` with the exact hexes from `MASTER.md`, and have `tailwind.config.ts` import from it so there is one source in code.
 
@@ -108,7 +108,7 @@ const body = Nunito({ subsets: ['latin', 'vietnamese'], weight: ['400', '600'], 
 
 - [ ] **Step 5: Clay recipes in `globals.css`** — `--clay-well` (inset shadow pair), `--clay-piece` (outer shadow + top inner highlight), `--clay-lift`. Under `prefers-reduced-motion: reduce` **and** `[data-reduced-motion='true']`, disable transitions and animations.
 
-- [ ] **Step 6: Verify** — `yarn test`, `yarn typecheck`, `yarn lint`, `yarn build`, then `yarn check:bundle` twice (root and `play/1/index.html`) and record the new numbers: fonts add bytes and NFR-PERF-07 is a 200KB ceiling.
+- [ ] **Step 6: Verify** — `pnpm test`, `pnpm typecheck`, `pnpm lint`, `pnpm build`, then `pnpm check:bundle` twice (root and `play/1/index.html`) and record the new numbers: fonts add bytes and NFR-PERF-07 is a 200KB ceiling.
 
 - [ ] **Step 7: Commit** — `feat(ui): adopt the measured palette and self-hosted vietnamese fonts`
 
@@ -131,7 +131,7 @@ Pays the recorded debt: `Tile` and `GoalHud` each drew their own SVG shape set.
 - [ ] **Step 1: Test** — a piece renders with `data-color`, `data-special`, `data-selected`; a selected piece carries `data-lifted="true"`; a special piece carries `data-shimmer="true"` and a plain one does not.
 - [ ] **Step 2: Run red.**
 - [ ] **Step 3: Implement** the clay look from design.md §A.4: radius 20px, 3px top highlight, outer shadow, and on `selected` a `translateY(-3px)` lift with a larger shadow. Keep the pink focus ring — depth is not an accessible signal on its own.
-- [ ] **Step 4: Verify** — `yarn test`.
+- [ ] **Step 4: Verify** — `pnpm test`.
 - [ ] **Step 5: Commit** — `feat(ui): render pieces as clay in pressed wells`
 
 ---
@@ -157,7 +157,7 @@ export function buildTimeline(events: GameEvent[], opts: { reducedMotion: boolea
 - [ ] **Step 1: Tests first** — every existing timeline test must still describe correct behaviour after `duration` → `lead`; plus: a lone `swapReverted` produces **two** steps whose `visual.kind` are `swapOut` then `swapBack`; the second carries the `swapReverted` event; reduced motion sets every `lead` to 0 but keeps the same step count and grouping; leads match the table in design.md §B.4.
 - [ ] **Step 2: Run red.**
 - [ ] **Step 3: Implement.** Keep the existing grouping rules (a `matched` absorbs the activations and spawns that follow it; `goalProgressed` folds into the step before). Add the revert expansion.
-- [ ] **Step 4: Verify** — `yarn vitest run src/game`.
+- [ ] **Step 4: Verify** — `pnpm exec vitest run src/game`.
 - [ ] **Step 5: Commit** — `feat(game): give steps a lead so beats can overlap`
 
 ### Task 5: Engine — `reshuffled` carries its grid
@@ -167,7 +167,7 @@ export function buildTimeline(events: GameEvent[], opts: { reducedMotion: boolea
 - [ ] **Step 1: Test** — after a resolve that reshuffles, the `reshuffled` event's `grid` is deep-equal to the returned `grid`; every piece id on it also existed before the shuffle (the multiset and its ids are preserved, invariant 8).
 - [ ] **Step 2: Run red.**
 - [ ] **Step 3: Implement** — attach `grid` at both exits: the settled shuffle and the freshly generated board.
-- [ ] **Step 4: Verify** — `yarn vitest run src/engine`.
+- [ ] **Step 4: Verify** — `pnpm exec vitest run src/engine`.
 - [ ] **Step 5: Commit** — `feat(engine): let reshuffled carry the board it produced`
 
 ### Task 6: Projection applies `visual` and the reshuffled grid
@@ -177,7 +177,7 @@ export function buildTimeline(events: GameEvent[], opts: { reducedMotion: boolea
 - [ ] **Step 1: Tests** — `swapOut` exchanges the two pieces and **does not** change `movesLeft` (invariant 6); `swapBack` returns them; `reshuffled` with a grid replaces the shown grid; and — the important one — **`engine-ui-agreement` no longer skips moves containing a reshuffle**, because there is nothing left that cannot be projected.
 - [ ] **Step 2: Run red** — the agreement test's skip branch is what fails first.
 - [ ] **Step 3: Implement** — `projectEvents(session, events, visual?)`, and delete the skip in the agreement test.
-- [ ] **Step 4: Verify** — `yarn test`. The agreement test plays 4320 moves; it is the contract that the animation never shows something untrue.
+- [ ] **Step 4: Verify** — `pnpm test`. The agreement test plays 4320 moves; it is the contract that the animation never shows something untrue.
 - [ ] **Step 5: Commit** — `feat(game): project the revert beat and the reshuffled board`
 
 ### Task 7: Lead-driven queue
@@ -187,7 +187,7 @@ export function buildTimeline(events: GameEvent[], opts: { reducedMotion: boolea
 - [ ] **Step 1: Tests** — the queue advances on `lead`, not on a CSS duration; input stays locked for the whole queue (invariant 3) and `busy` clears only when it drains; a `swapReverted` locks for its two beats and spends no move; reduced motion drains in one chain.
 - [ ] **Step 2: Run red.**
 - [ ] **Step 3: Implement** — pass `step.visual` into `projectEvents`; keep the authoritative session in the ref exactly as now.
-- [ ] **Step 4: Verify** — `yarn vitest run src/game`.
+- [ ] **Step 4: Verify** — `pnpm exec vitest run src/game`.
 - [ ] **Step 5: Commit** — `feat(game): drive the queue by lead time`
 
 ### Task 8: `useExitingPieces`
@@ -209,7 +209,7 @@ export function buildTimeline(events: GameEvent[], opts: { reducedMotion: boolea
 - [ ] **Step 1: Tests** — 49 tiles for a 7×7 session, each with `data-piece-id`; a tile's inline `transform` follows its row/col; a tile keeps its `data-piece-id` across a re-render at a new position (this is the whole mechanism — if the key changes, nothing animates); an exiting tile carries `data-clearing`; the layer is `aria-hidden`.
 - [ ] **Step 2: Run red.**
 - [ ] **Step 3: Implement.** `Board` becomes a `position: relative` container that declares `--cell` and `--cols` and renders: the existing semantic grid **unchanged**, then `PieceLayer`, then `EffectLayer` (task 10). The semantic buttons keep their `aria-label` from the projected grid and lose their visual tile.
-- [ ] **Step 4: Verify** — all 25 `Board` tests green **without editing them**, and `yarn test:e2e`.
+- [ ] **Step 4: Verify** — all 25 `Board` tests green **without editing them**, and `pnpm test:e2e`.
 - [ ] **Step 5: Commit** — `feat(ui): position pieces by id so movement animates itself`
 
 ### Task 10: `EffectLayer` and the sweeps
@@ -267,10 +267,10 @@ export function buildTimeline(events: GameEvent[], opts: { reducedMotion: boolea
 
 ### Task 15: Look at it, on the running app
 
-- [ ] **Step 1:** `yarn test:e2e` — 15 existing flows must pass untouched.
+- [ ] **Step 1:** `pnpm test:e2e` — 15 existing flows must pass untouched.
 - [ ] **Step 2:** Capture 375 / 768 / 1024 / 1440 plus the 9×9-at-375 case, and **open every screenshot**. A UI change nobody looked at is not finished.
 - [ ] **Step 3:** Play several moves in a real browser and confirm: the swap slides, an illegal swap slides over and back without spending a move, pieces fall with weight, a special sweeps its row, the multiplier appears from cascade 2.
-- [ ] **Step 4:** Re-measure `yarn check:bundle` for both routes and NFR-PERF-06 (no frame over 32ms during a cascade) — the DOM node count went up, so this is measured, not assumed.
+- [ ] **Step 4:** Re-measure `pnpm check:bundle` for both routes and NFR-PERF-06 (no frame over 32ms during a cascade) — the DOM node count went up, so this is measured, not assumed.
 - [ ] **Step 5: Commit** any fixes the screenshots forced, saying what the screenshot showed.
 
 ### Task 16: Close the paperwork
@@ -278,7 +278,7 @@ export function buildTimeline(events: GameEvent[], opts: { reducedMotion: boolea
 - [ ] **Step 1:** FR-15…FR-17 → `xong` in `scope.md`.
 - [ ] **Step 2:** `backlog.md` — §Đang làm reflects reality; the four debts this feature pays are already removed; add anything newly owed.
 - [ ] **Step 3:** README `## Features` gains one English bullet for the new feel.
-- [ ] **Step 4:** `bash .claude/scripts/docs-regen.sh` clean; then `yarn typecheck && yarn lint && yarn test && yarn build && yarn test:e2e`.
+- [ ] **Step 4:** `bash .claude/scripts/docs-regen.sh` clean; then `pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm test:e2e`.
 - [ ] **Step 5:** Commit, push, PR, wait for CI, merge, and confirm `verify:live` passes on the deployed site.
 
 ## Self-Review

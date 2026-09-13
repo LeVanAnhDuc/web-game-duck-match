@@ -32,7 +32,7 @@ Không có việc nào đang dở.
 
 **Feature `tactile-board` xong** (FR-15 · FR-16 · FR-17) trên nhánh
 `feat/design-system-and-animation`. 517 test đơn vị + 17 test luồng Playwright xanh,
-`yarn build` ra `out/`, ảnh chụp bốn bề rộng đã xem.
+`pnpm build` ra `out/`, ảnh chụp bốn bề rộng đã xem.
 
 `design-bootstrap` đã chạy **một lần duy nhất** — không chạy lại: bước 1 sinh
 `MASTER.md`, bước 2 ghi quyết định vào chính file đó, bước 3 là ADR-0008.
