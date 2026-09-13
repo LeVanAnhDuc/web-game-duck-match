@@ -22,28 +22,30 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-          cache: yarn
+          cache: pnpm
 
-      - run: yarn install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
 
       # Lint chay o day chu khong chi trong ci.yml: `build` bat duoc loi kieu
       # nhung khong bat vi pham lint, va mot push thang vao `main` khong di
       # qua pull request.
-      - run: yarn lint
+      - run: pnpm lint
 
       # The tests run here rather than trusting the CI workflow: `ci.yml` only fires
       # on pull requests, and a deploy that assumes a green run it cannot see is a
       # deploy that will eventually ship a red one.
-      - run: yarn typecheck
-      - run: yarn test
+      - run: pnpm typecheck
+      - run: pnpm test
 
-      - run: yarn build
+      - run: pnpm build
         env:
           # Set ONLY here. It switches on basePath for the /web-game-duck-match
-          # sub-path; `yarn dev` and a local build stay at the root, so opening a
+          # sub-path; `pnpm dev` and a local build stay at the root, so opening a
           # local out/index.html does not break every asset path (ADR-0006).
           GITHUB_PAGES: 'true'
 
@@ -88,17 +90,19 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-          cache: yarn
+          cache: pnpm
 
-      - run: yarn install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
 
       - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+        run: pnpm exec playwright install --with-deps chromium
 
       - name: Play the deployed site
-        run: yarn verify:live
+        run: pnpm verify:live
         env:
           LIVE_URL: ${{ needs.deploy.outputs.page_url || 'https://levananhduc.github.io/web-game-duck-match/' }}

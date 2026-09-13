@@ -25,29 +25,33 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-          cache: yarn
+          cache: pnpm
 
-      - run: yarn install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
 
       - name: Lint
-        run: yarn lint
+        run: pnpm lint
 
       - name: Typecheck
-        run: yarn typecheck
+        run: pnpm typecheck
 
       # 395 tests, including the engine purity grep, the p95 benchmark for
       # NFR-PERF-05, and the 4320-move engine/projection agreement fuzz.
       - name: Unit and component tests
-        run: yarn test
+        run: pnpm test
 
-      # NFR-SEC-05, and the FIRST place it has ever run: the audit endpoint times
-      # out from the machine this project was built on, so until this workflow
-      # existed nobody knew whether the dependency tree had a high advisory.
+      # NFR-SEC-05. Under yarn 1 this gate could only ever run here, because the
+      # audit endpoint timed out from the machine this project was built on.
+      # `pnpm audit` reads the npm advisory database and answers everywhere, so
+      # the same gate now runs locally as `pnpm check:audit` too — and it can
+      # genuinely go red instead of passing on a summary that described nothing.
       - name: Dependency audit
-        run: yarn audit --json | node scripts/check-audit.mjs
+        run: pnpm audit --json | node scripts/check-audit.mjs
 
   e2e:
     name: Build, budget and end-to-end
@@ -55,15 +59,17 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-          cache: yarn
+          cache: pnpm
 
-      - run: yarn install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
 
       - name: Build the static export
-        run: yarn build
+        run: pnpm build
 
       # NFR-PERF-07, measured from the exported HTML rather than from the build
       # table, so it breaks on a regression and not on a Next.js release. Both
@@ -75,12 +81,12 @@ jobs:
           node scripts/check-bundle-size.mjs out play/1/index.html
 
       - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+        run: pnpm exec playwright install --with-deps chromium
 
       # `test:e2e:only`, not `test:e2e`: the build above is the one being tested,
       # and rebuilding it here would only prove a second build also works.
       - name: End-to-end tests
-        run: yarn test:e2e:only
+        run: pnpm test:e2e:only
 
       - if: failure()
         uses: actions/upload-artifact@v4

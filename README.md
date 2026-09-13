@@ -70,8 +70,8 @@ reverted — it costs no move.
 ## Getting started
 
 ```bash
-yarn install
-yarn dev          # http://localhost:3000
+pnpm install
+pnpm dev          # http://localhost:3000
 ```
 
 There is **no `.env` step**: nothing the game needs comes from the environment. The
@@ -82,21 +82,21 @@ hand — `GITHUB_PAGES` in particular would break every asset path locally.
 
 | Command | What it does |
 | --- | --- |
-| `yarn dev` | dev server on `:3000` |
-| `yarn build` | static export into `out/` |
-| `yarn serve` | serve `out/` on `:4173`, the way Pages will |
-| `yarn test` | unit and component tests (Vitest) |
-| `yarn test:watch` | the same, in watch mode |
-| `yarn test:e2e` | build, then the Playwright flows and responsive screenshots |
-| `yarn test:e2e:only` | the same without rebuilding, for when `out/` is current |
-| `yarn typecheck` | `tsc --noEmit` |
-| `yarn lint` | ESLint via `next lint` |
-| `yarn check:bundle` | first-load JS budget, NFR-PERF-07 |
-| `yarn check:audit` | dependency advisories at high or above, NFR-SEC-05 |
-| `yarn verify:live` | open the published site and play a move on it |
-| `yarn release:next` | print the version the next release would carry, and why |
-| `yarn release:notes v1.2.0` | print the release notes for a tag |
-| `yarn format` | Prettier over the repo |
+| `pnpm dev` | dev server on `:3000` |
+| `pnpm build` | static export into `out/` |
+| `pnpm serve` | serve `out/` on `:4173`, the way Pages will |
+| `pnpm test` | unit and component tests (Vitest) |
+| `pnpm test:watch` | the same, in watch mode |
+| `pnpm test:e2e` | build, then the Playwright flows and responsive screenshots |
+| `pnpm test:e2e:only` | the same without rebuilding, for when `out/` is current |
+| `pnpm typecheck` | `tsc --noEmit` |
+| `pnpm lint` | ESLint via `next lint` |
+| `pnpm check:bundle` | first-load JS budget, NFR-PERF-07 |
+| `pnpm check:audit` | dependency advisories at high or above, NFR-SEC-05 |
+| `pnpm verify:live` | open the published site and play a move on it |
+| `pnpm release:next` | print the version the next release would carry, and why |
+| `pnpm release:notes v1.2.0` | print the release notes for a tag |
+| `pnpm format` | Prettier over the repo |
 
 ## How it is put together
 
@@ -124,8 +124,8 @@ prefix is a wrong version number.
 | `feat!: …`, or `BREAKING CHANGE` in the body | major |
 | anything containing `[skip release]` | no release at all |
 
-`yarn release:next` says what the current `HEAD` would produce and why, so the
-scheme can be checked before pushing rather than after. `yarn release:notes <tag>`
+`pnpm release:next` says what the current `HEAD` would produce and why, so the
+scheme can be checked before pushing rather than after. `pnpm release:notes <tag>`
 prints the notes; they are grouped by commit type, because GitHub's own generated
 notes group by pull-request label and this repository does not label its PRs
 (ADR-0006).

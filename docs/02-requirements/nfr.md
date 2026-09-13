@@ -26,7 +26,7 @@ không tài khoản, không PII, không tiền. Đó là lý do phần lớn kh�
 | NFR-PERF-04 | ~~Mọi cột filter/sort có index~~ **(bỏ)** — không có bảng | — |
 | NFR-PERF-05 | `applySwap` cho bàn 9×9 chạy < 16ms ở p95, kể cả khi có cascade và kích hoạt chuỗi | benchmark trong Vitest, 1000 nước đi từ seed cố định |
 | NFR-PERF-06 | Animation giữ 60fps trên bàn 9×9: không có frame > 32ms trong một cascade | Chrome DevTools Performance, ghi một cascade dài trên màn 6 |
-| NFR-PERF-07 | Bundle JS đầu vào của trang chơi < 200KB gzip | `yarn check:bundle` trong CI, đọc từ HTML đã export nên vỡ khi code phình chứ không vỡ khi Next đổi định dạng log. Đo 04.09.2026: bản đồ 106KB, bàn chơi 114KB |
+| NFR-PERF-07 | Bundle JS đầu vào của trang chơi < 200KB gzip | `pnpm check:bundle` trong CI, đọc từ HTML đã export nên vỡ khi code phình chứ không vỡ khi Next đổi định dạng log. Đo 04.09.2026: bản đồ 106KB, bàn chơi 114KB |
 
 ## Security
 
@@ -36,7 +36,7 @@ không tài khoản, không PII, không tiền. Đó là lý do phần lớn kh�
 | NFR-SEC-02 | ~~Không log PII/token/mật khẩu~~ **(bỏ)** — dự án không thu thập dữ liệu cá nhân nào | — |
 | NFR-SEC-03 | ~~Rate limit endpoint đăng nhập~~ **(bỏ)** — không có đăng nhập | — |
 | NFR-SEC-04 | Không có secret nào trong repo. `.env.example` chỉ ghi **tên** biến và cách lấy giá trị, không bao giờ ghi giá trị; chạy dự án không cần biến nào, hai biến đang có là do CI đặt | grep + review |
-| NFR-SEC-05 | Dependency không có lỗ hổng mức high trở lên | `yarn check:audit` (CI gọi trong `ci.yml`). Gác đúng mức high/critical, không gác vào exit code của `yarn audit` — nó là bitmask cho **mọi** severity. Gate **fail-closed**: thiếu dòng `auditSummary` nghĩa là audit không chạy, và đó là lỗi, không phải "sạch". Đo 07.09.2026: 576 dependency, 0 advisory |
+| NFR-SEC-05 | Dependency không có lỗ hổng mức high trở lên | `pnpm check:audit` (CI gọi trong `ci.yml`). Gác đúng mức high/critical, không gác vào exit code của `pnpm audit` — nó đỏ với **mọi** severity. Gate **fail-closed**: không có `metadata`, hoặc số dependency quét được ít hơn số devDependency khai trong `package.json`, hoặc `metadata` đếm high/critical mà không liệt kê advisory nào — đều là "không kiểm được", không phải "sạch". Đo 13.09.2026: 565 dependency, 2 advisory mức moderate (vitest / @vitest/mocker), 0 high/critical |
 | NFR-SEC-06 | ~~Lỗi trả client không chứa stack trace~~ **(bỏ)** — không có lỗi từ server; lỗi client do NFR-REL-03 lo | — |
 
 ## Accessibility

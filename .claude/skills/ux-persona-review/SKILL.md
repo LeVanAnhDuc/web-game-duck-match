@@ -12,7 +12,7 @@ description: Use when you want to know how a real stranger experiences Duck Matc
   Đây là bản GitHub Actions dựng từ `main` với `GITHUB_PAGES=true`, tức **đúng thứ người
   chơi thật mở**. Persona không bao giờ chạm tới máy của bạn.
 - Bản chạy ở máy — **chỉ dùng khi cần soi một thay đổi chưa deploy**, và khi đó phải ghi
-  rõ trong báo cáo là đã soi bản nào: `yarn dev --port 3303` → <http://127.0.0.1:3303/>
+  rõ trong báo cáo là đã soi bản nào: `pnpm dev --port 3303` → <http://127.0.0.1:3303/>
 - Dấu hiệu nhận biết đúng app: tiêu đề trang là **Duck Match**; màn đầu là **bản đồ 6 màn khoá tuyến tính**; vào màn thì thấy bàn viên vuông, mỗi màu viên mang một **hình riêng**, kèm số lượt còn lại và mục tiêu ngay trên bàn
 - Email dùng-một-lần cho persona: không dùng — game này không có đăng ký, không có email
 - Tài khoản thử (nếu Red Route cần đăng nhập): không có — không Red Route nào cần đăng nhập; mọi dữ liệu nằm trong trình duyệt của chính người chơi
