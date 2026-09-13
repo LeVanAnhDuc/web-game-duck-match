@@ -98,7 +98,7 @@ ngay trên HUD. Đã kiểm bằng cách gọi `fonts.googleapis.com/css2` với
 
 `next/font` self-host lúc build: không request nào ra fonts.googleapis.com khi chơi
 (quan trọng vì site chạy trên GitHub Pages), không CLS, và subset giữ bundle nhỏ —
-`yarn check:bundle` là cổng canh NFR-PERF-07.
+`pnpm check:bundle` là cổng canh NFR-PERF-07.
 
 ## A.4 Signature element — cái giếng
 

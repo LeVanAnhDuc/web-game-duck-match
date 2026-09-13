@@ -50,7 +50,7 @@ e2e/      play.spec.ts screenshots.spec.ts
 
 **Interfaces:**
 - Consumes: nothing.
-- Produces: working `yarn dev` · `yarn test` · `yarn typecheck` · `yarn lint` · `yarn build`.
+- Produces: working `pnpm dev` · `pnpm test` · `pnpm typecheck` · `pnpm lint` · `pnpm build`.
 
 - [ ] **Step 1: Write `package.json`**
 
@@ -160,11 +160,11 @@ describe('toolchain', () => {
 
 - [ ] **Step 5: Install and verify all five commands**
 
-Run: `yarn install`
-Run: `yarn test` → Expected: 1 passed.
-Run: `yarn typecheck` → Expected: no output, exit 0.
-Run: `yarn lint` → Expected: no errors.
-Run: `yarn build` → Expected: build succeeds and `out/index.html` exists.
+Run: `pnpm install`
+Run: `pnpm test` → Expected: 1 passed.
+Run: `pnpm typecheck` → Expected: no output, exit 0.
+Run: `pnpm lint` → Expected: no errors.
+Run: `pnpm build` → Expected: build succeeds and `out/index.html` exists.
 
 - [ ] **Step 6: Commit**
 
@@ -272,7 +272,7 @@ describe('engine purity', () => {
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `yarn vitest run src/engine/rng.test.ts` → Expected: FAIL, cannot resolve `./rng`.
+Run: `pnpm exec vitest run src/engine/rng.test.ts` → Expected: FAIL, cannot resolve `./rng`.
 
 - [ ] **Step 3: Implement**
 
@@ -323,7 +323,7 @@ Note: `Math.imul` and `Math.floor` are allowed — only `Math.random` is forbidd
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `yarn test` → Expected: all pass, including `purity.test.ts`.
+Run: `pnpm test` → Expected: all pass, including `purity.test.ts`.
 
 - [ ] **Step 5: Commit**
 
@@ -430,7 +430,7 @@ describe('board', () => {
 
 - [ ] **Step 2: Run to verify failure**
 
-Run: `yarn vitest run src/engine/board.test.ts` → Expected: FAIL, `./board` not found.
+Run: `pnpm exec vitest run src/engine/board.test.ts` → Expected: FAIL, `./board` not found.
 
 - [ ] **Step 3: Implement `board.ts`**
 
@@ -438,7 +438,7 @@ All functions return new arrays; none mutate. `collapse` walks each column botto
 
 - [ ] **Step 4: Run to verify pass**
 
-Run: `yarn test` → Expected: all pass.
+Run: `pnpm test` → Expected: all pass.
 
 - [ ] **Step 5: Commit**
 
@@ -507,13 +507,13 @@ describe('findMatches', () => {
 
 - [ ] **Step 2: Run to verify failure**
 
-Run: `yarn vitest run src/engine/match.test.ts` → Expected: FAIL.
+Run: `pnpm exec vitest run src/engine/match.test.ts` → Expected: FAIL.
 
 - [ ] **Step 3: Implement**
 
 Collect maximal horizontal runs (length >= 3) and maximal vertical runs (length >= 3). Then union runs of the same color that share at least one cell. A merged group containing both a horizontal and a vertical run is `corner`; otherwise the shape comes from length: 3 → `line3`, 4 → `line4`, >= 5 → `line5`.
 
-- [ ] **Step 4: Run to verify pass** — `yarn test`
+- [ ] **Step 4: Run to verify pass** — `pnpm test`
 
 - [ ] **Step 5: Commit**
 
@@ -583,9 +583,9 @@ describe('specialFor', () => {
 })
 ```
 
-- [ ] **Step 2: Run to verify failure** — `yarn vitest run src/engine/specials.test.ts`
+- [ ] **Step 2: Run to verify failure** — `pnpm exec vitest run src/engine/specials.test.ts`
 - [ ] **Step 3: Implement** per the rules above. For `line4`/`line5` the middle cell is `cells[Math.floor((cells.length - 1) / 2)]` after row-major sorting.
-- [ ] **Step 4: Run to verify pass** — `yarn test`
+- [ ] **Step 4: Run to verify pass** — `pnpm test`
 - [ ] **Step 5: Commit**
 
 ```bash
@@ -673,9 +673,9 @@ describe('resolveClears', () => {
 })
 ```
 
-- [ ] **Step 2: Run to verify failure** — `yarn vitest run src/engine/activate.test.ts`
+- [ ] **Step 2: Run to verify failure** — `pnpm exec vitest run src/engine/activate.test.ts`
 - [ ] **Step 3: Implement** with a worklist: push `seeds`, pop a position, add to `cleared`; if the piece there has a special and its `id` is not in the `activated` set, add the id, compute `activationTargets`, record the activation, push the targets. Loop until the worklist empties — bounded because each id activates once and `cleared` is a set.
-- [ ] **Step 4: Run to verify pass** — `yarn test`
+- [ ] **Step 4: Run to verify pass** — `pnpm test`
 - [ ] **Step 5: Commit**
 
 ```bash
@@ -765,9 +765,9 @@ describe('goals', () => {
 })
 ```
 
-- [ ] **Step 2: Run to verify failure** — `yarn vitest run src/engine/goals.test.ts`
+- [ ] **Step 2: Run to verify failure** — `pnpm exec vitest run src/engine/goals.test.ts`
 - [ ] **Step 3: Implement.** `applyCleared` takes the running total score (not a delta) so a `score` goal never double-counts. `switch (goal.kind)` must be exhaustive with a `never` default so adding `clearBlockers` in phase 3 is a type error until handled.
-- [ ] **Step 4: Run to verify pass** — `yarn test`
+- [ ] **Step 4: Run to verify pass** — `pnpm test`
 - [ ] **Step 5: Commit**
 
 ```bash
@@ -853,9 +853,9 @@ describe('generateBoard', () => {
 })
 ```
 
-- [ ] **Step 2: Run to verify failure** — `yarn vitest run src/engine/moves.test.ts`
+- [ ] **Step 2: Run to verify failure** — `pnpm exec vitest run src/engine/moves.test.ts`
 - [ ] **Step 3: Implement.** `findLegalMoves` tries every orthogonal pair, swaps on a copy, and keeps the pair when `findMatches` is non-empty — plus the `colorBomb` exception, which is legal without producing a match. `reshuffle` collects all pieces, `shuffle`s them, refills positions, and retries while `findMatches` is non-empty or `hasLegalMove` is false.
-- [ ] **Step 4: Run to verify pass** — `yarn test`
+- [ ] **Step 4: Run to verify pass** — `pnpm test`
 - [ ] **Step 5: Commit**
 
 ```bash
@@ -938,9 +938,9 @@ describe('resolveBoard', () => {
 })
 ```
 
-- [ ] **Step 2: Run to verify failure** — `yarn vitest run src/engine/resolve.test.ts`
+- [ ] **Step 2: Run to verify failure** — `pnpm exec vitest run src/engine/resolve.test.ts`
 - [ ] **Step 3: Implement** the loop described in design.md §4. Order inside one round: `resolveClears` → emit `matched` (with `points` from `scoreFor`) → emit `specialActivated` for each activation → `specialSpawned` for each spawn → write spawned specials into the grid **after** clearing → `collapse` → emit `fell` → `refill` → emit `refilled` → `applyCleared` → emit `goalProgressed` for each changed goal → `findMatches` again.
-- [ ] **Step 4: Run to verify pass** — `yarn test`
+- [ ] **Step 4: Run to verify pass** — `pnpm test`
 - [ ] **Step 5: Commit**
 
 ```bash
@@ -1080,9 +1080,9 @@ describe('applySwap performance', () => {
 })
 ```
 
-- [ ] **Step 2: Run to verify failure** — `yarn vitest run src/engine/session.test.ts`
+- [ ] **Step 2: Run to verify failure** — `pnpm exec vitest run src/engine/session.test.ts`
 - [ ] **Step 3: Implement `session.ts`.** `applySwap` returns `{ session, events: [] }` unchanged when the session is not `playing`, when the positions are not adjacent, or when either cell is empty. Otherwise: swap on a copy; if the swap involves a `colorBomb` and a normal piece, seed `resolveBoard` with the bomb's activation; else `findMatches` — empty means emit `swapReverted` and return the original grid with `movesLeft` untouched. On a real move: `movesLeft - 1`, emit `swapped`, call `resolveBoard`, then check win/lose **once**, at the end (invariant 7).
-- [ ] **Step 4: Run to verify pass** — `yarn test`
+- [ ] **Step 4: Run to verify pass** — `pnpm test`
 - [ ] **Step 5: Commit**
 
 ```bash
@@ -1154,9 +1154,9 @@ describe('LEVELS', () => {
 })
 ```
 
-- [ ] **Step 2: Run to verify failure** — `yarn vitest run src/levels/levels.test.ts`
+- [ ] **Step 2: Run to verify failure** — `pnpm exec vitest run src/levels/levels.test.ts`
 - [ ] **Step 3: Write the data** exactly as the table in design.md §5. Star thresholds: L1 `[1500, 2200, 3000]`, L2 `[3000, 4200, 5500]`, L3 `[1800, 2600, 3400]`, L4 `[2000, 3000, 4200]`, L5 `[5000, 6500, 8000]`, L6 `[4000, 5600, 7200]`.
-- [ ] **Step 4: Run to verify pass** — `yarn test`
+- [ ] **Step 4: Run to verify pass** — `pnpm test`
 - [ ] **Step 5: Commit**
 
 ```bash
@@ -1242,9 +1242,9 @@ describe('recordWin', () => {
 })
 ```
 
-- [ ] **Step 2: Run to verify failure** — `yarn vitest run src/storage/local.test.ts`
+- [ ] **Step 2: Run to verify failure** — `pnpm exec vitest run src/storage/local.test.ts`
 - [ ] **Step 3: Implement.** `load` wraps `JSON.parse` in `try/catch` and validates `version === 1`, `typeof levels === 'object'`, `typeof unlockedUpTo === 'number'`; anything else returns `EMPTY_PROGRESS = { version: 1, levels: {}, unlockedUpTo: 1 }`. `save` swallows write errors — a full quota must not break the game.
-- [ ] **Step 4: Run to verify pass** — `yarn test`
+- [ ] **Step 4: Run to verify pass** — `pnpm test`
 - [ ] **Step 5: Commit**
 
 ```bash
@@ -1291,9 +1291,9 @@ describe('i18n', () => {
 })
 ```
 
-- [ ] **Step 2: Run to verify failure** — `yarn vitest run src/i18n/vi.test.ts`
+- [ ] **Step 2: Run to verify failure** — `pnpm exec vitest run src/i18n/vi.test.ts`
 - [ ] **Step 3: Implement.** Keys needed by later tasks, exact names: `appTitle`, `levelMapTitle`, `levelLabel`, `locked`, `bestScore`, `noProgressYet`, `movesLeft`, `score`, `goals`, `goalScore`, `goalCollect`, `replay`, `backToMap`, `nextLevel`, `won`, `lost`, `starsEarned`, `loading`, `boardLabel`, `cellLabel`, `selected`, `reshuffled`.
-- [ ] **Step 4: Run to verify pass** — `yarn test`
+- [ ] **Step 4: Run to verify pass** — `pnpm test`
 - [ ] **Step 5: Commit**
 
 ```bash
@@ -1355,9 +1355,9 @@ describe('buildTimeline', () => {
 })
 ```
 
-- [ ] **Step 2: Run to verify failure** — `yarn vitest run src/game/timeline.test.ts`
+- [ ] **Step 2: Run to verify failure** — `pnpm exec vitest run src/game/timeline.test.ts`
 - [ ] **Step 3: Implement.** Grouping: `swapped`/`swapReverted` alone; `matched` + all following `specialActivated`/`specialSpawned` in one step; `fell` alone; `refilled` alone; `goalProgressed` folded into the preceding step; `reshuffled`, `levelWon`, `levelLost` each alone. Under `reducedMotion`, keep the same grouping and set every duration to 0.
-- [ ] **Step 4: Run to verify pass** — `yarn test`
+- [ ] **Step 4: Run to verify pass** — `pnpm test`
 - [ ] **Step 5: Commit**
 
 ```bash
@@ -1461,9 +1461,9 @@ describe('useGameSession', () => {
 })
 ```
 
-- [ ] **Step 2: Run to verify failure** — `yarn vitest run src/game/useGameSession.test.tsx`
+- [ ] **Step 2: Run to verify failure** — `pnpm exec vitest run src/game/useGameSession.test.tsx`
 - [ ] **Step 3: Implement.** Hold the *displayed* session in state and the *final* session in a ref. `trySwap` returns immediately when `busy`. Advance the queue with `setTimeout(step.duration)`; under reduced motion durations are 0 so the queue drains in one tick chain. When the queue empties, adopt the final session, set `lastResult`, and on `won` call `repository.save(recordWin(...))` — the only write, and only on a win (invariant 10). Read `prefers-reduced-motion` with `window.matchMedia` inside an effect, defaulting to `false` so SSR and happy-dom without `matchMedia` still work.
-- [ ] **Step 4: Run to verify pass** — `yarn test`
+- [ ] **Step 4: Run to verify pass** — `pnpm test`
 - [ ] **Step 5: Commit**
 
 ```bash
@@ -1548,9 +1548,9 @@ describe('Board', () => {
 })
 ```
 
-- [ ] **Step 2: Run to verify failure** — `yarn vitest run src/ui/Board.test.tsx`
+- [ ] **Step 2: Run to verify failure** — `pnpm exec vitest run src/ui/Board.test.tsx`
 - [ ] **Step 3: Implement.** One roving `tabIndex` (the focused cell is `0`, the rest `-1`). Cell size from a CSS variable set on the grid: `--cell: clamp(38px, calc((min(100vw - 2rem, 560px)) / var(--cols)), 64px)`. Every file in `src/ui/` starts with `'use client'`.
-- [ ] **Step 4: Run to verify pass** — `yarn test`
+- [ ] **Step 4: Run to verify pass** — `pnpm test`
 - [ ] **Step 5: Commit**
 
 ```bash
@@ -1616,9 +1616,9 @@ describe('HUD', () => {
 })
 ```
 
-- [ ] **Step 2: Run to verify failure** — `yarn vitest run src/ui/GoalHud.test.tsx`
+- [ ] **Step 2: Run to verify failure** — `pnpm exec vitest run src/ui/GoalHud.test.tsx`
 - [ ] **Step 3: Implement** with strings from `@/i18n/vi` only — no literal Vietnamese in the components (NFR-I18N-01).
-- [ ] **Step 4: Run to verify pass** — `yarn test`
+- [ ] **Step 4: Run to verify pass** — `pnpm test`
 - [ ] **Step 5: Commit**
 
 ```bash
@@ -1689,9 +1689,9 @@ describe('ResultDialog', () => {
 })
 ```
 
-- [ ] **Step 2: Run to verify failure** — `yarn vitest run src/ui/ResultDialog.test.tsx`
+- [ ] **Step 2: Run to verify failure** — `pnpm exec vitest run src/ui/ResultDialog.test.tsx`
 - [ ] **Step 3: Implement** the trap by hand: collect focusable children, wrap `Tab`/`Shift+Tab` at the ends, focus the first on mount.
-- [ ] **Step 4: Run to verify pass** — `yarn test`
+- [ ] **Step 4: Run to verify pass** — `pnpm test`
 - [ ] **Step 5: Commit**
 
 ```bash
@@ -1745,9 +1745,9 @@ describe('LevelMap', () => {
 })
 ```
 
-- [ ] **Step 2: Run to verify failure** — `yarn vitest run src/ui/LevelMap.test.tsx`
+- [ ] **Step 2: Run to verify failure** — `pnpm exec vitest run src/ui/LevelMap.test.tsx`
 - [ ] **Step 3: Implement.** `src/app/page.tsx` stays a server component that renders a small client wrapper which loads progress via `createLocalRepository()` in an effect and shows `t.loading` for the first paint (ADR-0001). The repository is constructed in exactly these two wrappers and nowhere else. Seed for a session: `levelId * 1000 + attemptCount` held in `PlayScreen` state, so "replay" gives a different board while staying reproducible.
-- [ ] **Step 4: Run to verify pass** — `yarn test && yarn typecheck && yarn build`
+- [ ] **Step 4: Run to verify pass** — `pnpm test && pnpm typecheck && pnpm build`
 - [ ] **Step 5: Commit**
 
 ```bash
@@ -1776,7 +1776,7 @@ export default defineConfig({
   testDir: './e2e',
   use: { baseURL: 'http://localhost:3100', trace: 'on-first-retry' },
   webServer: {
-    command: 'yarn build && npx serve out -l 3100',
+    command: 'pnpm build && pnpm dlx serve out -l 3100',
     url: 'http://localhost:3100',
     reuseExistingServer: !process.env.CI,
     timeout: 180000,
@@ -1862,7 +1862,7 @@ for (const width of widths) {
 ```
 
 - [ ] **Step 2: Add the `data-testid` hooks** the specs need: `moves-left` on `MoveCounter`, `replay` on the replay button, `score` on the score value.
-- [ ] **Step 3: Run** — `yarn test:e2e` → Expected: all pass; PNGs written under `test-results/`.
+- [ ] **Step 3: Run** — `pnpm test:e2e` → Expected: all pass; PNGs written under `test-results/`.
 - [ ] **Step 4: Look at the four board screenshots** and confirm against design.md §6: board square, cells >= 44px at 375 for 7×7, HUD above the board on mobile and beside it at 1024+.
 - [ ] **Step 5: Commit**
 
@@ -1881,16 +1881,16 @@ git commit -m "test(e2e): cover US-01..US-03 and capture four responsive widths"
 
 **Interfaces:** none — this task ships the paperwork the repo contract requires.
 
-- [ ] **Step 1: Write `README.md`** with `## Features` (one English bullet per shipped FR-01…FR-08), a `## Getting started` block (`yarn install`, `yarn dev`, no `.env` needed), a `## Commands` table, and a `## Docs` pointer to `docs/README.md`.
+- [ ] **Step 1: Write `README.md`** with `## Features` (one English bullet per shipped FR-01…FR-08), a `## Getting started` block (`pnpm install`, `pnpm dev`, no `.env` needed), a `## Commands` table, and a `## Docs` pointer to `docs/README.md`.
 - [ ] **Step 2: Flip FR-01…FR-08 to `xong`** in `docs/02-requirements/scope.md`.
 - [ ] **Step 3: Update `docs/04-state/backlog.md` §Đang làm** to say phase 1 is complete and phase 2 (`special-combos`) is next.
 - [ ] **Step 4: Run the full gate**
 
-Run: `yarn typecheck` → Expected: exit 0.
-Run: `yarn lint` → Expected: no errors.
-Run: `yarn test` → Expected: every suite passes, including `purity.test.ts` and `perf.test.ts`.
-Run: `yarn build` → Expected: `out/` written.
-Run: `yarn test:e2e` → Expected: all pass.
+Run: `pnpm typecheck` → Expected: exit 0.
+Run: `pnpm lint` → Expected: no errors.
+Run: `pnpm test` → Expected: every suite passes, including `purity.test.ts` and `perf.test.ts`.
+Run: `pnpm build` → Expected: `out/` written.
+Run: `pnpm test:e2e` → Expected: all pass.
 Run: `bash .claude/scripts/docs-regen.sh` → Expected: no orphan-ID and no missing-env warnings.
 
 - [ ] **Step 5: Commit and push**

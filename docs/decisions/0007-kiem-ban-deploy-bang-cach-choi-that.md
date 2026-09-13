@@ -36,7 +36,7 @@ publish (`needs.deploy.outputs.page_url`) và:
 Nước đi hợp lệ được **tính bằng chính engine** trong tiến trình test (cùng commit ⇒
 cùng seed ⇒ cùng bàn), chứ không dò ngẫu nhiên các ô kề nhau.
 
-Chạy được cả ở máy: `yarn verify:live`.
+Chạy được cả ở máy: `pnpm verify:live`.
 
 ## 3. Phương án đã loại
 

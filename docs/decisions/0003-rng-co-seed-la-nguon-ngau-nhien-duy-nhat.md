@@ -24,7 +24,7 @@ bằng **một test grep source**, không chỉ bằng lời trong `invariants.m
 | Phương án | Vì sao loại |
 | --- | --- |
 | `Math.random()` | Bàn không tái tạo được. Test phải mock global, và mock global rò rỉ giữa các test file |
-| Thư viện (`seedrandom`, `pure-rand`) | Một dependency cho 10 dòng code, trong một dự án mà `yarn audit` là một ngưỡng NFR (NFR-SEC-05). `pure-rand` là lựa chọn tốt nếu sau này cần nhiều phân phối |
+| Thư viện (`seedrandom`, `pure-rand`) | Một dependency cho 10 dòng code, trong một dự án mà `pnpm audit` là một ngưỡng NFR (NFR-SEC-05). `pure-rand` là lựa chọn tốt nếu sau này cần nhiều phân phối |
 | PRNG có seed nhưng giữ instance mang trạng thái (`rng.next()`) | `applySwap` không còn là hàm thuần: gọi hai lần với cùng `Session` cho hai kết quả. Phá bất biến 4 |
 | Mersenne Twister | Chất lượng thống kê không cần thiết ở đây; mulberry32 đủ tốt cho việc chọn màu và đủ nhanh cho NFR-PERF-05 |
 

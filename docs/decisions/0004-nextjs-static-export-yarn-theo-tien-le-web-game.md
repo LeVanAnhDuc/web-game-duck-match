@@ -20,6 +20,8 @@ classic** làm package manager. Không dùng thư viện game, không dùng stat
 ngoài (`useState`/`useReducer` là đủ cho hai màn hình). Sản phẩm build là `out/`,
 phục vụ được bởi bất kỳ host tĩnh nào; GitHub Pages là đích dự kiến.
 
+> **Superseded 13.09.2026** — the workspace moved to pnpm 10; see the `build(deps)` commit that converted this repo.
+
 ## 3. Phương án đã loại
 
 | Phương án | Vì sao loại |
