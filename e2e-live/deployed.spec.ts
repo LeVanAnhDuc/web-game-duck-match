@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import type { Page } from '@playwright/test'
 import { newSession } from '../src/engine'
 import { findLegalMoves } from '../src/engine/moves'
 import { LEVELS } from '../src/levels/levels'
@@ -16,14 +17,30 @@ import { LEVELS } from '../src/levels/levels'
  * entirely — the mistake that produced the false failure this check was written
  * from.
  */
-const SITE = process.env.LIVE_URL ?? 'https://levananhduc.github.io/web-game-duck-match/'
+const SITE = requireLiveUrl(process.env.LIVE_URL)
+
+/**
+ * No hardcoded fallback: a URL written here and again in deploy.yml is a URL that
+ * drifts, and a check that silently opens a different site than the one just
+ * published reports a verdict about the wrong thing. Missing means stop.
+ */
+function requireLiveUrl(value: string | undefined): string {
+  if (!value) {
+    throw new Error(
+      'LIVE_URL is not set. Pass the site to check, e.g. ' +
+        'LIVE_URL=https://<user>.github.io/<repo>/ pnpm verify:live ' +
+        '(deploy.yml passes the URL Pages just published).',
+    )
+  }
+  return value
+}
 
 /**
  * Pages needs a moment after the deploy job reports success. Waiting on the real
  * signal — the app's own title — rather than on a fixed sleep, because "how long
  * propagation takes" is not a number anyone can commit to.
  */
-async function waitForDeployment(page: import('@playwright/test').Page) {
+async function waitForDeployment(page: Page) {
   const deadline = Date.now() + 180_000
   for (let attempt = 1; ; attempt++) {
     await page.goto(SITE, { waitUntil: 'domcontentloaded' })
