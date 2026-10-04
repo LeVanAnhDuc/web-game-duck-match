@@ -116,6 +116,20 @@ describe('settleCallbackUrl', () => {
     expect(window.location.pathname + window.location.search).toBe('/?level=3')
   })
 
+  it('is one-shot: a second call does nothing even if the URL changed', () => {
+    sessionStorage.setItem(
+      'ducker.pkce',
+      JSON.stringify({ state: 's1', verifier: 'v1', returnTo: '/?level=3' }),
+    )
+    window.history.replaceState(null, '', '/?code=c1&state=s1')
+    captureCallback()
+    window.history.replaceState(null, '', '/?code=c1&state=s1')
+    settleCallbackUrl()
+    window.history.replaceState(null, '', '/other')
+    settleCallbackUrl()
+    expect(window.location.pathname).toBe('/other')
+  })
+
   it('does nothing when no callback was captured', () => {
     window.history.replaceState(null, '', '/?level=3')
     captureCallback()
@@ -170,6 +184,13 @@ describe('startLogin', () => {
     window.dispatchEvent(event)
     await startLogin(config)
     expect(assign).toHaveBeenCalledTimes(2)
+  })
+
+  it('removes the pending entry when building the challenge fails', async () => {
+    vi.spyOn(crypto.subtle, 'digest').mockRejectedValueOnce(new Error('boom'))
+    await expect(startLogin(config)).rejects.toThrow('boom')
+    expect(sessionStorage.getItem('ducker.pkce')).toBeNull()
+    expect(assign).not.toHaveBeenCalled()
   })
 
   it('does not redirect when sessionStorage throws, and can be retried', async () => {

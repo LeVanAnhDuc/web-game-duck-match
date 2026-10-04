@@ -20,7 +20,7 @@ trừ khi cờ đúng là `"true"` **và** đủ bốn giá trị — `null` ngh
 bao giờ hiện nút. `basePath` giờ đọc từ `NEXT_PUBLIC_BASE_PATH` (thay `GITHUB_PAGES`) để
 `redirect_uri` và đường dẫn asset cùng một nguồn. Hồ sơ chỉ nằm trong bộ nhớ.
 
-Ngoại lệ có giới hạn cho các NFR: `sessionStorage` key `ducker.pkce` only, deleted on return; network only to the configured Ducker ID issuer, only after the player clicks "Đăng nhập"; nothing at all when the flag is off.
+Ngoại lệ có giới hạn cho các NFR: `sessionStorage` key `ducker.pkce` only, deleted on return; network only to the configured Ducker ID issuer, and the profile picture URL it returns, only after the player clicks "Đăng nhập"; nothing at all when the flag is off.
 NFR-REL-01 và NFR-DATA-04 được sửa thành ngoại lệ đúng như trên; NFR-SEC-04 ghi lại
 rằng biến công khai và `CLIENT_ID` để trống trong `.env.example`.
 

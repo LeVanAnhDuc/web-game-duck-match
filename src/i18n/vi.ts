@@ -131,6 +131,13 @@ export const t = Object.freeze({
    */
   productName: 'Duck Match',
   productTagline: 'Xếp 3 viên cùng hình để đạt mục tiêu của từng màn',
+  /**
+   * Same line when optional Ducker ID sign-in is on: "không đăng nhập" would sit
+   * right next to an "Đăng nhập" button. Chosen via the auth hook's `enabled`;
+   * the flag-off string above stays byte-identical.
+   */
+  productReassuranceSignIn:
+    '6 màn · chơi ngay trên trình duyệt · đăng nhập tuỳ chọn, không mất phí',
   /** Answers the fear directly: two personas expected a paywall or an energy timer. */
   productReassurance: '6 màn · chơi ngay trên trình duyệt · không đăng nhập, không mất phí',
   /**

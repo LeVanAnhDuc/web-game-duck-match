@@ -66,6 +66,7 @@ export async function startLogin(config: DuckerConfig): Promise<void> {
     window.location.assign(url.toString())
   } catch (error) {
     starting = false
+    clearPending() // the verifier is useless now; do not leave it behind
     throw error
   }
 }
@@ -142,9 +143,13 @@ export function captureCallback(): void {
  * callback was captured, i.e. always when the feature is off.
  */
 export function settleCallbackUrl(): void {
-  if (settledUrl === null || currentUrl() === settledUrl) return
+  // One-shot: a later remount (client-side navigation away and back) must not
+  // rewrite the URL to a stale value behind the router's back.
+  const target = settledUrl
+  settledUrl = null
+  if (target === null || currentUrl() === target) return
   try {
-    window.history.replaceState(window.history.state, '', settledUrl)
+    window.history.replaceState(window.history.state, '', target)
   } catch {
     // leave the URL alone rather than break the game
   }

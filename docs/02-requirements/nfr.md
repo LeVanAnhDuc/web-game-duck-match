@@ -62,7 +62,7 @@ không tài khoản, không PII, không tiền. Đó là lý do phần lớn kh�
 
 | ID | Ngưỡng | Cách kiểm |
 | --- | --- | --- |
-| NFR-REL-01 | Mọi lệnh gọi ra ngoài có timeout. **Ngoại lệ có giới hạn (ADR-0012):** game không có lệnh gọi mạng nào, trừ hai lệnh tới Ducker ID (`/oauth/token`, `/oauth/userinfo`) — chỉ sau khi người chơi bấm "Đăng nhập", chỉ tới issuer đã cấu hình, không gì cả khi cờ tắt. Cả hai có timeout 15 s và mọi lỗi/timeout đều hạ về chưa đăng nhập | test `auth/duckerRequests` + e2e cờ tắt không có request ra ngoài |
+| NFR-REL-01 | Mọi lệnh gọi ra ngoài có timeout. **Ngoại lệ có giới hạn (ADR-0012):** game không có lệnh gọi mạng nào, trừ hai lệnh tới Ducker ID (`/oauth/token`, `/oauth/userinfo`) — chỉ sau khi người chơi bấm "Đăng nhập", chỉ tới issuer đã cấu hình (và URL ảnh đại diện nó trả về, để vẽ avatar), không gì cả khi cờ tắt. Cả hai có timeout 15 s và mọi lỗi/timeout đều hạ về chưa đăng nhập | test `auth/duckerRequests` + e2e cờ tắt không có request ra ngoài |
 | NFR-REL-02 | ~~Tác vụ ghi quan trọng là idempotent~~ **(bỏ)** — ghi duy nhất là `Progress.save()`, ghi lại cùng dữ liệu là vô hại | — |
 | NFR-REL-03 | Dữ liệu lưu bị hỏng, thiếu, hay sai version thì app **vẫn mở được** và quay về trạng thái người chơi mới. Không màn hình trắng, không màn hình lỗi | test `storage/local` với JSON rác |
 | NFR-REL-04 | Engine không bao giờ treo: kích hoạt chuỗi và cascade đều có chặn trên và có test cho trường hợp xấu nhất | test bàn dày quân đặc biệt |

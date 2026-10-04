@@ -39,4 +39,4 @@ router có thể ghi lại URL lúc hydrate (còn `?code`), nên `settleCallback
 
 ## Ngoại lệ NFR
 
-`sessionStorage` key `ducker.pkce` only, deleted on return; network only to the configured Ducker ID issuer, only after the player clicks "Đăng nhập"; nothing at all when the flag is off. Áp cho NFR-REL-01, NFR-DATA-04 (xem nfr.md).
+`sessionStorage` key `ducker.pkce` only, deleted on return; network only to the configured Ducker ID issuer, and the profile picture URL it returns, only after the player clicks "Đăng nhập"; nothing at all when the flag is off. Áp cho NFR-REL-01, NFR-DATA-04 (xem nfr.md).
