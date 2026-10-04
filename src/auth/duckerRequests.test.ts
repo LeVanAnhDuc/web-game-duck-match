@@ -60,6 +60,19 @@ describe('duckerRequests', () => {
     expect(init.signal).toBeInstanceOf(AbortSignal)
   })
 
+  it('accepts a minimal profile and rejects a malformed one', async () => {
+    fetchMock.mockResolvedValue(json({ sub: 'u1' }))
+    await expect(fetchProfile(config, 'at')).resolves.toEqual({ sub: 'u1' })
+    fetchMock.mockResolvedValue(json(null))
+    await expect(fetchProfile(config, 'at')).rejects.toThrow('userinfo_invalid')
+    fetchMock.mockResolvedValue(json({ sub: 'u1', name: 42 }))
+    await expect(fetchProfile(config, 'at')).rejects.toThrow('userinfo_invalid')
+    fetchMock.mockResolvedValue(json({ sub: '' }))
+    await expect(fetchProfile(config, 'at')).rejects.toThrow('userinfo_invalid')
+    fetchMock.mockResolvedValue(json({ sub: 'u1', email_verified: 'yes' }))
+    await expect(fetchProfile(config, 'at')).rejects.toThrow('userinfo_invalid')
+  })
+
   it('throws on a non-ok userinfo response', async () => {
     fetchMock.mockResolvedValue(json({}, 401))
     await expect(fetchProfile(config, 'at')).rejects.toThrow('userinfo_failed_401')

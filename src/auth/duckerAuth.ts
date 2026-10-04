@@ -103,23 +103,50 @@ export function consumeCallback(): CallbackResult | null {
 
 /** Only a same-origin path may reach replaceState ("//evil" would throw at load). */
 function isSafeReturnTo(value: unknown): value is string {
-  return typeof value === 'string' && value.startsWith('/') && !value.startsWith('//')
+  return (
+    typeof value === 'string' &&
+    value.startsWith('/') &&
+    !value.startsWith('//') &&
+    !value.includes('\\')
+  )
 }
 
 let captured: CallbackResult | null = null
 let didCapture = false
+let settledUrl: string | null = null
+
+const currentUrl = () =>
+  window.location.pathname + window.location.search + window.location.hash
 
 /** Runs once when the module loads in the browser, before any game code reads the URL. */
 export function captureCallback(): void {
   if (didCapture) return
   didCapture = true
   captured = consumeCallback()
+  if (captured) settledUrl = currentUrl()
   if (captured?.returnTo) {
     try {
       window.history.replaceState(window.history.state, '', captured.returnTo)
+      settledUrl = currentUrl()
     } catch {
       // never let a bad returnTo blank the game at load
     }
+  }
+}
+
+/**
+ * Next's router remembers the URL it hydrated with and writes it back to history
+ * once it mounts — which, depending on chunk order, can be AFTER the capture above
+ * and brings ?code=…&state=… back. Call this from the first mounted effect: it puts
+ * the cleaned URL back if that happened. A no-op (and no location read) when no
+ * callback was captured, i.e. always when the feature is off.
+ */
+export function settleCallbackUrl(): void {
+  if (settledUrl === null || currentUrl() === settledUrl) return
+  try {
+    window.history.replaceState(window.history.state, '', settledUrl)
+  } catch {
+    // leave the URL alone rather than break the game
   }
 }
 
@@ -131,6 +158,7 @@ export function capturedCallback(): CallbackResult | null {
 export function resetCaptureForTests(): void {
   captured = null
   didCapture = false
+  settledUrl = null
   starting = false
 }
 

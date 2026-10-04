@@ -3,6 +3,7 @@ import {
   captureCallback,
   consumeCallback,
   resetCaptureForTests,
+  settleCallbackUrl,
   startLogin,
 } from './duckerAuth'
 
@@ -58,6 +59,15 @@ describe('consumeCallback', () => {
     expect(window.location.search).toBe('')
   })
 
+  it('drops a returnTo containing a backslash', () => {
+    sessionStorage.setItem(
+      'ducker.pkce',
+      JSON.stringify({ state: 's1', verifier: 'v1', returnTo: '/\\evil' }),
+    )
+    window.history.replaceState(null, '', '/?code=c1&state=s1')
+    expect(consumeCallback()).toEqual({ code: 'c1', verifier: 'v1', returnTo: undefined })
+  })
+
   it('drops an unsafe returnTo', () => {
     sessionStorage.setItem(
       'ducker.pkce',
@@ -85,6 +95,33 @@ describe('captureCallback', () => {
     window.history.replaceState(null, '', '/?code=zzz&state=s1')
     captureCallback()
     expect(window.location.search).toBe('?code=zzz&state=s1')
+  })
+})
+
+describe('settleCallbackUrl', () => {
+  beforeEach(() => {
+    sessionStorage.clear()
+    resetCaptureForTests()
+  })
+
+  it('puts the cleaned URL back when the router restored the OAuth params', () => {
+    sessionStorage.setItem(
+      'ducker.pkce',
+      JSON.stringify({ state: 's1', verifier: 'v1', returnTo: '/?level=3' }),
+    )
+    window.history.replaceState(null, '', '/?code=c1&state=s1')
+    captureCallback()
+    window.history.replaceState(null, '', '/?code=c1&state=s1') // the router writes it back
+    settleCallbackUrl()
+    expect(window.location.pathname + window.location.search).toBe('/?level=3')
+  })
+
+  it('does nothing when no callback was captured', () => {
+    window.history.replaceState(null, '', '/?level=3')
+    captureCallback()
+    window.history.replaceState(null, '', '/?other=1')
+    settleCallbackUrl()
+    expect(window.location.search).toBe('?other=1')
   })
 })
 
