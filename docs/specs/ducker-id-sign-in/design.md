@@ -35,7 +35,7 @@ router có thể ghi lại URL lúc hydrate (còn `?code`), nên `settleCallback
 `src/auth/{types,duckerConfig,pkce,duckerAuth,duckerRequests,duckerSession}.ts` (+test),
 `src/lib/initials.ts`, `src/hooks/{useDuckerAuth,useAccountMenu}.ts`,
 `src/components/AccountButton`, `e2e/ducker-id-sign-in.spec.ts` (export riêng
-`out-auth/`, cổng 4174), `e2e/ducker-id-flag-off.spec.ts`, `scripts/build-e2e-auth.mjs`.
+`out-auth/`, cổng 4291), `e2e/ducker-id-flag-off.spec.ts`, `scripts/build-e2e-auth.mjs`.
 
 ## Ngoại lệ NFR
 

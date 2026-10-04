@@ -139,3 +139,28 @@ test('makes no request to the issuer before the player clicks', async ({ page })
   await expect(signInButton(page)).toBeVisible()
   expect(seen).toEqual([])
 })
+
+for (const width of [320, 375]) {
+  test(`the open menu stays inside the viewport and does not move the header at ${width}px`, async ({
+    page,
+  }) => {
+    await fakeIssuer(page)
+    await page.setViewportSize({ width, height: 800 })
+    await page.goto('/')
+    const header = page.getByTestId('product-header')
+    await signInButton(page).click()
+    await expect(account(page)).toBeVisible()
+    const before = await header.boundingBox()
+    await account(page).click()
+    const menu = page.getByRole('menu')
+    await expect(menu).toBeVisible()
+    const box = (await menu.boundingBox())!
+    expect(box.x).toBeGreaterThanOrEqual(0)
+    expect(box.x + box.width).toBeLessThanOrEqual(width)
+    expect(box.y + box.height).toBeLessThanOrEqual(800)
+    expect(await header.boundingBox()).toEqual(before)
+    expect(await menu.evaluate((el) => getComputedStyle(el.parentElement!).position)).toBe(
+      'absolute',
+    )
+  })
+}

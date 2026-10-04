@@ -74,7 +74,8 @@ export function ProductHeader() {
         <p className="mt-0.5 text-sm text-ink-muted">{t.productTagline}</p>
         {/* Two personas assumed a paywall or an energy timer before touching
             anything. Cheaper to answer here than to be assumed about. */}
-        <p className="mt-0.5 text-xs text-ink-muted">{enabled ? t.productReassuranceSignIn : t.productReassurance}
+        <p className="mt-0.5 text-xs text-ink-muted">
+          {enabled ? t.productReassuranceSignIn : t.productReassurance}
         </p>
       </div>
       {/* Optional Ducker ID sign-in (ADR-0012): renders nothing unless the build

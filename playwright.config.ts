@@ -3,7 +3,7 @@ import { defineConfig, devices } from '@playwright/test'
 const PORT = 4173
 const BASE_URL = `http://127.0.0.1:${PORT}`
 // Second export, built with sign-in switched on (scripts/build-e2e-auth.mjs).
-const AUTH_PORT = 4174
+const AUTH_PORT = 4291
 const AUTH_URL = `http://127.0.0.1:${AUTH_PORT}`
 const AUTH_SPEC = /ducker-id-sign-in.spec.ts/
 

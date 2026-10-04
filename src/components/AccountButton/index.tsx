@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useAccountMenu, useDuckerAuth } from '@/hooks'
 import { initialOf } from '@/lib/initials'
 import { t } from '@/i18n/vi'
@@ -20,6 +20,7 @@ export function AccountButton() {
   const menu = useAccountMenu()
   const signInRef = useRef<HTMLButtonElement>(null)
   const refocusSignIn = useRef(false)
+  const [pictureFailed, setPictureFailed] = useState(false)
 
   // After "Đăng xuất" the trigger unmounts — hand focus to the button that takes
   // its place instead of letting it fall to <body>.
@@ -34,14 +35,17 @@ export function AccountButton() {
 
   if (auth.status !== 'signed-in' || !auth.profile) {
     const loading = auth.status === 'loading'
+    // idle (server + first client render) is inert: same size, nothing clickable
+    // before hydration has decided.
+    const inert = loading || auth.status === 'idle'
     return (
       <button
         ref={signInRef}
         type="button"
         onClick={auth.signIn}
-        disabled={loading}
+        disabled={inert}
         aria-busy={loading}
-        className="ml-auto inline-flex min-h-[44px] shrink-0 cursor-pointer items-center gap-2 rounded-clay bg-surface-raised px-4 text-sm font-semibold text-ink-strong shadow-clay transition-transform duration-200 ease-press active:translate-y-px disabled:cursor-wait disabled:opacity-70"
+        className="ml-auto inline-flex min-h-[44px] flex-none cursor-pointer items-center gap-2 rounded-clay bg-surface-raised px-4 text-sm font-semibold text-ink-strong shadow-clay transition-transform duration-200 ease-press active:translate-y-px disabled:cursor-wait disabled:opacity-70"
       >
         <svg
           viewBox="0 0 24 24"
@@ -69,7 +73,7 @@ export function AccountButton() {
     'flex min-h-[44px] w-full cursor-pointer items-center rounded-xl bg-surface-raised px-4 text-left text-sm font-semibold text-ink-strong'
 
   return (
-    <div className="relative ml-auto shrink-0">
+    <div className="relative ml-auto flex-none">
       <button
         ref={menu.triggerRef}
         type="button"
@@ -79,7 +83,7 @@ export function AccountButton() {
         aria-label={t.accountMenuLabel}
         className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-surface-raised shadow-clay transition-transform duration-200 ease-press active:translate-y-px"
       >
-        {profile.picture ? (
+        {profile.picture && !pictureFailed ? (
           // eslint-disable-next-line @next/next/no-img-element -- static export, `images.unoptimized`; the URL is the IdP's
           <img
             src={profile.picture}
@@ -87,6 +91,7 @@ export function AccountButton() {
             width={36}
             height={36}
             referrerPolicy="no-referrer"
+            onError={() => setPictureFailed(true)}
             className="h-9 w-9 rounded-full object-cover"
           />
         ) : (
@@ -103,7 +108,7 @@ export function AccountButton() {
           ref={menu.menuRef}
           className="absolute right-0 top-full z-20 mt-2 w-64 max-w-[calc(100vw-2rem)] rounded-clay bg-surface-card p-3 shadow-clay"
         >
-          <div className="px-1 pb-3">
+          <div role="none" className="px-1 pb-3">
             {primary && (
               <p className="truncate text-sm font-bold text-ink-strong" title={primary}>
                 {primary}

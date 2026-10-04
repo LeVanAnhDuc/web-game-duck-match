@@ -33,7 +33,21 @@ describe('AccountButton', () => {
   it('shows the sign-in button while idle, so server and first client render agree', () => {
     auth.value = { ...base, status: 'idle', profile: null }
     render(<AccountButton />)
-    expect(screen.getByRole('button', { name: 'Đăng nhập' })).toBeTruthy()
+    const button = screen.getByRole('button', { name: 'Đăng nhập' }) as HTMLButtonElement
+    expect(button.disabled).toBe(true)
+  })
+
+  it('falls back to the initial when the picture fails to load', () => {
+    auth.value = {
+      ...signedIn,
+      profile: { sub: 'u1', name: 'Đức', picture: 'http://img.test/a.png' },
+    }
+    const { container } = render(<AccountButton />)
+    const img = container.querySelector('img')!
+    expect(img.getAttribute('referrerpolicy')).toBe('no-referrer')
+    fireEvent.error(img)
+    expect(container.querySelector('img')).toBeNull()
+    expect(screen.getByText('Đ')).toBeTruthy()
   })
 
   it('shows the sign-in button when signed out and starts login on click', () => {
