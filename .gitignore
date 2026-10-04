@@ -12,6 +12,8 @@
 node_modules/
 .next/
 out/
+out-auth/
+out-keep/
 coverage/
 test-results/
 playwright-report/
