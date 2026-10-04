@@ -1,5 +1,6 @@
 'use client'
 
+import { AccountButton } from '@/components/AccountButton'
 import { t } from '@/i18n/vi'
 
 /**
@@ -73,6 +74,9 @@ export function ProductHeader() {
             anything. Cheaper to answer here than to be assumed about. */}
         <p className="mt-0.5 text-xs text-ink-muted">{t.productReassurance}</p>
       </div>
+      {/* Optional Ducker ID sign-in (ADR-0012): renders nothing unless the build
+          turned the feature on, so the header is unchanged when it is off. */}
+      <AccountButton />
     </header>
   )
 }

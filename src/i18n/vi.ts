@@ -139,6 +139,13 @@ export const t = Object.freeze({
    */
   unlockHint: (previousLevel: number) => `Thắng màn ${previousLevel} để mở`,
 
+  // Optional Ducker ID sign-in (ADR-0012). Terms are locked in glossary.md.
+  accountSignIn: 'Đăng nhập',
+  accountSigningIn: 'Đang đăng nhập…',
+  accountMenuLabel: 'Tài khoản Ducker ID',
+  accountOpenProfile: 'Mở hồ sơ Ducker ID',
+  accountSignOut: 'Đăng xuất',
+
   // Board a11y (NFR-A11Y-02): the grid and each cell need a name of their own.
   boardLabel: 'Bàn',
   /**
