@@ -91,6 +91,24 @@ describe('AccountButton', () => {
     expect(document.activeElement).toBe(items[1])
   })
 
+  it('keeps menu keys away from a game-style window listener while open', () => {
+    auth.value = signedIn
+    render(<AccountButton />)
+    const seen: string[] = []
+    const gameListener = (event: KeyboardEvent) => seen.push(event.key)
+    window.addEventListener('keydown', gameListener)
+    const trigger = screen.getByRole('button', { name: 'Tài khoản Ducker ID' })
+    fireEvent.click(trigger)
+    fireEvent.keyDown(document.activeElement!, { key: 'ArrowUp' })
+    fireEvent.keyDown(document.activeElement!, { key: 'Escape' })
+    expect(seen).toEqual([])
+    // closed again: the game gets its keys back
+    fireEvent.keyDown(document.body, { key: 'ArrowUp' })
+    fireEvent.keyDown(document.body, { key: 'Escape' })
+    expect(seen).toEqual(['ArrowUp', 'Escape'])
+    window.removeEventListener('keydown', gameListener)
+  })
+
   it('closes on Tab without pulling focus back to the trigger', () => {
     auth.value = signedIn
     render(<AccountButton />)

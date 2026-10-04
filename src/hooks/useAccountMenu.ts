@@ -19,9 +19,17 @@ export function useAccountMenu() {
       !!node && (!!menuRef.current?.contains(node) || !!triggerRef.current?.contains(node))
 
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') return close(true)
+      // Capture phase on window + stopPropagation: while the menu is open, its keys
+      // must not reach any game key handler (ADR-0012).
+      if (event.key === 'Escape') {
+        event.stopPropagation()
+        return close(true)
+      }
       // Tab moves on to whatever is next; focus must not be pulled back.
-      if (event.key === 'Tab') return close(false)
+      if (event.key === 'Tab') {
+        event.stopPropagation()
+        return close(false)
+      }
       const list = items()
       if (list.length === 0) return
       const current = list.indexOf(document.activeElement as HTMLElement)
@@ -32,6 +40,7 @@ export function useAccountMenu() {
       else if (event.key === 'End') next = list.length - 1
       if (next === null) return
       event.preventDefault()
+      event.stopPropagation()
       list[next]?.focus()
     }
     const onPointer = (event: PointerEvent) => {
@@ -44,12 +53,12 @@ export function useAccountMenu() {
       const target = event.relatedTarget as Node | null
       if (target && !inside(target)) close(false)
     }
-    document.addEventListener('keydown', onKey)
+    window.addEventListener('keydown', onKey, true)
     document.addEventListener('pointerdown', onPointer)
     document.addEventListener('focusout', onFocusOut)
     items()[0]?.focus()
     return () => {
-      document.removeEventListener('keydown', onKey)
+      window.removeEventListener('keydown', onKey, true)
       document.removeEventListener('pointerdown', onPointer)
       document.removeEventListener('focusout', onFocusOut)
     }
