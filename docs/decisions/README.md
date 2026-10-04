@@ -19,6 +19,7 @@
 | [ADR-0009](0009-reshuffled-mang-theo-grid.md) | `reshuffled` mang theo grid mới | 2026-09-07 | accepted |
 | [ADR-0010](0010-ba-lop-ban-choi-va-lead-tach-khoi-thoi-luong-css.md) | Bàn chơi ba lớp, và `lead` tách khỏi thời lượng CSS | 2026-09-07 | accepted |
 | [ADR-0011](0011-nhan-bo-quy-uoc-view-dung-chung.md) | Nhận bộ quy ước view dùng chung của workspace `web-game` | 2026-09-11 | accepted |
+| [ADR-0012](0012-ducker-id-sign-in-sau-co-tinh-nang.md) | Đăng nhập Ducker ID tuỳ chọn, chỉ danh tính, ship tắt sau cờ tính năng | 2026-10-04 | accepted |
 <!-- END:auto -->
 
 Trạng thái: `accepted` · `superseded by ADR-00xx` · `deprecated`

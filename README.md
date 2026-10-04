@@ -5,7 +5,7 @@
 [![Release](https://img.shields.io/github/v/release/LeVanAnhDuc/web-game-duck-match?sort=semver)](https://github.com/LeVanAnhDuc/web-game-duck-match/releases)
 
 Duck Match is a level-based match-3 game that runs entirely in the browser. No
-account, no server, no install — open the link and play. Progress lives in `localStorage`.
+game accounts, no server, no install — open the link and play. Progress lives in `localStorage`.
 
 **Play**: https://levananhduc.github.io/web-game-duck-match/
 
@@ -54,6 +54,9 @@ Part of the `web-game/` folder in the `web-app-ecosystem` workspace.
   loss shows the same stars, score and forward action a win does.
 - Restarting a level in progress asks first, and names both what it destroys and what
   it keeps.
+- Optional sign-in with Ducker ID (behind a feature flag, off in the deployed build):
+  identity only — your name and avatar, a link to your profile, sign out. Progress is
+  untouched and nothing is stored beyond the tab.
 
 ## Controls
 
@@ -74,9 +77,16 @@ pnpm install
 pnpm dev          # http://localhost:3000
 ```
 
-There is **no `.env` step**: nothing the game needs comes from the environment. The
-two variables in [`.env.example`](.env.example) are set by CI and must not be set by
-hand — `GITHUB_PAGES` in particular would break every asset path locally.
+There is **no `.env` step**: nothing the game needs comes from the environment.
+`NEXT_PUBLIC_BASE_PATH` in [`.env.example`](.env.example) is set by CI and must not be
+set by hand — it would break every asset path locally.
+
+To try the optional Ducker ID sign-in locally, copy `.env.example` to `.env`, fill
+`NEXT_PUBLIC_DUCKER_CLIENT_ID` (a client registered in the Ducker ID admin console
+with redirect URI `http://127.0.0.1:4173/`), add `http://127.0.0.1:4173` to the Ducker
+ID server `CORS_ORIGINS`, then `pnpm build && pnpm serve`. The flag and all four
+`NEXT_PUBLIC_DUCKER_*` values must be set, or the feature stays off. Values are
+inlined at build time.
 
 ## Commands
 

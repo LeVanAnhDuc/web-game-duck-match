@@ -45,3 +45,4 @@ vuông góc với 5 giai đoạn kia, chen vào trước giai đoạn 2; feature
 | FR-20 | Bản đồ màn và hộp thoại kết quả nói đủ: khối nhận diện sản phẩm, ngưỡng sao còn thiếu, điều kiện mở khoá, hộp thoại thua cân bằng với hộp thoại thắng | US-01 · US-02 | T1 | xong |
 | FR-21 | HUD gói vào một hàng khi khung nhìn thấp, mục tiêu có nhãn chữ chứ không chỉ icon | US-01 | T1 | xong |
 | FR-22 | Hành động phá huỷ tiến độ đang dở phải hỏi lại trước khi thực hiện | US-02 | T1 | xong |
+| FR-23 | Đăng nhập Ducker ID tuỳ chọn, chỉ danh tính (nút "Đăng nhập" ở đầu bản đồ, avatar + tên + email, mở hồ sơ, đăng xuất). Ship tắt sau cờ tính năng (ADR-0012) | US-05 | — | xong |

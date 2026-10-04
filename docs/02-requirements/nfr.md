@@ -35,7 +35,7 @@ không tài khoản, không PII, không tiền. Đó là lý do phần lớn kh�
 | NFR-SEC-01 | ~~Mọi mutation kiểm quyền ở server~~ **(bỏ)** — không có server, không có dữ liệu của người khác để bảo vệ | — |
 | NFR-SEC-02 | ~~Không log PII/token/mật khẩu~~ **(bỏ)** — dự án không thu thập dữ liệu cá nhân nào | — |
 | NFR-SEC-03 | ~~Rate limit endpoint đăng nhập~~ **(bỏ)** — không có đăng nhập | — |
-| NFR-SEC-04 | Không có secret nào trong repo. `.env.example` chỉ ghi **tên** biến và cách lấy giá trị, không bao giờ ghi giá trị; chạy dự án không cần biến nào, hai biến đang có là do CI đặt | grep + review |
+| NFR-SEC-04 | Không có secret nào trong repo. `.env.example` chỉ ghi **tên** biến và cách lấy giá trị, không bao giờ ghi giá trị; chạy dự án không cần biến nào; biến duy nhất do CI đặt là `NEXT_PUBLIC_BASE_PATH`, còn `NEXT_PUBLIC_*` của Ducker ID là công khai và `.env.example` để trống `CLIENT_ID` (ADR-0012) | grep + review |
 | NFR-SEC-05 | Dependency không có lỗ hổng mức high trở lên | `pnpm check:audit` (CI gọi trong `ci.yml`). Gác đúng mức high/critical, không gác vào exit code của `pnpm audit` — nó đỏ với **mọi** severity. Gate **fail-closed**: không có `metadata`, hoặc số dependency quét được ít hơn số devDependency khai trong `package.json`, hoặc `metadata` đếm high/critical mà không liệt kê advisory nào — đều là "không kiểm được", không phải "sạch". Đo 13.09.2026: 565 dependency, 2 advisory mức moderate (vitest / @vitest/mocker), 0 high/critical |
 | NFR-SEC-06 | ~~Lỗi trả client không chứa stack trace~~ **(bỏ)** — không có lỗi từ server; lỗi client do NFR-REL-03 lo | — |
 
@@ -62,7 +62,7 @@ không tài khoản, không PII, không tiền. Đó là lý do phần lớn kh�
 
 | ID | Ngưỡng | Cách kiểm |
 | --- | --- | --- |
-| NFR-REL-01 | ~~Mọi lệnh gọi ra ngoài có timeout~~ **(bỏ)** — không có lệnh gọi mạng nào | — |
+| NFR-REL-01 | Mọi lệnh gọi ra ngoài có timeout. **Ngoại lệ có giới hạn (ADR-0012):** game không có lệnh gọi mạng nào, trừ hai lệnh tới Ducker ID (`/oauth/token`, `/oauth/userinfo`) — chỉ sau khi người chơi bấm "Đăng nhập", chỉ tới issuer đã cấu hình, không gì cả khi cờ tắt. Cả hai có timeout 15 s và mọi lỗi/timeout đều hạ về chưa đăng nhập | test `auth/duckerRequests` + e2e cờ tắt không có request ra ngoài |
 | NFR-REL-02 | ~~Tác vụ ghi quan trọng là idempotent~~ **(bỏ)** — ghi duy nhất là `Progress.save()`, ghi lại cùng dữ liệu là vô hại | — |
 | NFR-REL-03 | Dữ liệu lưu bị hỏng, thiếu, hay sai version thì app **vẫn mở được** và quay về trạng thái người chơi mới. Không màn hình trắng, không màn hình lỗi | test `storage/local` với JSON rác |
 | NFR-REL-04 | Engine không bao giờ treo: kích hoạt chuỗi và cascade đều có chặn trên và có test cho trường hợp xấu nhất | test bàn dày quân đặc biệt |
@@ -74,7 +74,7 @@ không tài khoản, không PII, không tiền. Đó là lý do phần lớn kh�
 | NFR-DATA-01 | ~~Trường nào là PII được liệt kê rõ~~ **(bỏ)** — dự án không thu thập PII nào | — |
 | NFR-DATA-02 | ~~Xoá tài khoản thì xoá PII~~ **(bỏ)** — không có tài khoản | — |
 | NFR-DATA-03 | ~~Có đường khôi phục dữ liệu~~ **(bỏ)** — dữ liệu duy nhất là tiến độ chơi trên máy người dùng, chấp nhận mất | — |
-| NFR-DATA-04 | Dữ liệu lưu có `version` và một key duy nhất `match3.progress.v1`. Đổi cấu trúc thì tăng version và viết đường đọc dữ liệu cũ | review + test |
+| NFR-DATA-04 | Dữ liệu lưu có `version` và một key duy nhất `match3.progress.v1`. Đổi cấu trúc thì tăng version và viết đường đọc dữ liệu cũ. **Ngoại lệ có giới hạn (ADR-0012):** thêm đúng một key `sessionStorage` `ducker.pkce`, xoá ngay khi quay về từ Ducker ID; không `localStorage`, không cookie, hồ sơ Ducker ID chỉ ở bộ nhớ (tải lại là chưa đăng nhập) | review + test |
 
 **Trường PII trong dự án này:** không có. Dự án không thu thập, không truyền và không
 lưu bất kỳ dữ liệu định danh nào — đó là hệ quả của Non-Goal "không có tài khoản".
