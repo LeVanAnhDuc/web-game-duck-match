@@ -2,6 +2,10 @@ import { defineConfig, devices } from '@playwright/test'
 
 const PORT = 4173
 const BASE_URL = `http://127.0.0.1:${PORT}`
+// Second export, built with sign-in switched on (scripts/build-e2e-auth.mjs).
+const AUTH_PORT = 4291
+const AUTH_URL = `http://127.0.0.1:${AUTH_PORT}`
+const AUTH_SPEC = /ducker-id-sign-in.spec.ts/
 
 /**
  * E2E runs against the STATIC EXPORT, not the dev server — `out/` is what actually
@@ -29,13 +33,32 @@ export default defineConfig({
     baseURL: BASE_URL,
     trace: 'on-first-retry',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
-  webServer: {
-    // Serves an existing `out/`. `pnpm test:e2e` builds first; CI builds once and
-    // then calls `playwright test` directly rather than paying for it twice.
-    command: `node scripts/serve.mjs ${PORT} out`,
-    url: BASE_URL,
-    reuseExistingServer: !process.env.CI,
-    timeout: 60_000,
-  },
+  projects: [
+    {
+      name: 'chromium',
+      testIgnore: AUTH_SPEC,
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'ducker-sign-in',
+      testMatch: AUTH_SPEC,
+      use: { ...devices['Desktop Chrome'], baseURL: AUTH_URL },
+    },
+  ],
+  webServer: [
+    {
+      // Serves an existing `out/`. `pnpm test:e2e` builds first; CI builds once and
+      // then calls `playwright test` directly rather than paying for it twice.
+      command: `node scripts/serve.mjs ${PORT} out`,
+      url: BASE_URL,
+      reuseExistingServer: !process.env.CI,
+      timeout: 60_000,
+    },
+    {
+      command: `node scripts/serve.mjs ${AUTH_PORT} out-auth`,
+      url: AUTH_URL,
+      reuseExistingServer: !process.env.CI,
+      timeout: 60_000,
+    },
+  ],
 })

@@ -56,6 +56,7 @@ ranh giới module trong cùng bundle đó, không phải process riêng.
 | `game/` | Giữ `Session`, phát lại `GameEvent[]` thành animation, khoá input khi đang chạy | `engine/` · React | DOM trực tiếp · `storage/local.ts` |
 | `ui/` | Vẽ, nhận thao tác chuột/chạm/bàn phím | `game/` · `storage/ports.ts` · `i18n/` | `engine/` trực tiếp · `storage/local.ts` |
 | `storage/ports.ts` | Khai báo `ProgressRepository` — cổng để sau cắm backend (ADR-0001) | — | bất cứ gì |
+| `auth/` | Đăng nhập Ducker ID tuỳ chọn (PKCE, store ngoài React), chỉ danh tính; tắt hẳn khi cờ tắt (ADR-0012) | `lib/initials` | `engine/` · `storage/` |
 | `storage/local.ts` | Hiện thực `ProgressRepository` bằng localStorage | `storage/ports.ts` | `engine/` · `ui/` |
 | `levels/` | Dữ liệu 6 màn dạng `LevelConfig`, không có logic | `engine/types` | mọi thứ khác |
 | `i18n/` | Chuỗi hiển thị tiếng Việt | — | bất cứ gì |

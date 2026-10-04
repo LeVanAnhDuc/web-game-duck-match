@@ -35,9 +35,13 @@ KHÔNG chứa: giải thích nghiệp vụ dài (-> overview.md).
 | Progress | Tiến độ lưu lại: sao, điểm cao, màn đã mở | `Progress` | tiến độ | progress |
 | Reshuffle | Xáo lại bàn khi không còn nước đi hợp lệ | `reshuffle` | xáo bàn | reshuffle |
 | Game event | Một việc đã xảy ra trong một nước đi, do engine phát ra | `GameEvent` | — (không hiện) | — |
+| Sign in | Chuyển sang Ducker ID để xác thực (tuỳ chọn) | `signIn` / `startLogin` | đăng nhập | sign in |
+| Sign out | Quên hồ sơ trong bộ nhớ; phiên ở Ducker ID còn nguyên | `signOut` | đăng xuất | sign out |
+| Account | Danh tính Ducker ID đang đăng nhập (sub, tên, email, ảnh) | `DuckerProfile` | tài khoản Ducker ID | Ducker ID account |
+| Ducker ID profile | Trang hồ sơ trên Ducker ID, mở ở tab mới | `profileUrl` | hồ sơ Ducker ID | Ducker ID profile |
 
 **Tên bị cấm:** dùng `Piece`, **không** dùng `Candy`/`Gem`/`Tile` cho mô hình dữ
 liệu (`Tile` chỉ là tên **component UI** vẽ một `Piece`, không phải khái niệm nghiệp
 vụ). Dùng `Special`, không dùng `PowerUp`/`Booster` — `booster` sẽ là khái niệm khác
 nếu giai đoạn sau làm vật phẩm người chơi chủ động dùng. Dùng `Goal`, không dùng
-`Objective`/`Mission`. Dùng `movesLeft`, không dùng `turns`/`lives`.
+`Objective`/`Mission`. Dùng `movesLeft`, không dùng `turns`/`lives`. Dùng "đăng nhập" / "đăng xuất" / "tài khoản Ducker ID" / "hồ sơ Ducker ID", không dùng "login", "logout", "thoát", "profile" hay "user" trên UI; "tài khoản" luôn đi kèm "Ducker ID" vì game không có tài khoản của riêng nó.

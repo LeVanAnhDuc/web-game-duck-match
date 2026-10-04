@@ -22,8 +22,8 @@
 | [`ux-reviews/2026-09-11-red-routes-full/logs/p05-co-lien-RR-04.md`](ux-reviews/2026-09-11-red-routes-full/logs/p05-co-lien-RR-04.md) | — | — | — |
 | [`ux-reviews/2026-09-11-red-routes-full/logs/p06-khang-mu.md`](ux-reviews/2026-09-11-red-routes-full/logs/p06-khang-mu.md) | — | — | — |
 | [`ux-reviews/2026-09-11-red-routes-full/logs/p07-ong-tam-mu.md`](ux-reviews/2026-09-11-red-routes-full/logs/p07-ong-tam-mu.md) | — | — | — |
-| [`decisions/`](decisions/README.md) | Tại sao lại làm thế này? | 11 ADR | mỗi quyết định kỹ thuật |
-| [`../.env.example`](../.env.example) | cần biến nào để chạy được dự án này? | 🟢 đủ — chạy dự án KHÔNG cần biến nào; hai b… | code đọc một biến mới (process.env.X / os.getenv / os.Gete… |
+| [`decisions/`](decisions/README.md) | Tại sao lại làm thế này? | 12 ADR | mỗi quyết định kỹ thuật |
+| [`../.env.example`](../.env.example) | cần biến nào để chạy được dự án này? | 🟢 đủ — chạy dự án KHÔNG cần biến nào; đăng … | code đọc một biến mới (process.env.X / os.getenv / os.Gete… |
 <!-- END:auto -->
 
 🔴 chưa điền · 🟡 một phần · 🟢 đủ · ⚪ chưa áp dụng

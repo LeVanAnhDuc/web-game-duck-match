@@ -44,8 +44,10 @@ bốn giai đoạn còn lại (xem ADR-0005).
 
 ## 4. Non-Goals — dứt khoát không làm
 
-- **Không có tài khoản, không đăng nhập.** Tiến độ nằm ở máy người chơi. Đổi máy là
-  mất tiến độ, và đó là đánh đổi đã chấp nhận để giữ chi phí bằng 0.
+- **Không có tài khoản do game sở hữu, không bắt buộc đăng nhập.** Chỉ có đăng nhập
+  Ducker ID *tuỳ chọn*, chỉ lấy danh tính (tên, email, ảnh), không backend, không đồng
+  bộ (ADR-0012). Tiến độ vẫn nằm ở máy người chơi. Đổi máy là mất tiến độ, và đó là
+  đánh đổi đã chấp nhận để giữ chi phí bằng 0.
 - **Không có bảng xếp hạng chung.** Điểm gửi từ client không kiểm chứng được nếu
   không replay-verify ở server; làm nửa vời thì bảng xếp hạng chỉ là bảng của người
   gian lận.
