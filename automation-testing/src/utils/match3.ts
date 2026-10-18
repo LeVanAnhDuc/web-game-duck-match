@@ -58,6 +58,31 @@ export function longestRunAfter(board: Board, move: Move): number {
   return best;
 }
 
+/** Colours of the runs (3+) a swap makes at the swapped cells. */
+export function matchedColors(board: Board, move: Move): string[] {
+  const next = swapped(board, move.from, move.to);
+  const out = new Set<string>();
+  for (const pos of [move.from, move.to]) {
+    for (const axis of ["row", "col"] as const) {
+      if (runThrough(next, pos, axis) >= 3) out.add(next[pos.row]![pos.col]!.color);
+    }
+  }
+  return [...out];
+}
+
+/** Where and which way the longest run of a swap lies: the swapped cell it runs through and its axis. */
+export function runAt(board: Board, move: Move): { at: Pos; axis: "row" | "col"; length: number } | null {
+  const next = swapped(board, move.from, move.to);
+  let best: { at: Pos; axis: "row" | "col"; length: number } | null = null;
+  for (const at of [move.to, move.from]) {
+    for (const axis of ["row", "col"] as const) {
+      const length = runThrough(next, at, axis);
+      if (length >= 3 && (!best || length > best.length)) best = { at, axis, length };
+    }
+  }
+  return best;
+}
+
 const isSpecial = (cell: Cell | null | undefined) => !!cell && cell.special !== "none";
 
 /** A swap is legal when it makes a run of three, or activates specials (a colour bomb, or two specials). */

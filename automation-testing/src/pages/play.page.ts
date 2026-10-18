@@ -11,8 +11,14 @@ export class ResultDialog {
     return this.page.getByRole("dialog");
   }
 
+  /** "Thắng màn!" / "Hết lượt!" — the first heading; a loss also carries the goal list's own heading. */
   title(): Locator {
-    return this.root().getByRole("heading");
+    return this.root().getByRole("heading").first();
+  }
+
+  /** The goal list a loss repeats inside the dialog (US-02 bước 2). */
+  goalRows(): Locator {
+    return this.root().getByRole("list", { name: copy.goals }).getByRole("listitem");
   }
 
   stars(): Locator {
@@ -136,6 +142,21 @@ export class PlayPage extends BasePage {
 
   goalRows(): Locator {
     return this.goalList().getByRole("listitem");
+  }
+
+  /** The HUD goal row whose accessible name starts with `name` (e.g. "Mục tiêu viên đỏ"). */
+  goalRow(name: string | RegExp): Locator {
+    return this.goalList().getByRole("listitem", { name });
+  }
+
+  /** The colour silhouette drawn on a collect goal row (NFR-A11Y-06). */
+  goalShape(row: Locator): Locator {
+    return row.locator("svg[data-shape]");
+  }
+
+  /** The tick a met goal carries. */
+  goalDoneMarker(row: Locator): Locator {
+    return row.locator("[data-goal-done-marker]");
   }
 
   replayButton(): Locator {

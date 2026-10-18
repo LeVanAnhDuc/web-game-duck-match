@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { allSwaps, hasRun, illegalMoves, isLegal, legalMoves, longestRunAfter, type Board } from "./match3";
+import { allSwaps, hasRun, illegalMoves, isLegal, legalMoves, longestRunAfter, matchedColors, runAt, type Board } from "./match3";
 
 const parse = (rows: string[]): Board =>
   rows.map((line) =>
@@ -46,4 +46,12 @@ test("legal and illegal moves partition every swap", () => {
 test("hasRun finds a standing run of three", () => {
   expect(hasRun(parse(["rrr"]))).toBe(true);
   expect(hasRun(parse(["rrg", "ggr"]))).toBe(false);
+});
+
+test("matchedColors and runAt describe the run a swap makes", () => {
+  const board = parse(["rrgr", "bbrb"]);
+  const move = { from: { row: 0, col: 2 }, to: { row: 1, col: 2 } };
+  expect(matchedColors(board, move)).toEqual(["r"]);
+  expect(runAt(board, move)).toEqual({ at: { row: 0, col: 2 }, axis: "row", length: 4 });
+  expect(runAt(board, { from: { row: 0, col: 0 }, to: { row: 1, col: 0 } })).toBeNull();
 });
