@@ -47,7 +47,11 @@ jobs:
           # Set ONLY here. It switches on basePath for the /web-game-duck-match
           # sub-path; `pnpm dev` and a local build stay at the root, so opening a
           # local out/index.html does not break every asset path (ADR-0006).
-          GITHUB_PAGES: 'true'
+          #
+          # Ducker ID sign-in is shipped dark: the flag and the DUCKER_* vars are
+          # deliberately NOT passed here, so the deployed build renders no button
+          # (ADR-0012).
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
 
       # The budget is re-measured against the Pages build, because basePath changes
       # every asset URL in the HTML and that is what the gate reads.
@@ -105,4 +109,4 @@ jobs:
       - name: Play the deployed site
         run: pnpm verify:live
         env:
-          LIVE_URL: ${{ needs.deploy.outputs.page_url || 'https://levananhduc.github.io/web-game-duck-match/' }}
+          LIVE_URL: ${{ needs.deploy.outputs.page_url }}

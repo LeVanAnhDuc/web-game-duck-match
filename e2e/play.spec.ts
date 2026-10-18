@@ -141,7 +141,14 @@ test('US-02 · replay resets the move counter and the score', async ({ page }) =
   await playMove(page, firstLegalMove(1))
   await expect(moves).toHaveText(AFTER_ONE_MOVE)
 
+  // FR-22: a move has been spent, so the level is in progress and replay asks
+  // before throwing that away. Nothing resets until the player confirms.
   await page.getByTestId('replay').click()
+  const confirm = page.getByTestId('confirm-restart')
+  await expect(confirm).toBeVisible()
+  await expect(moves).toHaveText(AFTER_ONE_MOVE)
+  await page.getByTestId('confirm-restart-yes').click()
+  await expect(confirm).toBeHidden()
   await expect(moves).toHaveText(START_MOVES)
   await expect(page.getByTestId('score')).toHaveText('0')
 })

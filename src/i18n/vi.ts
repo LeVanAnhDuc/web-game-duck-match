@@ -131,6 +131,13 @@ export const t = Object.freeze({
    */
   productName: 'Duck Match',
   productTagline: 'Xếp 3 viên cùng hình để đạt mục tiêu của từng màn',
+  /**
+   * Same line when optional Ducker ID sign-in is on: "không đăng nhập" would sit
+   * right next to an "Đăng nhập" button. Chosen via the auth hook's `enabled`;
+   * the flag-off string above stays byte-identical.
+   */
+  productReassuranceSignIn:
+    '6 màn · chơi ngay trên trình duyệt · đăng nhập tuỳ chọn, không mất phí',
   /** Answers the fear directly: two personas expected a paywall or an energy timer. */
   productReassurance: '6 màn · chơi ngay trên trình duyệt · không đăng nhập, không mất phí',
   /**
@@ -138,6 +145,13 @@ export const t = Object.freeze({
    * got nothing at all, and could not tell "not yet earned" from "not yet built".
    */
   unlockHint: (previousLevel: number) => `Thắng màn ${previousLevel} để mở`,
+
+  // Optional Ducker ID sign-in (ADR-0012). Terms are locked in glossary.md.
+  accountSignIn: 'Đăng nhập',
+  accountSigningIn: 'Đang đăng nhập…',
+  accountMenuLabel: 'Tài khoản Ducker ID',
+  accountOpenProfile: 'Mở hồ sơ Ducker ID',
+  accountSignOut: 'Đăng xuất',
 
   // Board a11y (NFR-A11Y-02): the grid and each cell need a name of their own.
   boardLabel: 'Bàn',

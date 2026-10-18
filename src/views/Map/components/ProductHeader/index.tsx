@@ -1,5 +1,7 @@
 'use client'
 
+import { AccountButton } from '@/components/AccountButton'
+import { useDuckerAuth } from '@/hooks'
 import { t } from '@/i18n/vi'
 
 /**
@@ -58,6 +60,7 @@ function DuckMark() {
 }
 
 export function ProductHeader() {
+  const { enabled } = useDuckerAuth()
   return (
     <header
       data-testid="product-header"
@@ -71,8 +74,13 @@ export function ProductHeader() {
         <p className="mt-0.5 text-sm text-ink-muted">{t.productTagline}</p>
         {/* Two personas assumed a paywall or an energy timer before touching
             anything. Cheaper to answer here than to be assumed about. */}
-        <p className="mt-0.5 text-xs text-ink-muted">{t.productReassurance}</p>
+        <p className="mt-0.5 text-xs text-ink-muted">
+          {enabled ? t.productReassuranceSignIn : t.productReassurance}
+        </p>
       </div>
+      {/* Optional Ducker ID sign-in (ADR-0012): renders nothing unless the build
+          turned the feature on, so the header is unchanged when it is off. */}
+      <AccountButton />
     </header>
   )
 }

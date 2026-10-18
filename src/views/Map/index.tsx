@@ -1,6 +1,9 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+// Side-effect import FIRST: it captures the OAuth callback and cleans the URL before
+// anything else on this screen can read it (ADR-0012).
+import '@/auth/duckerSession'
 import type { Progress } from '@/engine'
 import { t } from '@/i18n/vi'
 import { LEVELS } from '@/levels/levels'

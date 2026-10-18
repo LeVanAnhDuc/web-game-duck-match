@@ -1,7 +1,7 @@
 # ADR-0006 · Deploy lên GitHub Pages bằng ba workflow, release suy ra từ Conventional Commits
 
 > **Ngày:** 2026-09-04
-> **Trạng thái:** accepted
+> **Trạng thái:** accepted — superseded in part by ADR-0012 (`GITHUB_PAGES` → `NEXT_PUBLIC_BASE_PATH`)
 > **Liên quan:** NFR-SEC-05 · NFR-PERF-07 · ADR-0004 · overview.md §5 (trần chi phí 0 đồng)
 
 ## 1. Bối cảnh

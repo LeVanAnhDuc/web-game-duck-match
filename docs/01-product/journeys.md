@@ -59,3 +59,16 @@ và quay về trạng thái người chơi mới — **không màn hình lỗi, 
 
 **Xong khi:** người chơi hiểu được rằng quân đặc biệt sinh ra **tại ô mình chạm** và
 dùng được điều đó có chủ đích. Đây là luồng học kỹ năng, không có màn hình riêng.
+
+## US-05 · Đăng nhập Ducker ID (tuỳ chọn, chỉ khi cờ bật)
+
+**Ai:** người chơi có tài khoản Ducker ID, muốn game biết mình là ai.
+
+1. Ở bản đồ màn, bấm "Đăng nhập" ở góc phải đầu trang.
+2. Sang Ducker ID, đăng nhập (hoặc đã đăng nhập sẵn) rồi quay về đúng bản đồ, URL sạch.
+3. Thấy avatar; bấm vào thì thấy tên, email, "Mở hồ sơ Ducker ID" và "Đăng xuất".
+4. Chơi như bình thường — tiến độ và điểm không đổi.
+5. Bấm "Đăng xuất" → nút "Đăng nhập" trở lại. Tải lại trang → cũng chưa đăng nhập.
+
+**Xong khi:** người chơi thấy tên mình, và game chơi y như khi chưa đăng nhập. Hủy hoặc
+lỗi ở Ducker ID thì quay về chưa đăng nhập, không có thông báo lỗi.

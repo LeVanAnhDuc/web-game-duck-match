@@ -83,6 +83,10 @@ jobs:
       - name: Install Chromium
         run: pnpm exec playwright install --with-deps chromium
 
+      # Second export with Ducker ID sign-in on (fake issuer), for the sign-in spec.
+      - name: Build the sign-in export
+        run: pnpm build:e2e-auth
+
       # `test:e2e:only`, not `test:e2e`: the build above is the one being tested,
       # and rebuilding it here would only prove a second build also works.
       - name: End-to-end tests
