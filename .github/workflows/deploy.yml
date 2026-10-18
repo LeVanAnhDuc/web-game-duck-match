@@ -27,7 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           # No package.json at the root: the app lives in client/.
           package_json_file: client/package.json
@@ -104,7 +104,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           # No package.json at the root: pnpm comes from the app's packageManager pin.
           package_json_file: client/package.json
