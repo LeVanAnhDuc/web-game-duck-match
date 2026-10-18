@@ -20,6 +20,11 @@ export class MapPage extends BasePage {
     return this.page.getByTestId("product-header");
   }
 
+  /** The header's text block (name, tagline, reassurance) — what the account control must not cover. */
+  headerText(): Locator {
+    return this.header().getByText(copy.productName, { exact: true }).locator("..");
+  }
+
   /** Every level card, locked or not, in order. */
   cards(): Locator {
     return this.page.getByRole("list").getByRole("listitem");
@@ -62,6 +67,11 @@ export class MapPage extends BasePage {
 
   accountMenu(): Locator {
     return this.page.getByRole("menu");
+  }
+
+  /** The open account popover: who is signed in (name, email) above the menu itself. */
+  accountPanel(): Locator {
+    return this.accountMenu().locator("..");
   }
 
   profileLink(): Locator {

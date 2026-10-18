@@ -1,23 +1,27 @@
-import { expect, test } from '@/fixtures'
+import { test, expect } from "@/fixtures";
+import { copy } from "@/data/copy";
 
-/**
- * The deployed build ships with Ducker ID sign-in off (ADR-0012): no button, no
- * request to anything but the page's own origin. Runs against the normal `out/`.
- */
-test('the default build has no sign-in and makes no outside request', async ({
-  page,
-  urls,
-}) => {
-  const outside: string[] = []
-  const own = new URL(urls.webUrl).host
-  page.on('request', (request) => {
-    const { protocol, host } = new URL(request.url())
-    if (protocol.startsWith('http') && host !== own)
-      outside.push(request.url())
-  })
-  await page.goto('./')
-  await expect(page.getByTestId('product-header')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Đăng nhập' })).toHaveCount(0)
-  await expect(page.getByRole('button', { name: 'Tài khoản Ducker ID' })).toHaveCount(0)
-  expect(outside).toEqual([])
-})
+// ADR-0012: the deployed build ships with Ducker ID sign-in off — no button, no URL reading, no storage, no request
+// to anything but the page's own origin. Runs on the "app" project, i.e. the normal (flag-off) export.
+test(
+  "cờ tắt thì không có nút đăng nhập, không đọc URL, không chạm storage, không request ra ngoài",
+  { tag: ["@TC-DUCKERID-001", "@smoke"] },
+  async ({ page, mapPage, baseURL }) => {
+    const site = new URL(baseURL!).origin;
+    const outside: string[] = [];
+    page.on("request", (request) => {
+      const url = request.url();
+      if (!url.startsWith(site) && !url.startsWith("data:") && !url.startsWith("blob:")) outside.push(url);
+    });
+
+    await mapPage.goto("?code=x&state=y");
+
+    await expect(mapPage.header()).toBeVisible();
+    await expect(mapPage.signInButton()).toHaveCount(0);
+    await expect(mapPage.accountButton()).toHaveCount(0);
+    await expect(mapPage.header()).toContainText(copy.productReassurance);
+    expect(await page.evaluate(() => window.location.search)).toContain("code=x");
+    expect(await page.evaluate(() => sessionStorage.length)).toBe(0);
+    expect(outside).toEqual([]);
+  },
+);
