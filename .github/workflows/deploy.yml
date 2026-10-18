@@ -73,7 +73,7 @@ jobs:
       # existing Pages site but cannot create one — that is a repository admin
       # operation. Pages is switched on once, by hand, with the command in the
       # README. See ADR-0006.
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
 
       - uses: actions/upload-pages-artifact@v3
         with:
