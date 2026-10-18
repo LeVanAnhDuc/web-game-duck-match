@@ -188,6 +188,16 @@ export class PlayPage extends BasePage {
     return this.statuses().filter({ hasText: copy.moveRejected });
   }
 
+  /** Everything the decorative effect layer is drawing (aria-hidden). */
+  effects(): Locator {
+    return this.page.locator("[data-effect]");
+  }
+
+  /** The floating "+N" a match leaves where it happened (FR-17). */
+  scoreEffects(): Locator {
+    return this.page.locator('[data-effect="score"]');
+  }
+
   /** Pieces the idle hint is nudging (FR-19): the two cells of one legal swap. */
   hinted(): Locator {
     return this.page.locator('[data-testid="tile-slot"]:has(> [data-hint="true"])');
