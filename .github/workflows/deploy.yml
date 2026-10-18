@@ -10,6 +10,11 @@ permissions:
   pages: write
   id-token: write
 
+# The game app lives in client/; every `run:` step works from there.
+defaults:
+  run:
+    working-directory: client
+
 # One deploy at a time, and never cancel one halfway: a cancelled deploy can leave
 # the site serving a half-uploaded artifact.
 concurrency:
@@ -23,11 +28,15 @@ jobs:
       - uses: actions/checkout@v5
 
       - uses: pnpm/action-setup@v4
+        with:
+          # No package.json at the root: the app lives in client/.
+          package_json_file: client/package.json
 
       - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: pnpm
+          cache-dependency-path: client/pnpm-lock.yaml
 
       - run: pnpm install --frozen-lockfile
 
@@ -69,7 +78,7 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           # Next's static export writes `out`, not `dist`.
-          path: out
+          path: client/out
 
   deploy:
     needs: build
@@ -95,11 +104,15 @@ jobs:
       - uses: actions/checkout@v5
 
       - uses: pnpm/action-setup@v4
+        with:
+          # No package.json at the root: the app lives in client/.
+          package_json_file: client/package.json
 
       - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: pnpm
+          cache-dependency-path: client/pnpm-lock.yaml
 
       - run: pnpm install --frozen-lockfile
 

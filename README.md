@@ -72,16 +72,19 @@ reverted — it costs no move.
 
 ## Getting started
 
+The game app lives in [`client/`](client); run every `pnpm` command below from there.
+
 ```bash
-pnpm install
+cd client
+pnpm install --frozen-lockfile
 pnpm dev          # http://localhost:3000
 ```
 
 There is **no `.env` step**: nothing the game needs comes from the environment.
-`NEXT_PUBLIC_BASE_PATH` in [`.env.example`](.env.example) is set by CI and must not be
+`NEXT_PUBLIC_BASE_PATH` in [`client/.env.example`](client/.env.example) is set by CI and must not be
 set by hand — it would break every asset path locally.
 
-To try the optional Ducker ID sign-in locally, copy `.env.example` to `.env`, fill
+To try the optional Ducker ID sign-in locally, copy `client/.env.example` to `client/.env`, fill
 `NEXT_PUBLIC_DUCKER_CLIENT_ID` (a client registered in the Ducker ID admin console
 with redirect URI `http://127.0.0.1:4173/`), add `http://127.0.0.1:4173` to the Ducker
 ID server `CORS_ORIGINS`, then `pnpm build && pnpm serve`. The flag and all four
@@ -90,10 +93,12 @@ inlined at build time.
 
 ## Commands
 
+Run from `client/`.
+
 | Command | What it does |
 | --- | --- |
 | `pnpm dev` | dev server on `:3000` |
-| `pnpm build` | static export into `out/` |
+| `pnpm build` | static export into `client/out/` |
 | `pnpm serve` | serve `out/` on `:4173`, the way Pages will |
 | `pnpm test` | unit and component tests (Vitest) |
 | `pnpm test:watch` | the same, in watch mode |
@@ -110,14 +115,14 @@ inlined at build time.
 
 ## How it is put together
 
-`src/engine/` is pure synchronous TypeScript: no React, no DOM, no `Date`, no
+`client/src/engine/` is pure synchronous TypeScript: no React, no DOM, no `Date`, no
 `Math.random`. One player move goes through one pure function that returns the
-settled board plus an ordered list of events. `src/game/` replays those events onto
-the board being shown and locks input while they play; `src/ui/` only draws. That
+settled board plus an ordered list of events. `client/src/game/` replays those events onto
+the board being shown and locks input while they play; `client/src/views/` only draws. That
 boundary is what makes every game rule testable without rendering anything — and it
 is enforced by a test that greps the engine source, not just by a convention.
 
-`test/engine-ui-agreement.test.ts` is the one that keeps the two halves honest: it
+`client/test/engine-ui-agreement.test.ts` is the one that keeps the two halves honest: it
 plays 4320 pseudo-random moves and asserts, after each, that replaying the events
 reproduces the engine's own session exactly.
 
@@ -147,7 +152,7 @@ Three workflows, one job each, and none of them trusts the others' results:
 | Workflow | Runs on | Gates |
 | --- | --- | --- |
 | [`ci.yml`](.github/workflows/ci.yml) | pull requests | lint · typecheck · unit tests · dependency audit · build · bundle budget · end-to-end |
-| [`deploy.yml`](.github/workflows/deploy.yml) | push to `main` | typecheck · unit tests · bundle budget, publishes `out/` to Pages, then **opens the live URL and plays a move on it** |
+| [`deploy.yml`](.github/workflows/deploy.yml) | push to `main` | typecheck · unit tests · bundle budget, publishes `client/out/` to Pages, then **opens the live URL and plays a move on it** |
 | [`release.yml`](.github/workflows/release.yml) | push to `main` | typecheck · unit tests, then tags and writes the release |
 
 `ci.yml` deliberately does **not** run on pushes to `main`: the other two already

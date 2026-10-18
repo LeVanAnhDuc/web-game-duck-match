@@ -94,4 +94,4 @@ tồn tại. Đây là lý do bước 5 là bước duy nhất chạm `storage/`
 | Ngẫu nhiên | PRNG mulberry32 có seed, tự viết | ADR-0003 |
 | Lưu trữ | localStorage sau interface `ProgressRepository` async | ADR-0001 |
 | Test | Vitest + happy-dom + Testing Library · Playwright cho luồng | ADR-0002 |
-| Host | GitHub Pages, static export ra `out/` | ADR-0004 |
+| Host | GitHub Pages, static export ra `client/out/` | ADR-0004 |
