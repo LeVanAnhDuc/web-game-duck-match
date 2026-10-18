@@ -8,17 +8,22 @@
 # same repo, never content to commit.
 .worktrees/
 
-# Build & deps
+# Build & deps — the app lives in client/, the regression suite in automation-testing/
 node_modules/
 .next/
-out/
-out-auth/
-out-keep/
+/client/out/
+/client/out-auth/
+/client/out-keep/
 coverage/
+*.tsbuildinfo
+/client/next-env.d.ts
+
+# Playwright (automation-testing/ and any local MCP session)
 test-results/
 playwright-report/
-*.tsbuildinfo
-next-env.d.ts
+blob-report/
+playwright/.cache/
+.auth/
 
 # --- Claude Code: theo doi config + agents + skills, bo qua worktrees/doc-state ---
 /.claude/*

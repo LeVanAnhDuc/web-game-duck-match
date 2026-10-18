@@ -26,7 +26,7 @@ nhiễu — xem `02-requirements/nfr.md` cho phần NFR tương ứng bị đán
 
 | # | Bất biến | Vi phạm thì sao |
 | --- | --- | --- |
-| 1 | Mọi ngẫu nhiên trong `src/engine/` đi qua `rng` của `Session`. Không `Math.random()`, không `Date.now()` | Bàn không tái tạo được từ seed. Bug người chơi báo không dựng lại được, mà test vẫn xanh vì test tự chọn seed |
+| 1 | Mọi ngẫu nhiên trong `client/src/engine/` đi qua `rng` của `Session`. Không `Math.random()`, không `Date.now()` | Bàn không tái tạo được từ seed. Bug người chơi báo không dựng lại được, mà test vẫn xanh vì test tự chọn seed |
 | 2 | `ui/` và `game/` **không tính điểm, không tự tìm match** — chỉ phát lại `GameEvent[]` | Điểm trên màn hình lệch điểm engine. Chỉ lộ ra ở màn khó, sau nhiều cascade |
 | 3 | Input bị khoá đến khi hàng đợi sự kiện phát xong | Người chơi swap tầng hai giữa cascade, engine nhận `Session` cũ → bàn hỏng âm thầm |
 | 4 | `applySwap` là **hàm thuần**: không sửa `Session` đầu vào, trả về `Session` mới | React thấy cùng tham chiếu nên không render lại; hoặc "chơi lại" mang theo trạng thái cũ |

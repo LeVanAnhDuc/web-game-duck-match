@@ -54,7 +54,7 @@ không tài khoản, không PII, không tiền. Đó là lý do phần lớn kh�
 
 | ID | Ngưỡng | Cách kiểm |
 | --- | --- | --- |
-| NFR-I18N-01 | Không hardcode chuỗi hiển thị trong component. Mọi chuỗi nằm ở `src/i18n/` | grep |
+| NFR-I18N-01 | Không hardcode chuỗi hiển thị trong component. Mọi chuỗi nằm ở `client/src/i18n/` | grep |
 | NFR-I18N-02 | ~~Thời gian lưu ở UTC~~ **(bỏ)** — dự án không lưu và không hiển thị mốc thời gian nào | — |
 | NFR-I18N-03 | Số điểm định dạng theo `Intl.NumberFormat` locale `vi-VN`, không tự nối chuỗi | review |
 

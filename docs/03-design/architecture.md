@@ -93,5 +93,5 @@ tồn tại. Đây là lý do bước 5 là bước duy nhất chạm `storage/`
 | Luật chơi | TypeScript thuần, đồng bộ, không thư viện game | ADR-0002 |
 | Ngẫu nhiên | PRNG mulberry32 có seed, tự viết | ADR-0003 |
 | Lưu trữ | localStorage sau interface `ProgressRepository` async | ADR-0001 |
-| Test | Vitest + happy-dom + Testing Library · Playwright cho luồng | ADR-0002 |
-| Host | GitHub Pages, static export ra `out/` | ADR-0004 |
+| Test | Vitest + happy-dom + Testing Library (trong `client/`) · Playwright cho luồng (`automation-testing/`) | ADR-0002 |
+| Host | GitHub Pages, static export ra `client/out/` | ADR-0004 |

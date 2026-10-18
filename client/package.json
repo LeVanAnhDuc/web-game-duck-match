@@ -1,0 +1,63 @@
+{
+  "name": "web-game-duck-match",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.32.1",
+  "scripts": {
+    "build": "next build",
+    "build:e2e-auth": "node scripts/build-e2e-auth.mjs",
+    "check:audit": "pnpm audit --json | node scripts/check-audit.mjs",
+    "check:bundle": "node scripts/check-bundle-size.mjs out",
+    "dev": "next dev",
+    "format": "prettier --write \"**/*.{ts,tsx,css,md,json}\" --end-of-line auto",
+    "lint": "next lint",
+    "release:next": "pnpm dlx git-cliff@2.13.1 --workdir .. --bumped-version",
+    "release:notes": "pnpm dlx git-cliff@2.13.1 --workdir .. --unreleased --tag $(pnpm dlx git-cliff@2.13.1 --workdir .. --bumped-version) --strip all",
+    "serve": "node scripts/serve.mjs 4173 out",
+    "start": "next start",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "^15.5.28",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.0",
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@typescript-eslint/eslint-plugin": "8.69.0",
+    "@typescript-eslint/parser": "8.69.0",
+    "@vitejs/plugin-react": "^4.7.0",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^15.5.28",
+    "eslint-config-prettier": "^9.1.0",
+    "happy-dom": "^20.8.9",
+    "postcss": "^8.5.18",
+    "prettier": "^3.6.0",
+    "prettier-plugin-tailwindcss": "^0.6.14",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.9.0",
+    "vite": "^7",
+    "vitest": "^4.1.12"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": "^8.5.18",
+      "brace-expansion@<1.1.21": "^1.1.21",
+      "brace-expansion@>=4.0.0 <5.0.12": "^5.0.12",
+      "source-map-js@<1.2.2": "^1.2.2",
+      "sharp@<0.35.5": "^0.35.5"
+    },
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "unrs-resolver"
+    ]
+  }
+}
