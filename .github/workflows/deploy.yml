@@ -32,7 +32,7 @@ jobs:
           # No package.json at the root: the app lives in client/.
           package_json_file: client/package.json
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -109,7 +109,7 @@ jobs:
           # No package.json at the root: pnpm comes from the app's packageManager pin.
           package_json_file: client/package.json
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
