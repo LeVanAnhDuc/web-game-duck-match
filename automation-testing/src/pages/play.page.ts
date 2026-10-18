@@ -1,6 +1,6 @@
 import type { Locator, Page } from "@playwright/test";
 import { copy } from "@/data/copy";
-import type { Board, Move, Pos } from "@/utils/match3";
+import { legalMoves, type Board, type Move, type Pos } from "@/utils/match3";
 import { BasePage } from "./base.page";
 
 // The result dialog that closes a level (won or lost). Only the play screen has it.
@@ -135,8 +135,21 @@ export class PlayPage extends BasePage {
     return this.page.getByRole("status");
   }
 
+  /** Pieces the idle hint is nudging (FR-19): the two cells of one legal swap. */
   hinted(): Locator {
-    return this.page.locator('[data-testid="tile-slot"][data-hint="true"]');
+    return this.page.locator('[data-testid="tile-slot"]:has(> [data-hint="true"])');
+  }
+
+  /** Pieces drawn as the refused pair after an illegal swap (FR-19). */
+  rejected(): Locator {
+    return this.page.locator('[data-testid="tile-slot"]:has(> [data-rejected="true"])');
+  }
+
+  /** Row/column of each located tile slot. */
+  async positions(slots: Locator): Promise<Pos[]> {
+    return slots.evaluateAll((els) =>
+      els.map((el) => ({ row: Number(el.getAttribute("data-row")), col: Number(el.getAttribute("data-col")) })),
+    );
   }
 
   /** Waits until the bàn has stopped animating and accepts input again. */
@@ -170,6 +183,8 @@ export class PlayPage extends BasePage {
 
   /** The score as a number ("4.200" → 4200), once the count-up animation has finished. */
   async scoreNumber(): Promise<number> {
+    // While the score counts up it is aria-hidden; the number is final once that attribute is gone.
+    await this.page.locator('[data-testid="score"]:not([aria-hidden])').waitFor();
     return Number((await this.score().textContent())?.replace(/\D/g, "") ?? "0");
   }
 
@@ -221,5 +236,23 @@ export class PlayPage extends BasePage {
     await this.swapWithKeyboard(move);
     await this.waitForMovesLeft(before - 1);
     await this.settle();
+  }
+
+  /**
+   * Plays legal moves until the level ends, choosing the first (reading order) or last legal swap on the bàn as
+   * drawn. Each level has a fixed seed, so the same choice rule replays the same game. Returns the moves played.
+   */
+  async playUntilResult(pick: "first" | "last"): Promise<number> {
+    let played = 0;
+    while (!(await this.result.root().isVisible())) {
+      if ((await this.movesLeftNumber()) === 0) break;
+      const moves = legalMoves(await this.readBoard());
+      const move = pick === "first" ? moves[0] : moves[moves.length - 1];
+      if (!move) throw new Error("no legal move on a settled bàn");
+      await this.playMove(move);
+      played++;
+    }
+    await this.result.root().waitFor();
+    return played;
   }
 }
