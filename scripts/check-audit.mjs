@@ -25,6 +25,21 @@ import { readFileSync } from 'node:fs'
  */
 const BLOCKING = new Set(['high', 'critical'])
 
+/**
+ * Advisories accepted by the project owner (2026-10-18). Each entry needs a reason
+ * and is only honoured while the advisory still has NO patched version — the moment
+ * a fix ships, the entry stops matching and the gate goes red again.
+ */
+const ACCEPTED = new Map([
+  [
+    'GHSA-vfj7-8cjw-p6xm',
+    'braces: no patched release exists; reaches the tree only through dev tooling ' +
+      '(tailwindcss 3 -> chokidar/micromatch, eslint-config-next -> fast-glob), ' +
+      'nothing of it ships in the static export.',
+  ],
+])
+const isUnpatched = (patched) => !patched || patched === '<0.0.0'
+
 let raw = ''
 process.stdin.setEncoding('utf8')
 for await (const chunk of process.stdin) raw += chunk
@@ -57,9 +72,18 @@ const advisories = Object.values(report.advisories ?? {}).map((advisory) => ({
   patched: advisory.patched_versions,
   title: advisory.title,
   path: advisory.findings?.[0]?.paths?.[0] ?? '',
+  ghsa: advisory.github_advisory_id ?? String(advisory.url ?? '').split('/').pop(),
 }))
 
-const blocking = advisories.filter((advisory) => BLOCKING.has(advisory.severity))
+const accepted = advisories.filter(
+  (advisory) => ACCEPTED.has(advisory.ghsa) && isUnpatched(advisory.patched),
+)
+for (const advisory of accepted) {
+  console.log(`ACCEPTED ${advisory.severity} ${advisory.module} ${advisory.ghsa}: ${ACCEPTED.get(advisory.ghsa)}`)
+}
+const blocking = advisories.filter(
+  (advisory) => BLOCKING.has(advisory.severity) && !accepted.includes(advisory),
+)
 const rest = advisories.filter((advisory) => !BLOCKING.has(advisory.severity))
 
 // Sanity checks BEFORE anything is reported. "No advisories" is evidence of a clean
@@ -84,7 +108,8 @@ const countedBlocking = [...BLOCKING].reduce(
   (n, severity) => n + (counts[severity] ?? 0),
   0,
 )
-if (countedBlocking > 0 && blocking.length === 0) {
+const listedBlocking = advisories.filter((advisory) => BLOCKING.has(advisory.severity))
+if (countedBlocking > 0 && listedBlocking.length === 0) {
   reasons.push(
     `metadata counts ${countedBlocking} high/critical vulnerability(ies) but no advisory was listed`,
   )
