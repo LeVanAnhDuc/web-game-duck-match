@@ -101,6 +101,18 @@ export class PlayPage extends BasePage {
       .getByTestId("tile");
   }
 
+  /** The positioned slot a piece travels in (one per piece). */
+  slot(pos: Pos): Locator {
+    return this.page.locator(
+      `[data-testid="tile-slot"][data-row="${pos.row}"][data-col="${pos.col}"]:not([data-clearing])`,
+    );
+  }
+
+  /** The pressed hollows of the slab, one per cell. */
+  wells(): Locator {
+    return this.page.getByTestId("well");
+  }
+
   tiles(): Locator {
     return this.page.locator('[data-testid="tile-slot"]:not([data-clearing]) [data-testid="tile"]');
   }
