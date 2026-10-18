@@ -3,8 +3,10 @@ import { existsSync, renameSync, rmSync } from 'node:fs'
 
 /**
  * Builds a SECOND static export with Ducker ID sign-in switched on, into `out-auth/`,
- * for e2e/ducker-id-sign-in.spec.ts. The normal `out/` stays flag-off — it is what
- * deploys, and the rest of the e2e suite must keep proving that build is unchanged.
+ * for the ducker-id module of the regression suite
+ * (../automation-testing/src/tests/e2e/ducker-id/sign-in.e2e.ts). The normal `out/`
+ * stays flag-off — it is what deploys, and the rest of the suite must keep proving
+ * that build is unchanged.
  *
  * The issuer is a fake host that never resolves: the spec routes every request to it.
  * `out/` is set aside and put back, so the order of this script and `pnpm build` does

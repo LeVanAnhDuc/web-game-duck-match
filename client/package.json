@@ -16,11 +16,8 @@
     "serve": "node scripts/serve.mjs 4173 out",
     "start": "next start",
     "test": "vitest run",
-    "test:e2e": "pnpm build && pnpm build:e2e-auth && playwright test",
-    "test:e2e:only": "playwright test",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit",
-    "verify:live": "playwright test -c playwright.live.config.ts"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "next": "^15.5.28",
@@ -28,7 +25,6 @@
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.55.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.0",

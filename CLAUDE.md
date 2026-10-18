@@ -10,6 +10,7 @@ everything runs in the browser, progress lives in localStorage. The methodology 
 | Folder | Holds |
 | --- | --- |
 | `client/` | the game app: `package.json`, `pnpm-lock.yaml`, `.env.example`, `src/`, `scripts/`, unit + component tests (vitest, next to the code and in `client/test/`) |
+| `automation-testing/` | the end-to-end regression suite (Playwright): requirements, test cases, defects, page objects, specs — its own `package.json`, rules in `automation-testing/CLAUDE.md` |
 | `docs/` | product docs, requirements, ADRs, feature specs — map in `docs/README.md` |
 | `.claude/`, `.githooks/`, `.github/`, `cliff.toml` | Claude config, git hooks, CI, release notes config — all at the root |
 
@@ -31,6 +32,17 @@ pnpm check:bundle     # NFR-PERF-07 first-load JS budget (after build)
 pnpm check:audit      # NFR-SEC-05
 pnpm release:next     # next version, from the commits (git-cliff, repo root)
 ```
+
+```bash
+cd automation-testing
+pnpm install && pnpm exec playwright install chromium
+pnpm test             # builds ../client (both exports), serves them, runs every module
+ENV=prd pnpm test     # the same against https://levananhduc.github.io/web-game-duck-match/ (read-only)
+pnpm typecheck
+pnpm coverage:check   # REQ ↔ TC ↔ spec ↔ bug; --write regenerates the traceability matrix
+```
+
+Regression tests: automation-testing/ (/write-tests)
 
 Git hooks: `git config core.hooksPath .githooks` (commit-msg + pre-commit ESLint on staged
 `client/` files).

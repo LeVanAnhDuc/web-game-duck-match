@@ -102,16 +102,25 @@ Run from `client/`.
 | `pnpm serve` | serve `out/` on `:4173`, the way Pages will |
 | `pnpm test` | unit and component tests (Vitest) |
 | `pnpm test:watch` | the same, in watch mode |
-| `pnpm test:e2e` | build, then the Playwright flows and responsive screenshots |
-| `pnpm test:e2e:only` | the same without rebuilding, for when `out/` is current |
 | `pnpm typecheck` | `tsc --noEmit` |
 | `pnpm lint` | ESLint via `next lint` |
 | `pnpm check:bundle` | first-load JS budget, NFR-PERF-07 |
 | `pnpm check:audit` | dependency advisories at high or above, NFR-SEC-05 |
-| `pnpm verify:live` | open the published site and play a move on it |
 | `pnpm release:next` | print the version the next release would carry, and why |
 | `pnpm release:notes v1.2.0` | print the release notes for a tag |
 | `pnpm format` | Prettier over the repo |
+
+The end-to-end regression suite is its own package in
+[`automation-testing/`](automation-testing) (Playwright, one requirement and test case per
+check; rules in its `CLAUDE.md`). It builds and serves `client/` itself:
+
+```bash
+cd automation-testing
+pnpm install && pnpm exec playwright install chromium
+pnpm test             # every module against the static export, incl. the sign-in build
+ENV=prd pnpm test     # the same checks against the published site (read-only)
+pnpm coverage:check   # requirement ↔ test case ↔ spec ↔ defect
+```
 
 ## How it is put together
 
@@ -151,8 +160,8 @@ Three workflows, one job each, and none of them trusts the others' results:
 
 | Workflow | Runs on | Gates |
 | --- | --- | --- |
-| [`ci.yml`](.github/workflows/ci.yml) | pull requests | lint · typecheck · unit tests · dependency audit · build · bundle budget · end-to-end |
-| [`deploy.yml`](.github/workflows/deploy.yml) | push to `main` | typecheck · unit tests · bundle budget, publishes `client/out/` to Pages, then **opens the live URL and plays a move on it** |
+| [`ci.yml`](.github/workflows/ci.yml) | pull requests | lint · typecheck · unit tests · dependency audit · build · bundle budget · the `automation-testing/` regression suite |
+| [`deploy.yml`](.github/workflows/deploy.yml) | push to `main` | typecheck · unit tests · bundle budget, publishes `client/out/` to Pages, then **opens the live URL and plays a move on it** (`automation-testing/` deploy module, `ENV=prd`) |
 | [`release.yml`](.github/workflows/release.yml) | push to `main` | typecheck · unit tests, then tags and writes the release |
 
 `ci.yml` deliberately does **not** run on pushes to `main`: the other two already

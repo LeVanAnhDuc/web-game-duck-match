@@ -1,7 +1,8 @@
-import { expect, test, type Page } from '@playwright/test'
-import { newSession } from '../src/engine'
-import { findLegalMoves } from '../src/engine/moves'
-import { LEVELS } from '../src/levels/levels'
+import type { Page } from '@playwright/test'
+import { expect, test } from '@/fixtures'
+import { level } from '@/data/test-data'
+import { illegalMoves, legalMoves } from '@/utils/match3'
+import type { PlayPage } from '@/pages/play.page'
 
 /**
  * Flow coverage for US-01 to US-03, against the static export.
@@ -24,19 +25,14 @@ import { LEVELS } from '../src/levels/levels'
 const PROGRESS_KEY = 'match3.progress.v1'
 
 /** Read from the level data, never hardcoded: these numbers get retuned (FR-12). */
-const LEVEL_1 = LEVELS.find((candidate) => candidate.id === 1)!
+const LEVEL_1 = level(1)
 const START_MOVES = String(LEVEL_1.moves)
 const AFTER_ONE_MOVE = String(LEVEL_1.moves - 1)
 
-/** Mirrors the seed in `src/app/PlayScreen.tsx`. */
-const seedFor = (levelId: number) => levelId * 1000
-
-function firstLegalMove(levelId: number) {
-  const level = LEVELS.find((candidate) => candidate.id === levelId)
-  if (!level) throw new Error(`no level ${levelId}`)
-  const move = findLegalMoves(newSession(level, seedFor(levelId)).grid)[0]
-  if (!move)
-    throw new Error(`level ${levelId} starts deadlocked, which a unit test denies`)
+/** The first legal swap on the bàn as drawn (black-box: read from the tiles, not the engine). */
+async function firstLegalMove(playPage: PlayPage) {
+  const move = legalMoves(await playPage.readBoard())[0]
+  if (!move) throw new Error('the bàn starts deadlocked, which a unit test denies')
   return move
 }
 
@@ -55,7 +51,7 @@ async function playMove(
 }
 
 test('US-01 · the map opens with only the first level unlocked', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('./')
   await expect(page.getByRole('link')).toHaveCount(1)
   await expect(page.getByRole('link').first()).toHaveAttribute('href', /play\/1/)
 })
@@ -63,21 +59,21 @@ test('US-01 · the map opens with only the first level unlocked', async ({ page 
 test('US-01 · the first level is reachable from the map and shows a board', async ({
   page,
 }) => {
-  await page.goto('/')
+  await page.goto('./')
   await page.getByRole('link').first().click()
   await expect(page.getByRole('grid')).toBeVisible()
   await expect(page.getByTestId('moves-left')).toBeVisible()
   await expect(page.getByTestId('score')).toBeVisible()
 })
 
-test('US-01 · playing spends a move and scores points', async ({ page }) => {
-  await page.goto('/play/1/')
+test('US-01 · playing spends a move and scores points', async ({ page, playPage }) => {
+  await page.goto('./play/1/')
   await expect(page.getByRole('grid')).toBeVisible()
 
   const moves = page.getByTestId('moves-left')
   await expect(moves).toHaveText(START_MOVES)
 
-  await playMove(page, firstLegalMove(1))
+  await playMove(page, await firstLegalMove(playPage))
 
   await expect(moves).toHaveText(AFTER_ONE_MOVE)
   await expect(page.getByTestId('score')).not.toHaveText('0')
@@ -86,7 +82,7 @@ test('US-01 · playing spends a move and scores points', async ({ page }) => {
 test('US-01 · the board is reachable and driveable by keyboard alone', async ({
   page,
 }) => {
-  await page.goto('/play/1/')
+  await page.goto('./play/1/')
   await expect(page.getByRole('grid')).toBeVisible()
 
   // Tab until focus lands inside the grid; the header link comes first in DOM
@@ -102,43 +98,26 @@ test('US-01 · the board is reachable and driveable by keyboard alone', async ({
   throw new Error('no board cell could be reached with Tab')
 })
 
-test('US-01 · an illegal swap costs nothing', async ({ page }) => {
-  await page.goto('/play/1/')
+test('US-01 · an illegal swap costs nothing', async ({ page, playPage }) => {
+  await page.goto('./play/1/')
   const moves = page.getByTestId('moves-left')
   await expect(moves).toHaveText(START_MOVES)
 
   // Find a pair the engine rejects, and confirm the counter does not move —
   // probing the board has to be free (invariant 6).
-  const level = LEVEL_1
-  const grid = newSession(level, seedFor(1)).grid
-  const legal = new Set(
-    findLegalMoves(grid).map(
-      (m) => `${m.from.row},${m.from.col}-${m.to.row},${m.to.col}`,
-    ),
-  )
-  let illegal: {
-    from: { row: number; col: number }
-    to: { row: number; col: number }
-  } | null = null
-  for (let row = 0; row < level.rows && !illegal; row++) {
-    for (let col = 0; col < level.cols - 1 && !illegal; col++) {
-      const candidate = { from: { row, col }, to: { row, col: col + 1 } }
-      const key = `${row},${col}-${row},${col + 1}`
-      if (!legal.has(key)) illegal = candidate
-    }
-  }
+  const illegal = illegalMoves(await playPage.readBoard())[0] ?? null
   expect(illegal).not.toBeNull()
 
   await playMove(page, illegal!)
   await expect(moves).toHaveText(START_MOVES)
 })
 
-test('US-02 · replay resets the move counter and the score', async ({ page }) => {
-  await page.goto('/play/1/')
+test('US-02 · replay resets the move counter and the score', async ({ page, playPage }) => {
+  await page.goto('./play/1/')
   const moves = page.getByTestId('moves-left')
   await expect(moves).toHaveText(START_MOVES)
 
-  await playMove(page, firstLegalMove(1))
+  await playMove(page, await firstLegalMove(playPage))
   await expect(moves).toHaveText(AFTER_ONE_MOVE)
 
   // FR-22: a move has been spent, so the level is in progress and replay asks
@@ -154,7 +133,7 @@ test('US-02 · replay resets the move counter and the score', async ({ page }) =
 })
 
 test('US-03 · saved progress unlocks levels after a reload', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('./')
   await page.evaluate((key) => {
     window.localStorage.setItem(
       key,
@@ -172,7 +151,7 @@ test('US-03 · saved progress unlocks levels after a reload', async ({ page }) =
 })
 
 test('US-03 · garbage in storage still opens the app', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('./')
   await page.evaluate((key) => window.localStorage.setItem(key, 'not json'), PROGRESS_KEY)
   await page.reload()
 
@@ -181,12 +160,12 @@ test('US-03 · garbage in storage still opens the app', async ({ page }) => {
 })
 
 test('US-03 · a locked level is not a link', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('./')
   await expect(page.locator('[aria-disabled="true"]')).toHaveCount(5)
 })
 
-test('the board renders pieces as a separate layer that travels', async ({ page }) => {
-  await page.goto('/play/1/')
+test('the board renders pieces as a separate layer that travels', async ({ page, playPage }) => {
+  await page.goto('./play/1/')
   await expect(page.getByRole('grid')).toBeVisible()
 
   // Three layers, one --cell (ADR-0010). The semantic grid still owns the buttons;
@@ -206,8 +185,8 @@ test('the board renders pieces as a separate layer that travels', async ({ page 
   expect(box!.width).toBeGreaterThan(cellBox!.width * 0.7)
 })
 
-test('a special piece is marked so the player knows it is a weapon', async ({ page }) => {
-  await page.goto('/play/1/')
+test('a special piece is marked so the player knows it is a weapon', async ({ page, playPage }) => {
+  await page.goto('./play/1/')
   await expect(page.getByRole('grid')).toBeVisible()
   // A fresh board has no specials, so the absence is the assertion here; the
   // presence is covered by the unit tests, which can build a board that has one.

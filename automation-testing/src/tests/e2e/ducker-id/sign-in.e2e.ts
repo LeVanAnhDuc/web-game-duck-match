@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
+import { expect, test } from '@/fixtures'
 
 /**
  * Optional Ducker ID sign-in (ADR-0012) against the export built WITH the flag on
@@ -64,7 +65,7 @@ test('signs in, shows the name, keeps the URL clean, signs out', async ({ page }
     if (message.type() === 'error') errors.push(message.text())
   })
   await fakeIssuer(page)
-  await page.goto('/')
+  await page.goto('./')
   await signInButton(page).click()
   await expect(account(page)).toBeVisible()
   await expect.poll(() => new URL(page.url()).search).toBe('')
@@ -83,7 +84,7 @@ test('signs in, shows the name, keeps the URL clean, signs out', async ({ page }
 
 test('keeps the game URL params across the round trip', async ({ page }) => {
   await fakeIssuer(page)
-  await page.goto('/?keep=1')
+  await page.goto('./?keep=1')
   await signInButton(page).click()
   await expect(account(page)).toBeVisible()
   await expect.poll(() => new URL(page.url()).search).toBe('?keep=1')
@@ -91,7 +92,7 @@ test('keeps the game URL params across the round trip', async ({ page }) => {
 
 test('a reload is signed out again (nothing is persisted)', async ({ page }) => {
   await fakeIssuer(page)
-  await page.goto('/')
+  await page.goto('./')
   await signInButton(page).click()
   await expect(account(page)).toBeVisible()
   await page.reload()
@@ -101,7 +102,7 @@ test('a reload is signed out again (nothing is persisted)', async ({ page }) => 
 
 test('denying at Ducker ID lands signed out with a clean URL', async ({ page }) => {
   await fakeIssuer(page, { deny: true })
-  await page.goto('/?keep=1')
+  await page.goto('./?keep=1')
   await signInButton(page).click()
   await expect(signInButton(page)).toBeVisible()
   await expect.poll(() => new URL(page.url()).search).toBe('?keep=1')
@@ -110,7 +111,7 @@ test('denying at Ducker ID lands signed out with a clean URL', async ({ page }) 
 
 test('a tampered state never exchanges the code', async ({ page }) => {
   const seen = await fakeIssuer(page, { tamper: true })
-  await page.goto('/')
+  await page.goto('./')
   await signInButton(page).click()
   await expect(signInButton(page)).toBeVisible()
   await expect.poll(() => new URL(page.url()).search).toBe('')
@@ -121,7 +122,7 @@ test('the sign-in button is 44px and clear of the header text at 375px', async (
   page,
 }) => {
   await page.setViewportSize({ width: 375, height: 800 })
-  await page.goto('/')
+  await page.goto('./')
   const box = await signInButton(page).boundingBox()
   const text = await page
     .getByTestId('product-header')
@@ -135,7 +136,7 @@ test('the sign-in button is 44px and clear of the header text at 375px', async (
 
 test('makes no request to the issuer before the player clicks', async ({ page }) => {
   const seen = await fakeIssuer(page)
-  await page.goto('/')
+  await page.goto('./')
   await expect(signInButton(page)).toBeVisible()
   expect(seen).toEqual([])
 })
@@ -146,7 +147,7 @@ for (const width of [320, 375]) {
   }) => {
     await fakeIssuer(page)
     await page.setViewportSize({ width, height: 800 })
-    await page.goto('/')
+    await page.goto('./')
     const header = page.getByTestId('product-header')
     await signInButton(page).click()
     await expect(account(page)).toBeVisible()

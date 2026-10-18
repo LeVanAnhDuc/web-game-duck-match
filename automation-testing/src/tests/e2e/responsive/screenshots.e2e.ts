@@ -1,4 +1,4 @@
-import { test } from '@playwright/test'
+import { test } from '@/fixtures'
 
 /**
  * feature-flow step 5: a UI change nobody looked at is not finished. These are
@@ -13,11 +13,11 @@ for (const width of WIDTHS) {
   test(`screenshot the map and the board at ${width}`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 })
 
-    await page.goto('/')
+    await page.goto('./')
     await page.getByRole('link').first().waitFor()
     await page.screenshot({ path: `test-results/map-${width}.png`, fullPage: true })
 
-    await page.goto('/play/1/')
+    await page.goto('./play/1/')
     await page.getByRole('grid').waitFor()
     await page.screenshot({ path: `test-results/board-${width}.png`, fullPage: true })
   })
@@ -33,7 +33,7 @@ test('screenshot the widest board at the narrowest width', async ({ page }) => {
       JSON.stringify({ version: 1, levels: {}, unlockedUpTo: 6 }),
     )
   })
-  await page.goto('/play/6/')
+  await page.goto('./play/6/')
   await page.getByRole('grid').waitFor()
   await page.screenshot({ path: 'test-results/board-9x9-375.png', fullPage: true })
 })

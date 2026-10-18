@@ -3,7 +3,8 @@ import { createServer } from 'node:http'
 import { extname, join, normalize, resolve } from 'node:path'
 
 /**
- * Serves ./out the way GitHub Pages will, for the e2e suite.
+ * Serves ./out the way GitHub Pages will, for the regression suite in
+ * ../automation-testing (its playwright.config.ts webServer starts it).
  *
  * `next start` cannot serve a static export, and `pnpm dlx serve` has to be fetched from
  * the network on a cold machine — plus its `-s` flag rewrites every unknown path to
@@ -16,9 +17,10 @@ import { extname, join, normalize, resolve } from 'node:path'
 const PORT = Number(process.argv[2] ?? 4173)
 const ROOT = resolve(process.argv[3] ?? 'out')
 
+// Warn, do not exit: the regression suite starts this server while its own webServer
+// may still be building ROOT, and Playwright keeps waiting while the answer is 404.
 if (!existsSync(ROOT)) {
-  console.error(`${ROOT} does not exist — run \`pnpm build\` first.`)
-  process.exit(1)
+  console.error(`${ROOT} does not exist yet — run \`pnpm build\` first. Answering 404 until it does.`)
 }
 
 const TYPES = {
