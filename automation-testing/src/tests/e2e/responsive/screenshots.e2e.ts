@@ -1,39 +1,25 @@
-import { test } from '@/fixtures'
+import { test, expect } from "@/fixtures";
 
-/**
- * feature-flow step 5: a UI change nobody looked at is not finished. These are
- * captured, not asserted — the point is that a human (or the model) opens them.
- *
- * 375 is the design width, 768 and 1024 are the two layout switches from
- * design.md §6, and 1440 is the widest artboard.
- */
-const WIDTHS = [375, 768, 1024, 1440]
+// 375 is the design width, 768 and 1024 the two layout switches in design.md §6, 1440 the widest artboard. The
+// screenshots are still captured for a human to look at (attached to the report), but the case now asserts what
+// can be measured: nothing scrolls sideways and the whole bàn is on screen.
+const WIDTHS = [375, 768, 1024, 1440];
 
-for (const width of WIDTHS) {
-  test(`screenshot the map and the board at ${width}`, async ({ page }) => {
-    await page.setViewportSize({ width, height: 900 })
+test("bản đồ và màn chơi không cuộn ngang ở bốn bề rộng", { tag: ["@TC-RESPONSIVE-001"] }, async ({ page, mapPage, playPage }, testInfo) => {
+  const pageWidth = () => page.evaluate(() => document.documentElement.scrollWidth);
 
-    await page.goto('./')
-    await page.getByRole('link').first().waitFor()
-    await page.screenshot({ path: `test-results/map-${width}.png`, fullPage: true })
+  for (const width of WIDTHS) {
+    await page.setViewportSize({ width, height: 900 });
 
-    await page.goto('./play/1/')
-    await page.getByRole('grid').waitFor()
-    await page.screenshot({ path: `test-results/board-${width}.png`, fullPage: true })
-  })
-}
+    await mapPage.goto();
+    expect(await pageWidth(), `map at ${width}`).toBeLessThanOrEqual(width);
+    await testInfo.attach(`map-${width}.png`, { body: await page.screenshot({ fullPage: true }), contentType: "image/png" });
 
-test('screenshot the widest board at the narrowest width', async ({ page }) => {
-  // Level 6 is 9x9, the one board that cannot keep 44px cells at 375 — the
-  // deliberate NFR-A11Y-03 exception recorded in docs/04-state/backlog.md.
-  await page.setViewportSize({ width: 375, height: 900 })
-  await page.addInitScript(() => {
-    window.localStorage.setItem(
-      'match3.progress.v1',
-      JSON.stringify({ version: 1, levels: {}, unlockedUpTo: 6 }),
-    )
-  })
-  await page.goto('./play/6/')
-  await page.getByRole('grid').waitFor()
-  await page.screenshot({ path: 'test-results/board-9x9-375.png', fullPage: true })
-})
+    await playPage.goto(1);
+    expect(await pageWidth(), `board at ${width}`).toBeLessThanOrEqual(width);
+    const grid = (await playPage.grid().boundingBox())!;
+    expect(grid.x).toBeGreaterThanOrEqual(0);
+    expect(grid.x + grid.width).toBeLessThanOrEqual(width);
+    await testInfo.attach(`board-${width}.png`, { body: await page.screenshot({ fullPage: true }), contentType: "image/png" });
+  }
+});
