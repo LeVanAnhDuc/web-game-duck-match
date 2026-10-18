@@ -24,7 +24,7 @@ jobs:
   subjects:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # Full history is needed for `git log base..head`.
           fetch-depth: 0
