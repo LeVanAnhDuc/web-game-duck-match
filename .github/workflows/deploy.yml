@@ -75,7 +75,7 @@ jobs:
       # README. See ADR-0006.
       - uses: actions/configure-pages@v5
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           # Next's static export writes `out`, not `dist`.
           path: client/out
