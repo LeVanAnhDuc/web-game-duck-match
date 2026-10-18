@@ -54,3 +54,13 @@ export const DUCKER = {
   user: { sub: "u1", name: "Lê Văn Anh Đức", email: "duc@ducker.id" },
   pkceKey: "ducker.pkce",
 } as const;
+
+// Swaps that make each special piece on a level's opening bàn (seed = level id × 1000), found by reading the boards on
+// 2026-10-18 (decisions/specials.md Q1). Specs re-check the shape on the drawn bàn before playing, so a retuned level
+// fails loudly instead of testing something else.
+export const SPECIAL_SWAPS = {
+  stripedH: { level: 6, move: { from: { row: 0, col: 5 }, to: { row: 1, col: 5 } } },
+  stripedV: { level: 4, move: { from: { row: 3, col: 4 }, to: { row: 3, col: 5 } } },
+  wrapped: { level: 2, move: { from: { row: 5, col: 4 }, to: { row: 5, col: 5 } } },
+  colorBomb: { level: 3, move: { from: { row: 2, col: 2 }, to: { row: 2, col: 3 } } },
+} as const;
