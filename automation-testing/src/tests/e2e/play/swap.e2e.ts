@@ -25,7 +25,7 @@ test("đổi chỗ không hợp lệ không tốn lượt, bàn trở về như 
 
   await playPage.swapWithKeyboard(move);
   // The refusal is played out (slide over and back) before the bàn accepts input again.
-  await expect(playPage.statuses().filter({ hasText: copy.moveRejected })).toHaveCount(1);
+  await expect(playPage.rejectionNotice()).toHaveCount(1);
   await playPage.settle();
 
   await expect(playPage.movesLeft()).toHaveText(String(START));
@@ -44,11 +44,11 @@ test("nước bị từ chối được đánh dấu và được nói ra", { ta
 
   await expect(playPage.rejected()).toHaveCount(2);
   expect(await playPage.positions(playPage.rejected())).toEqual(expect.arrayContaining([move.from, move.to]));
-  await expect(playPage.statuses().filter({ hasText: copy.moveRejected })).toHaveCount(1);
+  await expect(playPage.rejectionNotice()).toHaveCount(1);
 
   await page.clock.runFor(1_500);
   await expect(playPage.rejected()).toHaveCount(0);
-  await expect(playPage.statuses().filter({ hasText: copy.moveRejected })).toHaveCount(0);
+  await expect(playPage.rejectionNotice()).toHaveCount(0);
 });
 
 test("chạm viên rồi chạm viên kề cũng đổi chỗ", { tag: ["@TC-PLAY-007", "@smoke"] }, async ({ playPage }) => {

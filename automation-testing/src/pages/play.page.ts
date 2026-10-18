@@ -168,6 +168,16 @@ export class PlayPage extends BasePage {
     return this.page.getByRole("status");
   }
 
+  /** The polite region that says the bàn was set up again (FR-22, F-07). */
+  restartNotice(): Locator {
+    return this.statuses().filter({ hasText: copy.levelRestarted });
+  }
+
+  /** The polite region that says why a swap was refused (FR-19, F-03). */
+  rejectionNotice(): Locator {
+    return this.statuses().filter({ hasText: copy.moveRejected });
+  }
+
   /** Pieces the idle hint is nudging (FR-19): the two cells of one legal swap. */
   hinted(): Locator {
     return this.page.locator('[data-testid="tile-slot"]:has(> [data-hint="true"])');
