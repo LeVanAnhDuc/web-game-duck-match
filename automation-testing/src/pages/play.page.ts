@@ -127,6 +127,16 @@ export class PlayPage extends BasePage {
     return this.page.getByTestId("board-slab");
   }
 
+  /** The HUD card holding lượt and điểm (a polite live region, NFR-A11Y-04). */
+  counters(): Locator {
+    return this.page.locator('[aria-live="polite"]').filter({ has: this.movesLeft() });
+  }
+
+  /** data-testid of the focused element ("cell-r-c" on the bàn), or null. */
+  async focusedTestId(): Promise<string | null> {
+    return this.page.evaluate(() => document.activeElement?.getAttribute("data-testid") ?? null);
+  }
+
   movesLeft(): Locator {
     return this.page.getByTestId("moves-left");
   }
